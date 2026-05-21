@@ -3,7 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <nav class="navbar">
-    <div class="navbar-brand">Learning Path</div>
+    <div> <a href="home.jsp" class="navbar-brand">Learning Path</a></div>
     
     <ul class="navbar-nav">
         <li><a href="home.jsp" class="nav-link">Home</a></li>

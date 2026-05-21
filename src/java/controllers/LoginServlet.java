@@ -33,7 +33,7 @@ public class LoginServlet extends HttpServlet {
             if (user.getRoleId() == 1) resp.sendRedirect("admin.jsp");
             else resp.sendRedirect("home.jsp");
         } else {
-            req.setAttribute("error", "Invalid credentials!");
+            req.setAttribute("error", "User name/Email or Password incorrect!");
             req.getRequestDispatcher("login.jsp").forward(req, resp);
         }
     }
