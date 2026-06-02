@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/admin-layout}"
+>
+<head>
+    <title>Quản lý Người dùng</title>
+    <style>
+        .pagination .page-item.active .page-link {
+            background-color: #1c1d1f !important;
+            border-color: #1c1d1f !important;
+            color: #fff !important;
+        }
+        .pagination .page-link {
+            color: #1c1d1f;
+            border-color: #d1d7dc;
+            padding: 8px 14px;
+            font-weight: 500;
+        }
+        .pagination .page-link:hover {
+            background-color: #f7f9fa;
+            color: #1c1d1f;
+        }
+        .pagination .page-item.disabled .page-link {
+            color: #6a6f73;
+            background-color: #fff;
+            border-color: #d1d7dc;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #1c1d1f;">Quản lý Người dùng</h2>
+        </div>
+        <a th:href="@{/admin/users/create}" class="btn btn-dark rounded-0 fw-bold py-3 px-4 d-flex align-items-center gap-2" style="background: #1c1d1f; font-size: 15px;">
+            <i class="bi bi-person-plus-fill"></i> Thêm người dùng
+        </a>
+    </div>
+
+    <!-- Alert Success -->
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show rounded-0 mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> Cập nhật trạng thái tài khoản thành công!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Filter/Search Card -->
+    <div class="card admin-card mb-4">
+        <div class="card-body p-4">
+            <form th:action="@{/admin/users}" method="get" class="row g-3 align-items-end">
+                <!-- Search Text -->
+                <div class="col-md-4">
+                    <label for="search" class="form-label fw-bold">Tìm kiếm người dùng</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 rounded-0"><i class="bi bi-search"></i></span>
+                        <input
+                                type="text"
+                                id="search"
+                                name="search"
+                                th:value="${search}"
+                                class="form-control border-start-0 rounded-0"
+                                placeholder="Nhập họ tên hoặc email..."
+                        >
+                    </div>
+                </div>
+
+                <!-- Role Filter -->
+                <div class="col-md-3">
+                    <label for="role" class="form-label fw-bold">Lọc theo vai trò</label>
+                    <select id="role" name="role" class="form-select rounded-0">
+                        <option value="ALL" th:selected="${selectedRole == 'ALL'}">-- Tất cả vai trò --</option>
+                        <option
+                                th:each="r : ${roles}"
+                                th:value="${r.name()}"
+                                th:text="${r.name() == 'STUDENT' ? 'Học viên' : (r.name() == 'INSTRUCTOR' ? 'Giảng viên' : 'Quản trị viên')}"
+                                th:selected="${selectedRole == r.name()}"
+                        >
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="col-md-3">
+                    <label for="status" class="form-label fw-bold">Lọc theo trạng thái</label>
+                    <select id="status" name="status" class="form-select rounded-0">
+                        <option value="ALL" th:selected="${selectedStatus == 'ALL'}">-- Tất cả trạng thái --</option>
+                        <option
+                                th:each="s : ${statuses}"
+                                th:value="${s.name()}"
+                                th:text="${s.name() == 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}"
+                                th:selected="${selectedStatus == s.name()}"
+                        >
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Buttons -->
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-dark rounded-0 w-100 fw-bold py-2" style="background: #1c1d1f;">
+                        Tìm kiếm
+                    </button>
+                    <a th:href="@{/admin/users}" class="btn btn-outline-secondary rounded-0 py-2" title="Xóa bộ lọc">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bulk Action Bar -->
+    <div id="bulkActionBar" class="card admin-card mb-4" style="display: none; border: 1px solid #1c1d1f; border-left: 5px solid #1c1d1f; background-color: #fff;">
+        <div class="card-body py-3 px-4 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-check-all fs-4" style="color: #1c1d1f;"></i>
+                <div>
+                    <span class="fw-bold" style="color: #1c1d1f; font-size: 15px;">Đang chọn <span id="selectedCount">0</span> tài khoản</span>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn-admin-success-outline" onclick="submitBulkAction('/admin/users/bulk-unlock', 'Mở khóa')">
+                    <i class="bi bi-unlock-fill"></i> Mở khóa hàng loạt
+                </button>
+                <button type="button" class="btn-admin-danger-outline" onclick="submitBulkAction('/admin/users/bulk-lock', 'Khóa')">
+                    <i class="bi bi-lock-fill"></i> Khóa hàng loạt
+                </button>
+                <button type="button" class="btn-admin-danger" onclick="submitBulkAction('/admin/users/bulk-delete', 'Xóa')">
+                    <i class="bi bi-trash3-fill"></i> Xóa hàng loạt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card admin-card">
+        <div class="admin-card-header">
+            Danh sách thành viên (Tổng số: <span th:text="${totalElements}">0</span>)
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="font-size: 14px;">
+                <thead class="table-light">
+                <tr>
+                    <th class="ps-4 py-3" style="width: 50px;">
+                        <input type="checkbox" id="selectAll" class="form-check-input" style="cursor: pointer; border-color: #6a6f73;">
+                    </th>
+                    <th class="py-3" style="width: 80px;">ID</th>
+                    <th class="py-3">Họ tên</th>
+                    <th class="py-3">Email</th>
+                    <th class="py-3">Số điện thoại</th>
+                    <th class="py-3">Vai trò</th>
+                    <th class="py-3">Trạng thái</th>
+                    <th class="py-3 pe-4 text-end" style="width: 250px;">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td class="ps-4">
+                        <input type="checkbox" name="userIds" th:value="${user.userId}" class="form-check-input user-checkbox" style="cursor: pointer; border-color: #6a6f73;" th:disabled="${#authentication.name == user.email}">
+                    </td>
+                    <td class="fw-semibold" th:text="${user.userId}">1</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold"
+                                 style="width: 32px; height: 32px; font-size: 12px;"
+                                 th:text="${user.fullName != null && !user.fullName.isEmpty() ? #strings.substring(user.fullName, 0, 1) : 'U'}">
+                                U
+                            </div>
+                            <span class="fw-bold" th:text="${user.fullName}">Nguyễn Văn A</span>
+                        </div>
+                    </td>
+                    <td th:text="${user.email}">user@email.com</td>
+                    <td th:text="${user.phone ?: '-'}">0901234567</td>
+                    <td>
+                        <span th:if="${user.role.name() == 'ADMIN'}" class="badge bg-danger rounded-0">ADMIN</span>
+                        <span th:if="${user.role.name() == 'INSTRUCTOR'}" class="badge bg-primary rounded-0">INSTRUCTOR</span>
+                        <span th:if="${user.role.name() == 'STUDENT'}" class="badge bg-success rounded-0">STUDENT</span>
+                    </td>
+                    <td>
+                        <span th:if="${user.status.name() == 'ACTIVE'}" class="badge-active">
+                            <i class="bi bi-patch-check-fill me-1"></i>Hoạt động
+                        </span>
+                        <span th:if="${user.status.name() == 'INACTIVE'}" class="badge-inactive">
+                            <i class="bi bi-slash-circle-fill me-1"></i>Bị khóa
+                        </span>
+                    </td>
+                    <td class="pe-4 text-end">
+                        <div class="d-inline-flex gap-2">
+                            <!-- View Detail -->
+                            <a th:href="@{/admin/users/{id}(id=${user.userId})}" class="btn-admin-action" title="Xem chi tiết tài khoản">
+                                <i class="bi bi-eye"></i> Chi tiết
+                            </a>
+
+                            <!-- Edit -->
+                            <a th:href="@{/admin/users/{id}/edit(id=${user.userId})}" class="btn-admin-action" title="Chỉnh sửa tài khoản">
+                                <i class="bi bi-pencil-fill"></i> Sửa
+                            </a>
+
+                            <!-- Lock/Unlock (Disabled if self) -->
+                            <form th:action="@{/admin/users/{id}/toggle-status(id=${user.userId})}" method="post" class="m-0"
+                                  th:if="${#authentication.name != user.email}">
+                                <button type="submit"
+                                        th:class="${user.status?.name() == 'ACTIVE' ? 'btn-admin-danger-outline' : 'btn-admin-success-outline'}"
+                                        th:title="${user.status?.name() == 'ACTIVE' ? 'Khóa tài khoản này' : 'Mở khóa tài khoản này'}">
+                                    <i th:class="${user.status?.name() == 'ACTIVE' ? 'bi bi-lock-fill' : 'bi bi-unlock-fill'}"></i>
+                                    <span th:text="${user.status?.name() == 'ACTIVE' ? 'Khóa' : 'Mở'}">Khóa</span>
+                                </button>
+                            </form>
+
+                            <!-- Delete (Disabled if self) -->
+                            <form th:action="@{/admin/users/{id}/delete(id=${user.userId})}" method="post" class="m-0"
+                                  th:if="${#authentication.name != user.email}"
+                                  th:onsubmit="return confirm('Bạn có chắc chắn muốn xóa thành viên này không? Thao tác này sẽ thực hiện xóa mềm tài khoản.');">
+                                <button type="submit" class="btn-admin-danger" title="Xóa tài khoản">
+                                    <i class="bi bi-trash3-fill"></i> Xóa
+                                </button>
+                            </form>
+
+                            <!-- Cannot toggle self indicator -->
+                            <button th:if="${#authentication.name == user.email}"
+                                    class="btn-admin-secondary"
+                                    title="Bạn không thể thao tác trên tài khoản của chính mình">
+                                <i class="bi bi-person-fill-lock"></i> Bản thân
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${users.isEmpty()}">
+                    <td colspan="8" class="text-center py-5 text-muted">
+                        <i class="bi bi-people fs-1 d-block mb-3"></i>
+                        Không tìm thấy người dùng nào phù hợp với bộ lọc hiện tại.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Footer -->
+        <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center py-3 px-4" th:if="${totalPages > 1}">
+            <div class="text-muted" style="font-size: 14px;">
+                Hiển thị trang <span class="fw-bold" th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span> (Tổng <span th:text="${totalElements}">0</span> kết quả)
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0 pagination-sm rounded-0">
+                    <!-- First Page -->
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link rounded-0 text-dark border-secondary" th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=0)}">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <!-- Previous Page -->
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link text-dark border-secondary" th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=${currentPage - 1})}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <!-- Page Numbers -->
+                    <li class="page-item" 
+                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                        th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                        th:classappend="${currentPage == i} ? 'active'">
+                        <a class="page-link border-secondary" 
+                           th:classappend="${currentPage == i} ? 'bg-dark border-dark text-white' : 'text-dark'"
+                           th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=${i})}" 
+                           th:text="${i + 1}">1</a>
+                    </li>
+                    <!-- Next Page -->
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link text-dark border-secondary" th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=${currentPage + 1})}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <!-- Last Page -->
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link rounded-0 text-dark border-secondary" th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=${totalPages - 1})}">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hidden form for bulk actions to avoid nested forms -->
+    <form id="bulkActionForm" method="post" style="display: none;"></form>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const userCheckboxes = document.querySelectorAll('.user-checkbox');
+            const bulkActionBar = document.getElementById('bulkActionBar');
+            const selectedCountSpan = document.getElementById('selectedCount');
+
+            function updateBulkBar() {
+                const checkedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+                const count = checkedCheckboxes.length;
+                selectedCountSpan.textContent = count;
+                
+                if (count > 0) {
+                    bulkActionBar.style.display = 'block';
+                } else {
+                    bulkActionBar.style.display = 'none';
+                }
+
+                // Sync selectAll checkbox status
+                const enabledCheckboxes = document.querySelectorAll('.user-checkbox:not(:disabled)');
+                if (enabledCheckboxes.length > 0) {
+                    selectAllCheckbox.checked = (checkedCheckboxes.length === enabledCheckboxes.length);
+                } else {
+                    selectAllCheckbox.checked = false;
+                }
+            }
+
+            selectAllCheckbox.addEventListener('change', function () {
+                userCheckboxes.forEach(cb => {
+                    if (!cb.disabled) {
+                        cb.checked = selectAllCheckbox.checked;
+                    }
+                });
+                updateBulkBar();
+            });
+
+            userCheckboxes.forEach(cb => {
+                cb.addEventListener('change', updateBulkBar);
+            });
+        });
+
+        function submitBulkAction(actionUrl, actionName) {
+            const checkedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+            if (checkedCheckboxes.length === 0) {
+                alert('Vui lòng chọn ít nhất một người dùng.');
+                return;
+            }
+
+            let confirmMsg = '';
+            if (actionName === 'Xóa') {
+                confirmMsg = `Bạn có chắc chắn muốn XÓA hàng loạt ${checkedCheckboxes.length} tài khoản đã chọn? Thao tác này thực hiện xóa mềm.`;
+            } else if (actionName === 'Mở khóa') {
+                confirmMsg = `Bạn có chắc chắn muốn MỞ KHÓA hàng loạt ${checkedCheckboxes.length} tài khoản đã chọn?`;
+            } else {
+                confirmMsg = `Bạn có chắc chắn muốn KHÓA hàng loạt ${checkedCheckboxes.length} tài khoản đã chọn?`;
+            }
+
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+
+            const form = document.getElementById('bulkActionForm');
+            form.action = actionUrl;
+            form.innerHTML = ''; // clear previous inputs
+
+            checkedCheckboxes.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'userIds';
+                input.value = cb.value;
+                form.appendChild(input);
+            });
+
+            form.submit();
+        }
+    </script>
+</div>
+
+</body>
+</html>

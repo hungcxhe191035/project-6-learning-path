@@ -23,7 +23,6 @@ INSERT INTO tags (created_at, created_by, delete_flag, updated_at, updated_by, t
 VALUES (GETDATE(), N'system', 0, NULL, NULL, N'ReactJS', N'Xây dựng giao diện frontend hiện đại với ReactJS');
 -- =========================================
 -- USERS
--- Password hash: -- $2a$12$9nYTgwKTwY931.EcLZ7OyuDon1jamWCxJD7kDuapIMMWPSPKeek8q
 -- =========================================
 INSERT INTO users ( created_at, created_by, delete_flag, updated_at, updated_by, email, password, full_name, phone, role, status, bank_name, bank_code, bank_account_number, bank_account_holder )
 VALUES ( GETDATE(), N'system', 0, NULL, NULL, N'admin@fcourse.vn', N'$2a$12$9nYTgwKTwY931.EcLZ7OyuDon1jamWCxJD7kDuapIMMWPSPKeek8q', N'Nguyễn Thành Đạt', N'0901000001', N'ADMIN', N'ACTIVE', N'Vietcombank', N'VCB', N'1029384756', N'NGUYEN THANH DAT' );

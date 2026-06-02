@@ -1,0 +1,14 @@
+package com.swp391.final_project.dto.request;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
+public class LoginRequest {
+    String email;
+    String password;
+}
