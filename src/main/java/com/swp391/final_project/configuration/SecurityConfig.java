@@ -14,9 +14,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // disable csrf nếu test Postman
-                // nếu chỉ dùng thymeleaf thì nên enable
-                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // public pages
                         .requestMatchers(

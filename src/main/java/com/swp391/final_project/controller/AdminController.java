@@ -2,11 +2,15 @@ package com.swp391.final_project.controller;
 
 import com.swp391.final_project.constant.EAccountStatus;
 import com.swp391.final_project.constant.ERole;
+import com.swp391.final_project.dto.request.CreateUserRequest;
+import com.swp391.final_project.dto.request.UpdateUserRequest;
 import com.swp391.final_project.entity.User;
 import com.swp391.final_project.service.AdminService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +27,9 @@ public class AdminController {
 
     private final AdminService adminService;
 
+    // =============================================
+    // DANH SÁCH NGƯỜI DÙNG (Search + Filter + Page)
+    // =============================================
     @GetMapping("/users")
     public String listUsers(
             @RequestParam(value = "search", required = false) String search,
@@ -37,7 +44,7 @@ public class AdminController {
             try {
                 role = ERole.valueOf(roleStr.toUpperCase());
             } catch (IllegalArgumentException e) {
-                // Ignore invalid role
+                // Bỏ qua giá trị role không hợp lệ
             }
         }
 
@@ -46,7 +53,7 @@ public class AdminController {
             try {
                 status = EAccountStatus.valueOf(statusStr.toUpperCase());
             } catch (IllegalArgumentException e) {
-                // Ignore invalid status
+                // Bỏ qua giá trị status không hợp lệ
             }
         }
 
@@ -69,9 +76,12 @@ public class AdminController {
         return "pages/admin/users";
     }
 
+    // =============================================
+    // TẠO MỚI NGƯỜI DÙNG
+    // =============================================
     @GetMapping("/users/create")
     public String createUserForm(Model model) {
-        model.addAttribute("user", new User());
+        model.addAttribute("userForm", new CreateUserRequest());
         model.addAttribute("roles", ERole.values());
         model.addAttribute("statuses", EAccountStatus.values());
         model.addAttribute("isEdit", false);
@@ -82,15 +92,24 @@ public class AdminController {
 
     @PostMapping("/users/create")
     public String createUser(
-            @ModelAttribute("user") User user,
-            @RequestParam("plainPassword") String plainPassword,
+            @Valid @ModelAttribute("userForm") CreateUserRequest request,
+            BindingResult bindingResult,
             Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("roles", ERole.values());
+            model.addAttribute("statuses", EAccountStatus.values());
+            model.addAttribute("isEdit", false);
+            model.addAttribute("pageTitle", "Thêm Người dùng Mới");
+            model.addAttribute("activePage", "users");
+            return "pages/admin/user-form";
+        }
+
         try {
-            adminService.createUser(user, plainPassword);
+            adminService.createUser(request);
             return "redirect:/admin/users?success=true";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("user", user);
             model.addAttribute("roles", ERole.values());
             model.addAttribute("statuses", EAccountStatus.values());
             model.addAttribute("isEdit", false);
@@ -100,10 +119,24 @@ public class AdminController {
         }
     }
 
+    // =============================================
+    // CHỈNH SỬA NGƯỜI DÙNG
+    // =============================================
     @GetMapping("/users/{id}/edit")
     public String editUserForm(@PathVariable("id") Long id, Model model) {
         User user = adminService.getUserById(id);
-        model.addAttribute("user", user);
+
+        // Map entity sang DTO để bind form
+        UpdateUserRequest updateForm = UpdateUserRequest.builder()
+                .fullName(user.getFullName())
+                .phone(user.getPhone())
+                .role(user.getRole())
+                .status(user.getStatus())
+                .build();
+
+        model.addAttribute("userForm", updateForm);
+        model.addAttribute("userId", user.getUserId());
+        model.addAttribute("userEmail", user.getEmail()); // hiển thị readonly
         model.addAttribute("roles", ERole.values());
         model.addAttribute("statuses", EAccountStatus.values());
         model.addAttribute("isEdit", true);
@@ -115,24 +148,40 @@ public class AdminController {
     @PostMapping("/users/{id}/edit")
     public String editUser(
             @PathVariable("id") Long id,
-            @ModelAttribute("user") User userDetails,
-            @RequestParam(value = "newPassword", required = false) String newPassword,
+            @Valid @ModelAttribute("userForm") UpdateUserRequest request,
+            BindingResult bindingResult,
             Model model) {
-        try {
-            adminService.updateUser(id, userDetails, newPassword);
-            return "redirect:/admin/users?success=true";
-        } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("user", userDetails);
+
+        if (bindingResult.hasErrors()) {
+            User user = adminService.getUserById(id);
+            model.addAttribute("userId", id);
+            model.addAttribute("userEmail", user.getEmail());
             model.addAttribute("roles", ERole.values());
             model.addAttribute("statuses", EAccountStatus.values());
             model.addAttribute("isEdit", true);
-            model.addAttribute("pageTitle", "Chỉnh sửa Người dùng - " + userDetails.getFullName());
+            model.addAttribute("pageTitle", "Chỉnh sửa Người dùng");
+            model.addAttribute("activePage", "users");
+            return "pages/admin/user-form";
+        }
+
+        try {
+            adminService.updateUser(id, request);
+            return "redirect:/admin/users?success=true";
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("userId", id);
+            model.addAttribute("roles", ERole.values());
+            model.addAttribute("statuses", EAccountStatus.values());
+            model.addAttribute("isEdit", true);
+            model.addAttribute("pageTitle", "Chỉnh sửa Người dùng");
             model.addAttribute("activePage", "users");
             return "pages/admin/user-form";
         }
     }
 
+    // =============================================
+    // CHI TIẾT NGƯỜI DÙNG
+    // =============================================
     @GetMapping("/users/{id}")
     public String userDetails(@PathVariable("id") Long id, Model model) {
         User user = adminService.getUserById(id);
@@ -142,6 +191,9 @@ public class AdminController {
         return "pages/admin/user-details";
     }
 
+    // =============================================
+    // THAO TÁC TRẠNG THÁI
+    // =============================================
     @PostMapping("/users/{id}/toggle-status")
     public String toggleUserStatus(@PathVariable("id") Long id) {
         adminService.toggleUserStatus(id);
@@ -154,6 +206,9 @@ public class AdminController {
         return "redirect:/admin/users?success=true";
     }
 
+    // =============================================
+    // BULK ACTIONS
+    // =============================================
     @PostMapping("/users/bulk-lock")
     public String bulkLockUsers(
             @RequestParam(value = "userIds", required = false) List<Long> userIds,

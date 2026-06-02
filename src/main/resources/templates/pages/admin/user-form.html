@@ -94,21 +94,23 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
 
-                    <form th:action="${isEdit ? '/admin/users/' + user.userId + '/edit' : '/admin/users/create'}"
-                          method="post" th:object="${user}">
+                    <form th:action="${isEdit ? '/admin/users/' + userId + '/edit' : '/admin/users/create'}"
+                          method="post" th:object="${userForm}">
                         <div class="row">
-                            <!-- Full Name -->
-                            <div class="col-md-6 udemy-input-group">
-                                <label for="fullName" class="udemy-label">Họ và tên <span class="text-danger">*</span></label>
-                                <input
-                                        type="text"
-                                        id="fullName"
-                                        th:field="*{fullName}"
-                                        class="form-control udemy-form-control"
-                                        placeholder="Nhập họ và tên..."
-                                        required
-                                >
-                            </div>
+                             <!-- Full Name -->
+                             <div class="col-md-6 udemy-input-group">
+                                 <label for="fullName" class="udemy-label">Họ và tên <span class="text-danger">*</span></label>
+                                 <input
+                                         type="text"
+                                         id="fullName"
+                                         th:field="*{fullName}"
+                                         class="form-control udemy-form-control"
+                                         th:classappend="${#fields.hasErrors('fullName')} ? ' is-invalid'"
+                                         placeholder="Nhập họ và tên..."
+                                         required
+                                 >
+                                 <div th:if="${#fields.hasErrors('fullName')}" class="invalid-feedback" th:errors="*{fullName}"></div>
+                             </div>
 
                             <!-- Phone Number -->
                             <div class="col-md-6 udemy-input-group">
@@ -122,45 +124,62 @@
                                 >
                             </div>
 
-                            <!-- Email -->
-                            <div class="col-md-6 udemy-input-group">
-                                <label for="email" class="udemy-label">Địa chỉ Email <span class="text-danger">*</span></label>
-                                <input
-                                        type="email"
-                                        id="email"
-                                        th:field="*{email}"
-                                        class="form-control udemy-form-control"
-                                        placeholder="Nhập email..."
-                                        required
-                                        th:readonly="${isEdit}"
-                                >
-                            </div>
+                             <!-- Email (không cho sửa khi edit) -->
+                             <div class="col-md-6 udemy-input-group">
+                                 <label for="email" class="udemy-label">Địa chỉ Email <span class="text-danger" th:if="${!isEdit}">*</span></label>
+                                 <!-- Create mode: nhập tự do -->
+                                 <input
+                                         th:if="${!isEdit}"
+                                         type="email"
+                                         id="email"
+                                         th:field="*{email}"
+                                         class="form-control udemy-form-control"
+                                         th:classappend="${#fields.hasErrors('email')} ? ' is-invalid'"
+                                         placeholder="Nhập email..."
+                                         required
+                                 >
+                                 <div th:if="${!isEdit and #fields.hasErrors('email')}" class="invalid-feedback" th:errors="*{email}"></div>
+                                 <!-- Edit mode: chỉ hiển thị, không bind vào DTO -->
+                                 <input
+                                         th:if="${isEdit}"
+                                         type="email"
+                                         id="email"
+                                         th:value="${userEmail}"
+                                         class="form-control udemy-form-control"
+                                         readonly
+                                 >
+                             </div>
 
-                            <!-- Password (Required for create, optional for edit) -->
-                            <div class="col-md-6 udemy-input-group">
-                                <label for="password" class="udemy-label">
-                                    Mật khẩu <span th:if="${!isEdit}" class="text-danger">*</span>
-                                </label>
-                                <!-- Create Mode -->
-                                <input
-                                        th:if="${!isEdit}"
-                                        type="password"
-                                        id="password"
-                                        name="plainPassword"
-                                        class="form-control udemy-form-control"
-                                        placeholder="Nhập mật khẩu..."
-                                        required
-                                >
-                                <!-- Edit Mode -->
-                                <input
-                                        th:if="${isEdit}"
-                                        type="password"
-                                        id="password"
-                                        name="newPassword"
-                                        class="form-control udemy-form-control"
-                                        placeholder="Để trống nếu không đổi mật khẩu..."
-                                >
-                            </div>
+                             <!-- Password (Required for create, optional for edit) -->
+                             <div class="col-md-6 udemy-input-group">
+                                 <label for="password" class="udemy-label">
+                                     Mật khẩu <span th:if="${!isEdit}" class="text-danger">*</span>
+                                     <span th:if="${isEdit}" class="text-muted fw-normal">(để trống nếu không đổi)</span>
+                                 </label>
+                                 <!-- Create Mode -->
+                                 <input
+                                         th:if="${!isEdit}"
+                                         type="password"
+                                         id="password"
+                                         th:field="*{plainPassword}"
+                                         class="form-control udemy-form-control"
+                                         th:classappend="${#fields.hasErrors('plainPassword')} ? ' is-invalid'"
+                                         placeholder="Nhập mật khẩu (tối thiểu 8 ký tự)..."
+                                         required
+                                 >
+                                 <div th:if="${!isEdit and #fields.hasErrors('plainPassword')}" class="invalid-feedback" th:errors="*{plainPassword}"></div>
+                                 <!-- Edit Mode -->
+                                 <input
+                                         th:if="${isEdit}"
+                                         type="password"
+                                         id="password"
+                                         th:field="*{newPassword}"
+                                         class="form-control udemy-form-control"
+                                         th:classappend="${#fields.hasErrors('newPassword')} ? ' is-invalid'"
+                                         placeholder="Để trống nếu không đổi mật khẩu..."
+                                 >
+                                 <div th:if="${isEdit and #fields.hasErrors('newPassword')}" class="invalid-feedback" th:errors="*{newPassword}"></div>
+                             </div>
 
                             <!-- Role Dropdown -->
                             <div class="col-md-6 udemy-input-group">

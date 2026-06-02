@@ -2,10 +2,12 @@ package com.swp391.final_project.service;
 
 import com.swp391.final_project.constant.EAccountStatus;
 import com.swp391.final_project.constant.ERole;
+import com.swp391.final_project.dto.request.CreateUserRequest;
+import com.swp391.final_project.dto.request.UpdateUserRequest;
 import com.swp391.final_project.entity.User;
+import com.swp391.final_project.entity.Wallet;
 import com.swp391.final_project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import com.swp391.final_project.entity.Wallet;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +32,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public User getUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        return userRepository.findByIdAndNotDeleted(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với id: " + userId));
     }
 
     @Override
@@ -48,14 +50,22 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public void createUser(User user, String plainPassword) {
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email already exists: " + user.getEmail());
+    public void createUser(CreateUserRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email đã tồn tại: " + request.getEmail());
         }
-        user.setPassword(passwordEncoder.encode(plainPassword));
+
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPlainPassword()))
+                .fullName(request.getFullName())
+                .phone(request.getPhone())
+                .role(request.getRole())
+                .status(request.getStatus())
+                .build();
         user.setDeleteFlag(false);
 
-        // Auto create empty wallet
+        // Tự động tạo ví trống
         Wallet wallet = Wallet.builder()
                 .balance(BigDecimal.ZERO)
                 .user(user)
@@ -67,23 +77,16 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public void updateUser(Long userId, User userDetails, String newPassword) {
+    public void updateUser(Long userId, UpdateUserRequest request) {
         User user = getUserById(userId);
 
-        if (!user.getEmail().equalsIgnoreCase(userDetails.getEmail())) {
-            if (userRepository.existsByEmail(userDetails.getEmail())) {
-                throw new RuntimeException("Email already exists: " + userDetails.getEmail());
-            }
-            user.setEmail(userDetails.getEmail());
-        }
+        user.setFullName(request.getFullName());
+        user.setPhone(request.getPhone());
+        user.setRole(request.getRole());
+        user.setStatus(request.getStatus());
 
-        user.setFullName(userDetails.getFullName());
-        user.setPhone(userDetails.getPhone());
-        user.setRole(userDetails.getRole());
-        user.setStatus(userDetails.getStatus());
-
-        if (newPassword != null && !newPassword.trim().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(newPassword));
+        if (request.getNewPassword() != null && !request.getNewPassword().trim().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         }
 
         userRepository.save(user);
@@ -103,7 +106,8 @@ public class AdminServiceImpl implements AdminService {
         if (userIds == null || userIds.isEmpty()) return;
         List<User> users = userRepository.findAllById(userIds);
         for (User user : users) {
-            if (user.getEmail().equalsIgnoreCase(adminEmail)) {
+            // Bỏ qua tài khoản đã soft-delete và bảo vệ admin không tự khóa mình
+            if (user.isDeleteFlag() || user.getEmail().equalsIgnoreCase(adminEmail)) {
                 continue;
             }
             user.setStatus(EAccountStatus.INACTIVE);
@@ -117,7 +121,7 @@ public class AdminServiceImpl implements AdminService {
         if (userIds == null || userIds.isEmpty()) return;
         List<User> users = userRepository.findAllById(userIds);
         for (User user : users) {
-            if (user.getEmail().equalsIgnoreCase(adminEmail)) {
+            if (user.isDeleteFlag() || user.getEmail().equalsIgnoreCase(adminEmail)) {
                 continue;
             }
             user.setStatus(EAccountStatus.ACTIVE);

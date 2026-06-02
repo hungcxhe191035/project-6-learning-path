@@ -19,6 +19,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
+    @Query("SELECT u FROM User u WHERE u.userId = :id AND u.deleteFlag = false")
+    Optional<User> findByIdAndNotDeleted(@Param("id") Long id);
+
     @Query("SELECT u FROM User u WHERE u.deleteFlag = false AND " +
            "(:role IS NULL OR u.role = :role) AND " +
            "(:status IS NULL OR u.status = :status) AND " +

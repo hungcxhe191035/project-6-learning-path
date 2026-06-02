@@ -2,6 +2,8 @@ package com.swp391.final_project.service;
 
 import com.swp391.final_project.constant.EAccountStatus;
 import com.swp391.final_project.constant.ERole;
+import com.swp391.final_project.dto.request.CreateUserRequest;
+import com.swp391.final_project.dto.request.UpdateUserRequest;
 import com.swp391.final_project.entity.User;
 
 import java.util.List;
@@ -13,8 +15,8 @@ public interface AdminService {
     Page<User> searchUsers(ERole role, EAccountStatus status, String search, Pageable pageable);
     User getUserById(Long userId);
     void toggleUserStatus(Long userId);
-    void createUser(User user, String plainPassword);
-    void updateUser(Long userId, User userDetails, String newPassword);
+    void createUser(CreateUserRequest request);
+    void updateUser(Long userId, UpdateUserRequest request);
     void deleteUser(Long userId);
     void bulkLockUsers(List<Long> userIds, String adminEmail);
     void bulkUnlockUsers(List<Long> userIds, String adminEmail);

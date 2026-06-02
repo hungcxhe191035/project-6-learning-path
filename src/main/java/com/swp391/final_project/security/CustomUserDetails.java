@@ -1,5 +1,6 @@
 package com.swp391.final_project.security;
 
+import com.swp391.final_project.constant.EAccountStatus;
 import com.swp391.final_project.entity.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,8 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        // Tài khoản INACTIVE hoặc PENDING_VERIFICATION đều bị coi là bị khóa
+        return user.getStatus() == EAccountStatus.ACTIVE;
     }
 
     @Override
@@ -51,7 +53,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return user.getStatus().name()
-                .equals("ACTIVE");
+        // Tài khoản không bị soft-delete mới được phép đăng nhập
+        return !user.isDeleteFlag();
     }
 }
