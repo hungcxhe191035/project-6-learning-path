@@ -1,6 +1,6 @@
 package entity;
 
-import com.hsf302.final_project.constant.ECourseStatus;
+import constant.ECourseStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
