@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/admin-layout}"
+>
+<head>
+    <title th:text="${pageTitle}">Chi tiết Đơn</title>
+    <style>
+        .detail-card { border: 1px solid #d1d7dc; border-radius: 0; background: #fff; }
+        .detail-header { background: #fff; border-bottom: 1px solid #d1d7dc; padding: 16px 24px; font-weight: 700; color: #1c1d1f; }
+        .info-block { padding: 16px 0; border-bottom: 1px solid #f0f0f0; }
+        .info-block:last-child { border-bottom: none; }
+        .info-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #6a6f73; margin-bottom: 6px; }
+        .info-value { font-size: 14px; color: #1c1d1f; white-space: pre-wrap; line-height: 1.6; }
+        .info-value.inline { white-space: normal; font-weight: 600; }
+
+        .badge-pending  { background-color: #fff3cd; color: #856404; font-weight: 700; padding: 6px 16px; border-radius: 50px; font-size: 13px; display: inline-block; }
+        .badge-approved { background-color: #d1e7dd; color: #0f5132; font-weight: 700; padding: 6px 16px; border-radius: 50px; font-size: 13px; display: inline-block; }
+        .badge-rejected { background-color: #f8d7da; color: #842029; font-weight: 700; padding: 6px 16px; border-radius: 50px; font-size: 13px; display: inline-block; }
+
+        .review-form-card {
+            border: 2px solid #1c1d1f;
+            border-radius: 0;
+            background: #fff;
+        }
+        .review-form-header {
+            background: #1c1d1f; color: #fff;
+            padding: 14px 24px; font-weight: 700; font-size: 15px;
+        }
+        .decision-option {
+            border: 2px solid #d1d7dc; border-radius: 0; padding: 16px 20px;
+            cursor: pointer; transition: all 0.2s; margin-bottom: 12px;
+        }
+        .decision-option:hover { border-color: #6a6f73; }
+        .decision-option.selected-approve { border-color: #198754; background: #f1f9f4; }
+        .decision-option.selected-reject  { border-color: #dc3545; background: #fff5f5; }
+        .decision-option input[type=radio] { cursor: pointer; }
+
+        .btn-approve {
+            background: #1f6b3e; color: #fff; font-weight: 700; border: none; border-radius: 0;
+            padding: 12px 28px; font-size: 14px; transition: background 0.2s;
+        }
+        .btn-approve:hover { background: #164f2d; color: #fff; }
+        .btn-reject-action {
+            background: #b32424; color: #fff; font-weight: 700; border: none; border-radius: 0;
+            padding: 12px 28px; font-size: 14px; transition: background 0.2s;
+        }
+        .btn-reject-action:hover { background: #8c1d1d; color: #fff; }
+        .note-textarea {
+            border: 1px solid #d1d7dc; border-radius: 0;
+            padding: 12px 14px; font-size: 14px;
+            transition: border-color 0.2s, outline 0.1s;
+        }
+        .note-textarea:focus { box-shadow: none; border-color: #1c1d1f; outline: 2px solid #a435f0; }
+
+        .already-reviewed-box {
+            border: 1px solid #d1d7dc; border-radius: 0;
+            background: #f7f9fa; padding: 20px 24px;
+        }
+        .reject-note-box {
+            background: #fff3f3; border: 1px solid #f5c2c7;
+            border-left: 4px solid #dc3545; padding: 16px 20px;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <!-- Back button -->
+    <a th:href="@{/admin/applications}" class="btn btn-outline-secondary rounded-0 mb-4 d-inline-flex align-items-center gap-2">
+        <i class="bi bi-arrow-left"></i> Quay lại danh sách
+    </a>
+
+    <div class="row g-4">
+        <!-- Left: Application Details -->
+        <div class="col-lg-7">
+            <div class="detail-card mb-4">
+                <div class="detail-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-person-vcard me-2"></i>Thông tin người nộp đơn</span>
+                    <span>
+                        <span th:if="${instructorApp.status.name() == 'PENDING'}" class="badge-pending">
+                            <i class="bi bi-hourglass-split me-1"></i>Chờ duyệt
+                        </span>
+                        <span th:if="${instructorApp.status.name() == 'APPROVED'}" class="badge-approved">
+                            <i class="bi bi-patch-check-fill me-1"></i>Đã duyệt
+                        </span>
+                        <span th:if="${instructorApp.status.name() == 'REJECTED'}" class="badge-rejected">
+                            <i class="bi bi-x-circle-fill me-1"></i>Từ chối
+                        </span>
+                    </span>
+                </div>
+                <div class="p-4">
+                    <!-- User Info -->
+                    <div class="d-flex align-items-center gap-3 mb-4 p-3" style="background: #f7f9fa; border: 1px solid #d1d7dc;">
+                        <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center fw-bold"
+                             style="width: 56px; height: 56px; font-size: 22px; flex-shrink: 0;"
+                             th:text="${instructorApp.user.fullName != null ? #strings.substring(instructorApp.user.fullName, 0, 1) : 'U'}">U</div>
+                        <div>
+                            <div class="fw-bold" style="font-size: 16px;" th:text="${instructorApp.user.fullName}">Nguyễn Văn A</div>
+                            <div class="text-muted" style="font-size: 13px;" th:text="${instructorApp.user.email}">email@example.com</div>
+                            <div class="text-muted" style="font-size: 12px; margin-top: 2px;">
+                                Nộp đơn: <span th:text="${instructorApp.createdAt != null ? #temporals.format(instructorApp.createdAt, 'HH:mm – dd/MM/yyyy') : '-'}">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Headline -->
+                    <div class="info-block">
+                        <div class="info-label"><i class="bi bi-person-badge me-1"></i>Tiêu đề nghề nghiệp</div>
+                        <div class="info-value inline" th:text="${instructorApp.headline}">--</div>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="info-block">
+                        <div class="info-label"><i class="bi bi-file-person me-1"></i>Giới thiệu bản thân</div>
+                        <div class="info-value" style="background: #f7f9fa; padding: 14px; border: 1px solid #e8e8e8;" th:text="${instructorApp.bio}">--</div>
+                    </div>
+
+                    <!-- Motivation -->
+                    <div class="info-block">
+                        <div class="info-label"><i class="bi bi-heart-fill me-1" style="color: #a435f0;"></i>Kế hoạch và mục tiêu giảng dạy</div>
+                        <div class="info-value" style="background: #f7f9fa; padding: 14px; border: 1px solid #e8e8e8;" th:text="${instructorApp.motivation}">--</div>
+                    </div>
+
+                    <!-- Tags (Lĩnh vực giảng dạy) -->
+                    <div class="info-block" th:if="${instructorApp.teachingTags != null and !instructorApp.teachingTags.isEmpty()}">
+                        <div class="info-label"><i class="bi bi-tags-fill me-1" style="color: #a435f0;"></i>Lĩnh vực giảng dạy</div>
+                        <div class="d-flex flex-wrap gap-2 mt-1">
+                            <span th:each="tag : ${instructorApp.teachingTags}"
+                                  style="display:inline-flex;align-items:center;gap:5px;background:#f5e6ff;border:1px solid #c77dff;color:#7b2d8b;font-weight:600;font-size:12px;padding:5px 14px;border-radius:50px;">
+                                <i class="bi bi-tag-fill" style="font-size:10px;"></i>
+                                <span th:text="${tag.tagName}">Tag</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- LinkedIn -->
+                    <div class="info-block" th:if="${instructorApp.linkedinUrl != null and !instructorApp.linkedinUrl.isEmpty()}">
+                        <div class="info-label"><i class="bi bi-linkedin me-1" style="color:#0a66c2;"></i>LinkedIn</div>
+                        <a th:href="${instructorApp.linkedinUrl}" target="_blank" rel="noopener noreferrer"
+                           class="info-value inline text-decoration-none" style="color:#0a66c2;">
+                            <span th:text="${instructorApp.linkedinUrl}">url</span>
+                            <i class="bi bi-box-arrow-up-right ms-1" style="font-size:11px;"></i>
+                        </a>
+                    </div>
+
+                    <!-- CV Download -->
+                    <div class="info-block" th:if="${instructorApp.cvFileName != null}">
+                        <div class="info-label"><i class="bi bi-file-earmark-pdf-fill me-1" style="color:#dc3545;"></i>CV đã nộp</div>
+                        <div class="d-flex align-items-center gap-3 mt-1 p-3" style="background:#f1f9f4;border:1px solid #badbcc;">
+                            <i class="bi bi-file-earmark-pdf-fill fs-3" style="color:#dc3545;flex-shrink:0;"></i>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold" style="font-size:14px;" th:text="${instructorApp.cvFileName}">cv.pdf</div>
+                                <div class="text-muted" style="font-size:12px;">Định dạng PDF</div>
+                            </div>
+                            <a th:href="@{/files/cv/{fn}(fn=${instructorApp.cvFilePath})}"
+                               class="btn btn-sm fw-bold rounded-0"
+                               style="background:#1c1d1f;color:#fff;padding:8px 16px;text-decoration:none;"
+                               download>
+                                <i class="bi bi-download me-1"></i>Tải CV
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Lý do từ chối đã có (nếu đơn đã bị REJECTED) -->
+            <div th:if="${instructorApp.status.name() == 'REJECTED' and instructorApp.reviewNote != null}" class="mb-4">
+                <div class="reject-note-box">
+                    <div class="fw-bold mb-2" style="color: #842029; font-size: 14px;">
+                        <i class="bi bi-chat-left-text-fill me-2"></i>Lý do từ chối đã ghi
+                    </div>
+                    <p style="font-size: 14px; color: #842029; margin: 0;" th:text="${instructorApp.reviewNote}">--</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Review Form (chỉ hiện khi đơn đang PENDING) -->
+        <div class="col-lg-5">
+
+            <!-- ĐÃ XỬ LÝ TRƯỚC ĐÓ -->
+            <div th:if="${instructorApp.status.name() != 'PENDING'}" class="already-reviewed-box">
+                <i class="bi bi-info-circle-fill fs-4 mb-3 d-block" style="color: #6a6f73;"></i>
+                <div class="fw-bold mb-2">Đơn này đã được xử lý</div>
+                <p class="text-muted mb-3" style="font-size: 13px;">
+                    Bạn không thể thay đổi quyết định đối với đơn đã được duyệt hoặc từ chối.
+                </p>
+                <div class="text-muted" style="font-size: 13px;">
+                    Thời gian xử lý: <strong th:text="${instructorApp.updatedAt != null ? #temporals.format(instructorApp.updatedAt, 'dd/MM/yyyy HH:mm') : '-'}">--</strong>
+                </div>
+            </div>
+
+            <!-- FORM DUYỆT (chỉ khi PENDING) -->
+            <div th:if="${instructorApp.status.name() == 'PENDING'}" class="review-form-card">
+                <div class="review-form-header">
+                    <i class="bi bi-clipboard-check me-2"></i>Xét duyệt đơn
+                </div>
+                <div class="p-4">
+                    <form th:action="@{/admin/applications/{id}/review(id=${instructorApp.applicationId})}"
+                          method="post" id="reviewForm">
+
+                        <!-- Hidden decision field -->
+                        <input type="hidden" name="decision" id="decisionField" value="">
+
+                        <!-- Ban đầu: 2 nút Duyệt đơn và Từ chối duyệt -->
+                        <div id="initialActionButtons" class="d-flex flex-column gap-3 mb-2">
+                            <button type="button" class="btn btn-success rounded-0 py-3 fw-bold d-flex align-items-center justify-content-center gap-2"
+                                    style="background-color: #198754; border-color: #198754;"
+                                    onclick="submitApprove()">
+                                <i class="bi bi-patch-check-fill fs-5"></i> Duyệt đơn
+                            </button>
+                            <button type="button" class="btn btn-danger rounded-0 py-3 fw-bold d-flex align-items-center justify-content-center gap-2"
+                                    style="background-color: #dc3545; border-color: #dc3545;"
+                                    onclick="showRejectArea()">
+                                <i class="bi bi-x-circle-fill fs-5"></i> Từ chối duyệt
+                            </button>
+                        </div>
+
+                        <!-- Nhập lý do từ chối (chỉ hiển thị khi nhấn Từ chối duyệt) -->
+                        <div id="rejectNoteArea" style="display: none;" class="mb-2">
+                            <label for="reviewNote" class="info-label mb-2 d-block">
+                                Lý do từ chối <span class="text-danger">*</span>
+                            </label>
+                            <textarea
+                                    id="reviewNote"
+                                    name="reviewNote"
+                                    class="form-control note-textarea"
+                                    rows="4"
+                                    placeholder="Hãy giải thích rõ lý do từ chối để người dùng có thể cải thiện và nộp lại..."
+                                    maxlength="1000"
+                            ></textarea>
+                            <div class="char-count" style="font-size: 12px; color: #6a6f73; text-align: right; margin-top: 4px;">
+                                <span id="noteCount">0</span>/1000
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-danger rounded-0 py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
+                                        style="background-color: #dc3545; border-color: #dc3545;"
+                                        onclick="return validateReject()">
+                                    <i class="bi bi-x-circle-fill"></i> Xác nhận từ chối
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary rounded-0 py-2 fw-bold"
+                                        onclick="cancelReject()">
+                                    Quay lại
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function submitApprove() {
+            document.getElementById('decisionField').value = 'APPROVED';
+            if (confirm('Xác nhận DUYỆT đơn này? Tài khoản sẽ được nâng cấp thành Giảng viên.')) {
+                document.getElementById('reviewForm').submit();
+            }
+        }
+
+        function showRejectArea() {
+            document.getElementById('decisionField').value = 'REJECTED';
+            document.getElementById('initialActionButtons').style.display = 'none';
+            document.getElementById('rejectNoteArea').style.display = 'block';
+        }
+
+        function cancelReject() {
+            document.getElementById('decisionField').value = '';
+            document.getElementById('reviewNote').value = '';
+            document.getElementById('noteCount').textContent = '0';
+            document.getElementById('rejectNoteArea').style.display = 'none';
+            document.getElementById('initialActionButtons').style.display = 'flex';
+        }
+
+        function validateReject() {
+            const note = document.getElementById('reviewNote').value.trim();
+            if (!note) {
+                alert('Vui lòng nhập lý do từ chối trước khi xác nhận.');
+                return false;
+            }
+            return confirm('Xác nhận TỪ CHỐI đơn này? Người dùng sẽ được thông báo.');
+        }
+
+        // Char counter for note
+        const noteArea = document.getElementById('reviewNote');
+        const noteCount = document.getElementById('noteCount');
+        if (noteArea && noteCount) {
+            noteArea.addEventListener('input', () => { noteCount.textContent = noteArea.value.length; });
+        }
+    </script>
+</div>
+</body>
+</html>
