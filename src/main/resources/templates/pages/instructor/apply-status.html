@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/main-layout}"
+>
+<head>
+    <title>Trạng thái đơn đăng ký Giảng viên | Corporate LMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --primary-color: #2563EB;
+            --primary-hover: #1D4ED8;
+            --primary-light: #EFF6FF;
+
+            --success-color: #16A34A;
+            --success-bg: #DCFCE7;
+            --success-border: #BBF7D0;
+            --success-text: #166534;
+
+            --warning-color: #F59E0B;
+            --warning-bg: #FEF3C7;
+            --warning-border: #FDE68A;
+            --warning-text: #92400E;
+
+            --danger-color: #DC2626;
+            --danger-bg: #FEE2E2;
+            --danger-border: #FECACA;
+            --danger-text: #991B1B;
+
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border-color: #E5E7EB;
+            --bg-body: #F9FAFB;
+            --bg-card: #FFFFFF;
+
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+        }
+
+        /* Header Section */
+        .page-header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 32px 0;
+            margin-bottom: 32px;
+        }
+        .header-title { font-weight: 700; color: var(--text-main); font-size: 1.5rem; display: flex; align-items: center; gap: 12px; }
+        .header-icon { color: var(--primary-color); background: var(--primary-light); padding: 8px 12px; border-radius: var(--radius-md); font-size: 1.2rem; }
+
+        /* General Card */
+        .corporate-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+        }
+        .card-header-title {
+            font-size: 1rem; font-weight: 600; color: var(--text-main);
+            text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 24px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* Status Banners */
+        .status-banner {
+            border-radius: var(--radius-lg); padding: 24px; border: 1px solid;
+            display: flex; gap: 20px; align-items: flex-start; margin-bottom: 24px;
+        }
+        .status-banner-icon { font-size: 32px; line-height: 1; flex-shrink: 0; }
+        .status-banner-content h5 { font-weight: 700; font-size: 1.15rem; margin-bottom: 8px; }
+        .status-banner-content p { font-size: 0.95rem; margin-bottom: 0; line-height: 1.5; }
+
+        .banner-pending { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning-text); }
+        .banner-pending .status-banner-icon { color: var(--warning-color); }
+
+        .banner-approved { background: var(--success-bg); border-color: var(--success-border); color: var(--success-text); }
+        .banner-approved .status-banner-icon { color: var(--success-color); }
+
+        .banner-rejected { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-text); }
+        .banner-rejected .status-banner-icon { color: var(--danger-color); }
+
+        .reject-reason-box {
+            background: #fff; border-radius: var(--radius-md); padding: 16px;
+            margin-top: 16px; border-left: 4px solid var(--danger-color);
+            color: var(--danger-text); font-size: 0.95rem;
+        }
+
+        /* Timeline Stepper */
+        .timeline-wrapper { position: relative; padding-left: 28px; }
+        .timeline-wrapper::before {
+            content: ''; position: absolute; left: 11px; top: 8px; bottom: 8px;
+            width: 2px; background: var(--border-color); border-radius: 2px;
+        }
+        .timeline-item { position: relative; padding-bottom: 28px; }
+        .timeline-item:last-child { padding-bottom: 0; }
+        .timeline-dot {
+            position: absolute; left: -28px; top: 0;
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: bold; background: var(--bg-card);
+            border: 2px solid var(--border-color); color: var(--text-muted); z-index: 2;
+        }
+        .timeline-dot.done { background: var(--success-bg); border-color: var(--success-color); color: var(--success-color); }
+        .timeline-dot.active { border-color: var(--primary-color); background: var(--primary-color); color: #fff; box-shadow: 0 0 0 4px var(--primary-light); }
+        .timeline-dot.rejected { background: var(--danger-bg); border-color: var(--danger-color); color: var(--danger-color); }
+
+        .timeline-content .title { font-weight: 600; font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px; line-height: 1.2; }
+        .timeline-content .time { font-size: 0.85rem; color: var(--text-muted); }
+        .timeline-content .status-text { font-size: 0.85rem; font-weight: 500; margin-top: 4px; }
+        .text-pending { color: var(--warning-color); }
+        .text-approved { color: var(--success-color); }
+
+        /* Detail List */
+        .detail-row { border-bottom: 1px solid var(--border-color); padding: 20px 0; }
+        .detail-row:first-child { padding-top: 0; }
+        .detail-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .detail-label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        .detail-value { font-size: 0.95rem; color: var(--text-main); font-weight: 500; }
+
+        /* Content Box (Bio/Motivation) */
+        .content-box {
+            background: var(--bg-body); border-radius: var(--radius-md); border: 1px solid var(--border-color);
+            padding: 16px; font-size: 0.95rem; line-height: 1.6; color: var(--text-main); font-weight: 400; white-space: pre-wrap;
+        }
+
+        /* Tags */
+        .skill-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--primary-light); color: var(--primary-hover);
+            padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
+        }
+
+        /* Attachments */
+        .attachment-card {
+            display: inline-flex; align-items: center; gap: 12px;
+            padding: 12px 16px; border: 1px solid var(--border-color); border-radius: var(--radius-md);
+            background: var(--bg-card); transition: all 0.2s; text-decoration: none;
+        }
+        .attachment-card:hover { border-color: var(--primary-color); box-shadow: var(--shadow-sm); }
+        .attachment-icon { font-size: 24px; color: #DC2626; } /* Red for PDF */
+        .attachment-info { display: flex; flex-direction: column; }
+        .attachment-name { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary-color); border-color: var(--primary-color);
+            padding: 10px 24px; font-weight: 600; border-radius: var(--radius-md); transition: all 0.2s;
+        }
+        .btn-primary:hover { background-color: var(--primary-hover); box-shadow: var(--shadow-md); }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 60px 20px; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-color); }
+        .empty-icon { font-size: 64px; color: var(--border-color); margin-bottom: 24px; }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1 class="header-title">
+                <div class="header-icon"><i class="bi bi-file-earmark-person"></i></div>
+                Trạng thái hồ sơ Giảng viên
+            </h1>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+
+        <!-- Toast Success Notification -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-3 mb-4 shadow-sm d-flex align-items-center" role="alert"
+             style="position: fixed; top: 24px; right: 24px; z-index: 9999; border-color: var(--success-border); background: var(--success-bg); color: var(--success-text);">
+            <i class="bi bi-check-circle-fill fs-5 me-3"></i>
+            <div class="fw-medium" th:text="${successMessage}"></div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- === TRẠNG THÁI: CHƯA CÓ ĐƠN NÀO === -->
+        <div th:if="${instructorApp == null}" class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="empty-state shadow-sm">
+                    <i class="bi bi-inbox empty-icon"></i>
+                    <div th:if="${currentUser.role.name() == 'INSTRUCTOR'}">
+                        <h3 class="fw-bold text-dark mb-2">Bạn đã là Giảng viên!</h3>
+                        <p class="text-muted mb-4">Tài khoản của bạn đã được cấp quyền tạo và quản lý khóa học trên nền tảng.</p>
+                        <a href="/instructor/courses" class="btn btn-primary">Chuyển đến Dashboard Giảng viên</a>
+                    </div>
+                    <div th:if="${currentUser.role.name() != 'INSTRUCTOR'}">
+                        <h3 class="fw-bold text-dark mb-2">Chưa có hồ sơ đăng ký</h3>
+                        <p class="text-muted mb-4">Hãy chia sẻ chuyên môn của bạn và bắt đầu hành trình giảng dạy cùng hàng ngàn học viên.</p>
+                        <a th:href="@{/instructor/apply}" class="btn btn-primary">
+                            <i class="bi bi-pencil-square me-2"></i>Tạo hồ sơ đăng ký mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- === TRẠNG THÁI: ĐÃ CÓ ĐƠN === -->
+        <div th:if="${instructorApp != null}" class="row g-4">
+
+            <!-- Left Column: Status & Timeline -->
+            <div class="col-lg-5">
+
+                <!-- Status Banners -->
+                <div th:if="${instructorApp.status.name() == 'PENDING'}" class="status-banner banner-pending shadow-sm">
+                    <div class="status-banner-icon"><i class="bi bi-clock-history"></i></div>
+                    <div class="status-banner-content">
+                        <h5>Đang chờ xét duyệt</h5>
+                        <p>Hồ sơ của bạn đã được ghi nhận vào hệ thống. Đội ngũ kiểm duyệt sẽ đánh giá và phản hồi trong 1-3 ngày làm việc tới.</p>
+                    </div>
+                </div>
+
+                <div th:if="${instructorApp.status.name() == 'APPROVED'}" class="status-banner banner-approved shadow-sm">
+                    <div class="status-banner-icon"><i class="bi bi-check-circle-fill"></i></div>
+                    <div class="status-banner-content">
+                        <h5>Hồ sơ được chấp thuận</h5>
+                        <p>Chúc mừng! Tài khoản của bạn đã được nâng cấp. Bạn có thể truy cập Instructor Dashboard để khởi tạo khóa học đầu tiên.</p>
+                    </div>
+                </div>
+
+                <div th:if="${instructorApp.status.name() == 'REJECTED'}" class="status-banner banner-rejected shadow-sm flex-column">
+                    <div class="d-flex gap-3">
+                        <div class="status-banner-icon"><i class="bi bi-x-circle-fill"></i></div>
+                        <div class="status-banner-content">
+                            <h5>Hồ sơ cần điều chỉnh</h5>
+                            <p>Rất tiếc, hồ sơ của bạn chưa đủ điều kiện tại thời điểm này. Vui lòng xem nhận xét bên dưới để cập nhật lại thông tin.</p>
+                        </div>
+                    </div>
+
+                    <div th:if="${instructorApp.reviewNote != null}" class="reject-reason-box w-100">
+                        <strong class="d-block mb-1 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.05em;">Chi tiết phản hồi:</strong>
+                        <span th:text="${instructorApp.reviewNote}">Lý do từ chối</span>
+                    </div>
+
+                    <a th:href="@{/instructor/apply}" class="btn btn-outline-danger mt-3 fw-bold bg-white w-100 py-2 d-flex align-items-center justify-content-center gap-2" style="border-color: #dc3545; color: #dc3545;">
+                        <i class="bi bi-arrow-repeat"></i> Gửi lại đơn đăng ký
+                    </a>
+                </div>
+
+                <!-- Application Timeline -->
+                <div class="corporate-card mt-4">
+                    <h6 class="card-header-title"><i class="bi bi-list-nested text-primary"></i> Tiến trình xét duyệt</h6>
+
+                    <div class="timeline-wrapper">
+                        <!-- Step 1: Nộp đơn -->
+                        <div class="timeline-item">
+                            <div class="timeline-dot done"><i class="bi bi-check"></i></div>
+                            <div class="timeline-content">
+                                <div class="title">Nộp hồ sơ thành công</div>
+                                <div class="time" th:text="${#temporals.format(instructorApp.createdAt, 'HH:mm - dd/MM/yyyy')}">--</div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Xét duyệt -->
+                        <div class="timeline-item">
+                            <div th:class="${instructorApp.status.name() == 'PENDING' ? 'timeline-dot active' : (instructorApp.status.name() == 'APPROVED' ? 'timeline-dot done' : 'timeline-dot rejected')}">
+                                <i th:class="${instructorApp.status.name() == 'PENDING' ? 'bi bi-three-dots' : (instructorApp.status.name() == 'APPROVED' ? 'bi bi-check' : 'bi bi-x')}"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="title">Ban chuyên môn đánh giá</div>
+
+                                <div th:if="${instructorApp.status.name() == 'PENDING'}" class="status-text text-pending">
+                                    <span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true" style="width: 10px; height: 10px;"></span>
+                                    Đang xử lý
+                                </div>
+
+                                <div th:if="${instructorApp.updatedAt != null and instructorApp.status.name() != 'PENDING'}" class="time mt-1" th:text="${#temporals.format(instructorApp.updatedAt, 'HH:mm - dd/MM/yyyy')}">--</div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Kết quả -->
+                        <div class="timeline-item">
+                            <div th:class="${instructorApp.status.name() == 'APPROVED' ? 'timeline-dot done' : 'timeline-dot'}">
+                                <i th:class="${instructorApp.status.name() == 'APPROVED' ? 'bi bi-check' : ''}"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="title" th:style="${instructorApp.status.name() != 'APPROVED' ? 'color: var(--text-muted);' : ''}">Kích hoạt tài khoản Giảng viên</div>
+                                <div th:if="${instructorApp.status.name() == 'APPROVED'}" class="status-text text-approved mt-1">
+                                    <i class="bi bi-shield-check me-1"></i>Đã hoàn tất
+                                </div>
+                                <div th:if="${instructorApp.status.name() == 'REJECTED'}" class="status-text text-danger mt-1">
+                                    Đã tạm dừng
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Application Details -->
+            <div class="col-lg-7">
+                <div class="corporate-card h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h6 class="card-header-title mb-0"><i class="bi bi-file-text text-primary"></i> Chi tiết hồ sơ cung cấp</h6>
+                    </div>
+
+                    <!-- Detail Info -->
+                    <div class="detail-row pt-0">
+                        <div class="detail-label">Tiêu đề nghề nghiệp</div>
+                        <div class="detail-value fs-6" th:text="${instructorApp.headline}">--</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Giới thiệu bản thân</div>
+                        <div class="content-box" th:text="${instructorApp.bio}">--</div>
+                    </div>
+
+                    <div class="detail-row">
+                        <div class="detail-label">Kế hoạch & Mục tiêu giảng dạy</div>
+                        <div class="content-box" th:text="${instructorApp.motivation}">--</div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="detail-row" th:if="${instructorApp.teachingTags != null and !instructorApp.teachingTags.isEmpty()}">
+                        <div class="detail-label">Lĩnh vực chuyên môn đăng ký</div>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            <span class="skill-tag" th:each="tag : ${instructorApp.teachingTags}">
+                                <i class="bi bi-hash"></i> <span th:text="${tag.tagName}">Tag</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="detail-row border-bottom-0 pb-0 d-flex flex-column flex-md-row gap-4">
+                        <!-- LinkedIn -->
+                        <div class="flex-grow-1" th:if="${instructorApp.linkedinUrl != null and !instructorApp.linkedinUrl.isEmpty()}">
+                            <div class="detail-label">Hồ sơ LinkedIn</div>
+                            <a th:href="${instructorApp.linkedinUrl}" target="_blank" rel="noopener noreferrer"
+                               class="d-inline-flex align-items-center gap-2 text-decoration-none fw-medium mt-1" style="color: #0A66C2;">
+                                <i class="bi bi-linkedin fs-5"></i> View Profile <i class="bi bi-box-arrow-up-right" style="font-size: 12px;"></i>
+                            </a>
+                        </div>
+
+                        <!-- CV Attachment -->
+                        <div class="flex-grow-1" th:if="${instructorApp.cvFileName != null}">
+                            <div class="detail-label">Hồ sơ năng lực (CV)</div>
+                            <a th:href="@{/files/cv/{fn}(fn=${instructorApp.cvFilePath})}" class="attachment-card mt-1 w-100" download>
+                                <div class="attachment-icon"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+                                <div class="attachment-info">
+                                    <span class="attachment-name" th:text="${instructorApp.cvFileName}">document.pdf</span>
+                                    <span class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-check-circle-fill text-success me-1"></i>Đã tải lên thành công • Nhấp để tải về kiểm tra</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Auto-dismiss Success Toast smoothly
+        const alertElement = document.querySelector('.alert.alert-success');
+        if (alertElement) {
+            setTimeout(() => {
+                alertElement.style.transition = 'all 0.4s ease-out';
+                alertElement.style.opacity = '0';
+                alertElement.style.transform = 'translateY(-10px)';
+                setTimeout(() => alertElement.remove(), 400);
+            }, 4000);
+        }
+    });
+</script>
+</div>
+
+</body>
+</html>
