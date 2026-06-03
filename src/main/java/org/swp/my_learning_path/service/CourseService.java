@@ -1,0 +1,9 @@
+package org.swp.my_learning_path.service;
+
+
+import org.swp.my_learning_path.dto.response.CourseCardDTO;
+
+import java.util.List;
+public interface CourseService {
+    List<CourseCardDTO> getTop5Courses();
+}

@@ -1,0 +1,43 @@
+package org.swp.my_learning_path.entity;
+
+
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.swp.my_learning_path.constant.ECourseStatus;
+
+@Entity
+@Table(name = "course_approvals")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Slf4j
+public class CourseApproval extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "approval_id")
+    Long approvalId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_version_id", nullable = false)
+    CourseVersion courseVersion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id")
+    User admin;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    ECourseStatus status;
+
+    @Column(
+            name = "comment",
+            columnDefinition = "NVARCHAR(MAX)"
+    )
+    String comment;
+}
