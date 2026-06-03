@@ -1,11 +1,10 @@
 package org.swp.my_learning_path.entity;
 
-
+import org.swp.my_learning_path.constant.ECourseStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.swp.my_learning_path.constant.ECourseStatus;
 
 import java.math.BigDecimal;
 import java.util.HashSet;

@@ -1,10 +1,9 @@
 package org.swp.my_learning_path.dto.response;
 
-
-import lombok.*;
-import lombok.experimental.FieldDefaults;
 import org.swp.my_learning_path.constant.EAccountStatus;
 import org.swp.my_learning_path.constant.ERole;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 

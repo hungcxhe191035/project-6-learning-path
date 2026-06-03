@@ -1,11 +1,10 @@
 package org.swp.my_learning_path.entity;
 
-
-import jakarta.persistence.*;
+import org.swp.my_learning_path.constant.ELessonType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.swp.my_learning_path.constant.ELessonType;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "lessons")

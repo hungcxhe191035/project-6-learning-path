@@ -1,32 +1,17 @@
 package org.swp.my_learning_path.controller;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.swp.my_learning_path.dto.response.CourseCardDTO;
-import org.swp.my_learning_path.service.CourseService;
-
-import java.util.List;
 
 @Controller
-@RequiredArgsConstructor
 public class HomeController {
-    private final CourseService courseService;
-    @GetMapping({"/", "/home"})
-    public String homePage(
-            Model model,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        // Lấy username (email) của người đang login
-        String username = (userDetails != null) ? userDetails.getUsername() : "Khách";
-        model.addAttribute("username", username);
-        model.addAttribute("pageTitle", "Trang chủ - My Learning Path");
-        // Lấy danh sách 5 khoá học
-        List<CourseCardDTO> courses = courseService.getTop5Courses();
-        model.addAttribute("courses", courses);
-        return "pages/home"; // → templates/pages/home.html
+    @GetMapping({"/home", "/"})
+    public String homePage(Model model) {
+        model.addAttribute(
+                "pageTitle",
+                "Trang chủ"
+        );
+        return "pages/home";
     }
 }

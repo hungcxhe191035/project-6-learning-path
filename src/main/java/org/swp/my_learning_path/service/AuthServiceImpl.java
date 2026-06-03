@@ -1,14 +1,13 @@
 package org.swp.my_learning_path.service;
 
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 import org.swp.my_learning_path.constant.EAccountStatus;
 import org.swp.my_learning_path.dto.request.LoginRequest;
 import org.swp.my_learning_path.dto.response.UserResponse;
 import org.swp.my_learning_path.entity.User;
 import org.swp.my_learning_path.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +44,4 @@ public class AuthServiceImpl implements AuthService {
                 .status(user.getStatus())
                 .build();
     }
-
-
 }

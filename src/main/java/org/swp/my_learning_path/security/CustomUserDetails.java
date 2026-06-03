@@ -1,12 +1,11 @@
 package org.swp.my_learning_path.security;
 
-
+import org.swp.my_learning_path.entity.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.swp.my_learning_path.entity.User;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,7 +23,9 @@ public class CustomUserDetails implements UserDetails {
                 )
         );
     }
-
+    public Long getUserId() {
+        return user.getUserId();
+    }
     @Override
     public String getPassword() {
         return user.getPassword();
