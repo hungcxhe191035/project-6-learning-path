@@ -30,10 +30,13 @@ public class SecurityConfig {
                                 "/test-s3/**",  // <--- thêm doòng này để test chức năng s3
                                 "/css/**",
                                 "/js/**",
-                                "/image/**"
+                                "/image/**",
+                                "/api/instructor/**",
+                                "/test-course.html"
                         ).permitAll()
                         // ADMIN
-                        .requestMatchers("/admin/**")
+                        .requestMatchers("/admin/**"
+                                )
                         .hasRole("ADMIN")
                         // USER
                         .requestMatchers("/user/**")

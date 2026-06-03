@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Mật khẩu AWS S3 ###
+application-secret.properties
