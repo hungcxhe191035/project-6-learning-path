@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/main-layout}"
+>
+<head>
+    <title>403 - Không có quyền truy cập</title>
+    <style>
+        .error-container {
+            max-width: 600px;
+            margin: 80px auto;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #2d2f31;
+        }
+        .error-code {
+            font-size: 120px;
+            font-weight: 800;
+            color: #1c1d1f;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+        .error-title {
+            font-weight: 700;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        .error-message {
+            color: #6a6f73;
+            font-size: 16px;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+        .btn-home {
+            background-color: #1c1d1f;
+            color: white;
+            font-weight: 700;
+            border: none;
+            border-radius: 0;
+            padding: 16px 32px;
+            font-size: 15px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            display: inline-block;
+        }
+        .btn-home:hover {
+            background-color: #2d2f31;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container">
+        <div class="error-container">
+            <div class="error-code">403</div>
+            <h2 class="error-title">Bạn không có quyền truy cập trang này</h2>
+            <p class="error-message">
+                Xin lỗi, tài khoản của bạn không được phân quyền để truy cập vào tài nguyên được yêu cầu. Vui lòng kiểm tra lại thông tin đăng nhập hoặc quay lại trang chủ.
+            </p>
+            <a th:href="@{/home}" class="btn-home">
+                Quay lại trang chủ
+            </a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

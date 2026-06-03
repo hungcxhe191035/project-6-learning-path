@@ -94,7 +94,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
 
-                    <form th:action="${isEdit ? '/admin/users/' + userId + '/edit' : '/admin/users/create'}"
+                    <form th:action="${isEdit} ? @{/admin/users/{id}/edit(id=${userId})} : @{/admin/users/create}"
                           method="post" th:object="${userForm}">
                         <div class="row">
                              <!-- Full Name -->

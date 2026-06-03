@@ -50,6 +50,7 @@ public class CourseVersion extends BaseEntity {
     @JoinColumn(name = "thumbnail_file_id")
     AppFile thumbnail;
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(
             name = "course_version_tag_mappings",

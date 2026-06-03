@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/main-layout}"
+>
+<head>
+    <title>Lỗi hệ thống</title>
+    <style>
+        .error-container {
+            max-width: 600px;
+            margin: 80px auto;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #2d2f31;
+        }
+        .error-code {
+            font-size: 120px;
+            font-weight: 800;
+            color: #a435f0; /* Udemy purple */
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+        .error-title {
+            font-weight: 700;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        .error-message {
+            color: #6a6f73;
+            font-size: 16px;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+        .btn-home {
+            background-color: #1c1d1f;
+            color: white;
+            font-weight: 700;
+            border: none;
+            border-radius: 0;
+            padding: 16px 32px;
+            font-size: 15px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            display: inline-block;
+        }
+        .btn-home:hover {
+            background-color: #2d2f31;
+            color: white;
+        }
+        .error-details {
+            text-align: left;
+            background-color: #f7f9fa;
+            border: 1px solid #d1d7dc;
+            padding: 15px;
+            margin-top: 30px;
+            font-family: monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            max-height: 200px;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container">
+        <div class="error-container">
+            <div class="error-code">Ops!</div>
+            <h2 class="error-title">Đã xảy ra sự cố không mong muốn</h2>
+            <p class="error-message">
+                Hệ thống đang gặp sự cố kỹ thuật hoặc trang bạn yêu cầu tạm thời không khả dụng. Chúng tôi chân thành xin lỗi vì sự bất tiện này.
+            </p>
+            <a th:href="@{/home}" class="btn-home">
+                Quay lại trang chủ
+            </a>
+            
+            <!-- Hiển thị chi tiết lỗi nếu có trong model (dành cho môi trường phát triển) -->
+            <div class="error-details" th:if="${errorMessage}">
+                <strong>Chi tiết lỗi:</strong>
+                <pre class="m-0 mt-2 text-danger" th:text="${errorMessage}">Exception message here...</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

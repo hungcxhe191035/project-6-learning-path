@@ -68,9 +68,9 @@
 
                     <!-- Action Buttons -->
                     <div class="mt-4 pt-2 d-flex flex-column gap-2">
-                        <!-- Edit Button -->
-                        <a th:href="@{/admin/users/{id}/edit(id=${user.userId})}" class="btn btn-outline-dark w-100 rounded-0 py-3 fw-bold">
-                            <i class="bi bi-pencil-fill me-2"></i>Chỉnh sửa tài khoản
+                        <!-- Assign Role Button -->
+                        <a th:href="@{/admin/users/{id}/assign-role(id=${user.userId})}" class="btn btn-outline-dark w-100 rounded-0 py-3 fw-bold">
+                            <i class="bi bi-shield-lock-fill me-2"></i>Gán vai trò
                         </a>
 
                         <!-- Lock/Unlock (Disabled if self) -->
@@ -80,15 +80,6 @@
                                     th:class="${user.status?.name() == 'ACTIVE' ? 'btn btn-danger w-100 rounded-0 py-3 fw-bold' : 'btn btn-success w-100 rounded-0 py-3 fw-bold'}"
                                     th:text="${user.status?.name() == 'ACTIVE' ? 'Khóa tài khoản này' : 'Kích hoạt tài khoản này'}">
                                 Khóa tài khoản
-                            </button>
-                        </form>
-
-                        <!-- Delete Button (Disabled if self) -->
-                        <form th:action="@{/admin/users/{id}/delete(id=${user.userId})}" method="post" class="w-100 m-0"
-                              th:if="${#authentication.name != user.email}"
-                              th:onsubmit="return confirm('Bạn có chắc chắn muốn xóa thành viên này không? Thao tác này sẽ thực hiện xóa mềm tài khoản.');">
-                            <button type="submit" class="btn btn-outline-danger w-100 rounded-0 py-3 fw-bold">
-                                <i class="bi bi-trash3-fill me-2"></i>Xóa tài khoản này
                             </button>
                         </form>
 
