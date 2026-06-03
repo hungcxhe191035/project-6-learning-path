@@ -3,7 +3,6 @@ package com.swp391.final_project.service;
 import com.swp391.final_project.constant.EAccountStatus;
 import com.swp391.final_project.constant.ERole;
 import com.swp391.final_project.dto.request.CreateUserRequest;
-import com.swp391.final_project.dto.request.UpdateUserRequest;
 import com.swp391.final_project.entity.User;
 import com.swp391.final_project.entity.Wallet;
 import com.swp391.final_project.repository.UserRepository;
@@ -77,26 +76,9 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public void updateUser(Long userId, UpdateUserRequest request) {
+    public void assignRole(Long userId, ERole role) {
         User user = getUserById(userId);
-
-        user.setFullName(request.getFullName());
-        user.setPhone(request.getPhone());
-        user.setRole(request.getRole());
-        user.setStatus(request.getStatus());
-
-        if (request.getNewPassword() != null && !request.getNewPassword().trim().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        }
-
-        userRepository.save(user);
-    }
-
-    @Override
-    @Transactional
-    public void deleteUser(Long userId) {
-        User user = getUserById(userId);
-        user.setDeleteFlag(true);
+        user.setRole(role);
         userRepository.save(user);
     }
 
@@ -125,20 +107,6 @@ public class AdminServiceImpl implements AdminService {
                 continue;
             }
             user.setStatus(EAccountStatus.ACTIVE);
-        }
-        userRepository.saveAll(users);
-    }
-
-    @Override
-    @Transactional
-    public void bulkDeleteUsers(List<Long> userIds, String adminEmail) {
-        if (userIds == null || userIds.isEmpty()) return;
-        List<User> users = userRepository.findAllById(userIds);
-        for (User user : users) {
-            if (user.getEmail().equalsIgnoreCase(adminEmail)) {
-                continue;
-            }
-            user.setDeleteFlag(true);
         }
         userRepository.saveAll(users);
     }

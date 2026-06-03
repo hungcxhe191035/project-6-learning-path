@@ -3,12 +3,14 @@ package com.swp391.final_project.configuration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     @Bean
@@ -27,11 +29,15 @@ public class SecurityConfig {
                                 "/image/**"
                         ).permitAll()
                         // ADMIN
-                        .requestMatchers("/admin/**")
+                        .requestMatchers("/admin/**", "/files/cv/**")
                         .hasRole("ADMIN")
-                        // STUDENT & INSTRUCTOR
+                        // STUDENT apply để trở thành giảng viên
+                        .requestMatchers("/instructor/apply", "/instructor/apply/**")
+                        .hasAnyRole("STUDENT", "INSTRUCTOR", "ADMIN")
+                        // STUDENT routes
                         .requestMatchers("/student/**")
                         .hasAnyRole("STUDENT", "ADMIN")
+                        // INSTRUCTOR routes (chỉ instructor và admin)
                         .requestMatchers("/instructor/**")
                         .hasAnyRole("INSTRUCTOR", "ADMIN")
                         // tất cả request khác cần login
