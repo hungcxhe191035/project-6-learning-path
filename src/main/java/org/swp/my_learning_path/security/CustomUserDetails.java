@@ -40,9 +40,14 @@ public class CustomUserDetails implements UserDetails {
         return true;
     }
 
+    /**
+     * Trả về false nếu tài khoản bị INACTIVE (bị khóa bởi admin).
+     * Spring Security sẽ ném LockedException và redirect về /login?error=true
+     * thay vì cho phép đăng nhập.
+     */
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return user.getStatus() != org.swp.my_learning_path.constant.EAccountStatus.INACTIVE;
     }
 
     @Override
@@ -52,7 +57,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return user.getStatus().name()
-                .equals("ACTIVE");
+        return user.getStatus() == org.swp.my_learning_path.constant.EAccountStatus.ACTIVE;
     }
 }

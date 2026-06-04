@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/admin-layout}"
+>
+<head>
+    <title th:text="${pageTitle}">Biểu mẫu Người dùng</title>
+    <style>
+        .udemy-input-group {
+            margin-bottom: 20px;
+        }
+        .udemy-label {
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #1c1d1f;
+        }
+        .udemy-form-control {
+            padding: 12px 16px;
+            font-weight: 500;
+            border: 1px solid #1c1d1f;
+            border-radius: 0;
+            color: #1c1d1f;
+            background-color: #fff;
+        }
+        .udemy-form-control:focus {
+            box-shadow: none;
+            border-color: #1c1d1f;
+            outline: 2px solid #a435f0; /* Purple border focus */
+        }
+        .udemy-form-control:disabled, .udemy-form-control[readonly] {
+            background-color: #f7f9fa;
+            border-color: #d1d7dc;
+            color: #6a6f73;
+            cursor: not-allowed;
+        }
+        .btn-udemy-submit {
+            background-color: #a435f0;
+            color: white;
+            font-weight: 700;
+            border: none;
+            border-radius: 0;
+            padding: 16px;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+        .btn-udemy-submit:hover {
+            background-color: #8710d8;
+            color: white;
+        }
+        .btn-udemy-cancel {
+            border: 1px solid #1c1d1f;
+            background: white;
+            color: #1c1d1f;
+            font-weight: 700;
+            border-radius: 0;
+            padding: 16px;
+            font-size: 15px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-udemy-cancel:hover {
+            background: #f7f9fa;
+            color: #1c1d1f;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/admin/users}" class="text-decoration-none text-secondary fw-semibold">Quản lý Người dùng</a></li>
+            <li class="breadcrumb-item active fw-bold text-dark" aria-current="page" th:text="${isEdit ? 'Chỉnh sửa tài khoản' : 'Thêm tài khoản mới'}">Thêm người dùng</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-10">
+            <!-- Form Card -->
+            <div class="card admin-card">
+                <div class="admin-card-header" th:text="${isEdit ? 'Chỉnh sửa thông tin thành viên' : 'Đăng ký tài khoản thành viên mới'}">
+                    Biểu mẫu người dùng
+                </div>
+                <div class="card-body p-4">
+                    <!-- Error Alert -->
+                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show rounded-0 mb-4" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span th:text="${error}">Lỗi xảy ra!</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                    <form th:action="${isEdit} ? @{/admin/users/{id}/edit(id=${userId})} : @{/admin/users/create}"
+                          method="post" th:object="${userForm}">
+                        <div class="row">
+                             <!-- Full Name -->
+                             <div class="col-md-6 udemy-input-group">
+                                 <label for="fullName" class="udemy-label">Họ và tên <span class="text-danger">*</span></label>
+                                 <input
+                                         type="text"
+                                         id="fullName"
+                                         th:field="*{fullName}"
+                                         class="form-control udemy-form-control"
+                                         th:classappend="${#fields.hasErrors('fullName')} ? ' is-invalid'"
+                                         placeholder="Nhập họ và tên..."
+                                         required
+                                 >
+                                 <div th:if="${#fields.hasErrors('fullName')}" class="invalid-feedback" th:errors="*{fullName}"></div>
+                             </div>
+
+                            <!-- Phone Number -->
+                            <div class="col-md-6 udemy-input-group">
+                                <label for="phone" class="udemy-label">Số điện thoại</label>
+                                <input
+                                        type="text"
+                                        id="phone"
+                                        th:field="*{phone}"
+                                        class="form-control udemy-form-control"
+                                        placeholder="Nhập số điện thoại..."
+                                >
+                            </div>
+
+                             <!-- Email (không cho sửa khi edit) -->
+                             <div class="col-md-6 udemy-input-group">
+                                 <label for="email" class="udemy-label">Địa chỉ Email <span class="text-danger" th:if="${!isEdit}">*</span></label>
+                                 <!-- Create mode: nhập tự do -->
+                                 <input
+                                         th:if="${!isEdit}"
+                                         type="email"
+                                         id="email"
+                                         th:field="*{email}"
+                                         class="form-control udemy-form-control"
+                                         th:classappend="${#fields.hasErrors('email')} ? ' is-invalid'"
+                                         placeholder="Nhập email..."
+                                         required
+                                 >
+                                 <div th:if="${!isEdit and #fields.hasErrors('email')}" class="invalid-feedback" th:errors="*{email}"></div>
+                                 <!-- Edit mode: chỉ hiển thị, không bind vào DTO -->
+                                 <input
+                                         th:if="${isEdit}"
+                                         type="email"
+                                         id="email"
+                                         th:value="${userEmail}"
+                                         class="form-control udemy-form-control"
+                                         readonly
+                                 >
+                             </div>
+
+                             <!-- Password (Required for create, optional for edit) -->
+                             <div class="col-md-6 udemy-input-group">
+                                 <label for="password" class="udemy-label">
+                                     Mật khẩu <span th:if="${!isEdit}" class="text-danger">*</span>
+                                     <span th:if="${isEdit}" class="text-muted fw-normal">(để trống nếu không đổi)</span>
+                                 </label>
+                                 <!-- Create Mode -->
+                                 <input
+                                         th:if="${!isEdit}"
+                                         type="password"
+                                         id="password"
+                                         th:field="*{plainPassword}"
+                                         class="form-control udemy-form-control"
+                                         th:classappend="${#fields.hasErrors('plainPassword')} ? ' is-invalid'"
+                                         placeholder="Nhập mật khẩu (tối thiểu 8 ký tự)..."
+                                         required
+                                 >
+                                 <div th:if="${!isEdit and #fields.hasErrors('plainPassword')}" class="invalid-feedback" th:errors="*{plainPassword}"></div>
+                                 <!-- Edit Mode -->
+                                 <input
+                                         th:if="${isEdit}"
+                                         type="password"
+                                         id="password"
+                                         th:field="*{newPassword}"
+                                         class="form-control udemy-form-control"
+                                         th:classappend="${#fields.hasErrors('newPassword')} ? ' is-invalid'"
+                                         placeholder="Để trống nếu không đổi mật khẩu..."
+                                 >
+                                 <div th:if="${isEdit and #fields.hasErrors('newPassword')}" class="invalid-feedback" th:errors="*{newPassword}"></div>
+                             </div>
+
+                            <!-- Role Dropdown -->
+                            <div class="col-md-6 udemy-input-group">
+                                <label for="role" class="udemy-label">Vai trò thành viên <span class="text-danger">*</span></label>
+                                <select id="role" th:field="*{role}" class="form-select udemy-form-control" required>
+                                    <option
+                                            th:each="r : ${roles}"
+                                            th:value="${r.name()}"
+                                            th:text="${r.name() == 'STUDENT' ? 'Học viên' : (r.name() == 'INSTRUCTOR' ? 'Giảng viên' : 'Quản trị viên')}"
+                                    >
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Status Dropdown -->
+                            <div class="col-md-6 udemy-input-group">
+                                <label for="status" class="udemy-label">Trạng thái tài khoản <span class="text-danger">*</span></label>
+                                <select id="status" th:field="*{status}" class="form-select udemy-form-control" required>
+                                    <option
+                                            th:each="s : ${statuses}"
+                                            th:value="${s.name()}"
+                                            th:text="${s.name() == 'ACTIVE' ? 'Hoạt động (ACTIVE)' : 'Khóa (INACTIVE)'}"
+                                    >
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" style="border-color: #d1d7dc;">
+
+                        <!-- Actions -->
+                        <div class="d-flex justify-content-end gap-3">
+                            <a th:href="@{/admin/users}" class="btn-udemy-cancel col-md-3">
+                                Hủy bỏ
+                            </a>
+                            <button type="submit" class="btn-udemy-submit col-md-4">
+                                <span th:text="${isEdit ? 'Lưu thay đổi' : 'Thêm người dùng'}">Thêm</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
