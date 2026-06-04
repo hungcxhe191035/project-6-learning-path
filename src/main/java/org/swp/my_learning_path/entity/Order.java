@@ -40,6 +40,7 @@ public class Order extends BaseEntity {
     @Column(name = "payment_status", length = 30)
     ETransactionStatus paymentStatus;
 
+    @Builder.Default
     @OneToMany(mappedBy = "order")
     List<OrderItem> orderItems = new ArrayList<>();
 }

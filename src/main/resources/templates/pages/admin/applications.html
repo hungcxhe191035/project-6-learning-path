@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/admin-layout}"
+>
+<head>
+    <title>Duyệt Đơn Giảng Viên</title>
+    <style>
+        .pagination .page-item.active .page-link {
+            background-color: #1c1d1f !important;
+            border-color: #1c1d1f !important;
+            color: #fff !important;
+        }
+        .pagination .page-link { color: #1c1d1f; border-color: #d1d7dc; padding: 8px 14px; font-weight: 500; }
+        .pagination .page-link:hover { background-color: #f7f9fa; color: #1c1d1f; }
+        .pagination .page-item.disabled .page-link { color: #6a6f73; opacity: 0.5; }
+
+        .badge-pending  { background-color: #fff3cd; color: #856404; font-weight: 600; padding: 5px 12px; border-radius: 50px; font-size: 12px; }
+        .badge-approved { background-color: #d1e7dd; color: #0f5132; font-weight: 600; padding: 5px 12px; border-radius: 50px; font-size: 12px; }
+        .badge-rejected { background-color: #f8d7da; color: #842029; font-weight: 600; padding: 5px 12px; border-radius: 50px; font-size: 12px; }
+
+        .toast-alert {
+            position: fixed; top: 24px; right: 24px; z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 320px;
+            animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .filter-tab {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 18px; border: 2px solid #d1d7dc;
+            font-weight: 700; font-size: 13px; color: #6a6f73;
+            background: #fff; text-decoration: none; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-tab:hover { border-color: #1c1d1f; color: #1c1d1f; }
+        .filter-tab.active { border-color: #1c1d1f; background: #1c1d1f; color: #fff; }
+        .filter-tab.active-pending { border-color: #ffc107; background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #1c1d1f;">Duyệt Đơn Giảng Viên</h2>
+            <p class="text-muted mb-0" style="font-size: 14px;">
+                Xét duyệt các đơn xin trở thành giảng viên từ học viên.
+                <span th:if="${pendingCount > 0}" class="fw-bold" style="color: #a435f0;">
+                    (<span th:text="${pendingCount}"></span> đơn đang chờ)
+                </span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Success / Error Alert -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-0 mb-4 toast-alert" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-0 mb-4 toast-alert" role="alert">
+        <i class="bi bi-exclamation-circle-fill me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="d-flex gap-2 mb-4 flex-wrap">
+        <a th:href="@{/admin/applications}"
+           th:class="${selectedStatus == 'ALL'} ? 'filter-tab active' : 'filter-tab'">
+            <i class="bi bi-list-ul"></i> Tất cả
+            <span class="badge bg-secondary rounded-pill" th:text="${totalElements}">0</span>
+        </a>
+        <a th:href="@{/admin/applications(status='PENDING')}"
+           th:class="${selectedStatus == 'PENDING'} ? 'filter-tab active-pending' : 'filter-tab'"
+           style="border-color: #ffc107; color: #856404;">
+            <i class="bi bi-hourglass-split"></i> Chờ duyệt
+            <span class="badge rounded-pill" style="background: #ffc107; color: #1c1d1f;" th:text="${pendingCount}">0</span>
+        </a>
+        <a th:href="@{/admin/applications(status='APPROVED')}"
+           th:class="${selectedStatus == 'APPROVED'} ? 'filter-tab active' : 'filter-tab'"
+           style="border-color: #198754; color: #0f5132;">
+            <i class="bi bi-patch-check-fill"></i> Đã duyệt
+        </a>
+        <a th:href="@{/admin/applications(status='REJECTED')}"
+           th:class="${selectedStatus == 'REJECTED'} ? 'filter-tab active' : 'filter-tab'"
+           style="border-color: #dc3545; color: #842029;">
+            <i class="bi bi-x-circle-fill"></i> Đã từ chối
+        </a>
+    </div>
+
+    <!-- Table -->
+    <div class="card admin-card">
+        <div class="admin-card-header">
+            Danh sách đơn (Tổng số: <span th:text="${totalElements}">0</span>)
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="font-size: 14px;">
+                <thead class="table-light">
+                <tr>
+                    <th class="py-3 ps-4" style="width: 60px;">ID</th>
+                    <th class="py-3">Người nộp đơn</th>
+                    <th class="py-3">Tiêu đề nghề nghiệp</th>
+                    <th class="py-3">Ngày nộp</th>
+                    <th class="py-3">Trạng thái</th>
+                    <th class="py-3 pe-4 text-end" style="width: 130px;">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="app : ${applications}">
+                    <td class="ps-4 fw-semibold" th:text="${app.applicationId}">1</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold"
+                                 style="width: 34px; height: 34px; font-size: 13px; flex-shrink: 0;"
+                                 th:text="${app.user.fullName != null ? #strings.substring(app.user.fullName, 0, 1) : 'U'}">U</div>
+                            <div>
+                                <div class="fw-bold" th:text="${app.user.fullName}">Nguyễn Văn A</div>
+                                <div class="text-muted" style="font-size: 12px;" th:text="${app.user.email}">email@example.com</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td th:text="${app.headline != null ? (app.headline.length() > 60 ? app.headline.substring(0, 60) + '...' : app.headline) : '-'}">--</td>
+                    <td th:text="${app.createdAt != null ? #temporals.format(app.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">--</td>
+                    <td>
+                        <span th:if="${app.status.name() == 'PENDING'}" class="badge-pending">
+                            <i class="bi bi-hourglass-split me-1"></i>Chờ duyệt
+                        </span>
+                        <span th:if="${app.status.name() == 'APPROVED'}" class="badge-approved">
+                            <i class="bi bi-patch-check-fill me-1"></i>Đã duyệt
+                        </span>
+                        <span th:if="${app.status.name() == 'REJECTED'}" class="badge-rejected">
+                            <i class="bi bi-x-circle-fill me-1"></i>Từ chối
+                        </span>
+                    </td>
+                    <td class="pe-4 text-end">
+                        <a th:href="@{/admin/applications/{id}(id=${app.applicationId})}"
+                           class="btn-admin-action" title="Xem chi tiết và duyệt">
+                            <i class="bi bi-eye"></i>
+                            <span th:if="${app.status.name() == 'PENDING'}">Xét duyệt</span>
+                            <span th:if="${app.status.name() != 'PENDING'}">Chi tiết</span>
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${applications.isEmpty()}">
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="bi bi-journal-x fs-1 d-block mb-3"></i>
+                        Không có đơn nào phù hợp với bộ lọc hiện tại.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center py-3 px-4" th:if="${totalPages > 1}">
+            <div class="text-muted" style="font-size: 14px;">
+                Trang <span class="fw-bold" th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span>
+            </div>
+            <nav>
+                <ul class="pagination mb-0 pagination-sm">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/applications(status=${selectedStatus}, page=${currentPage - 1})}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                        th:classappend="${currentPage == i} ? 'active'">
+                        <a class="page-link"
+                           th:classappend="${currentPage == i} ? 'bg-dark border-dark text-white' : 'text-dark'"
+                           th:href="@{/admin/applications(status=${selectedStatus}, page=${i})}"
+                           th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/applications(status=${selectedStatus}, page=${currentPage + 1})}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toasts = document.querySelectorAll('.toast-alert');
+        toasts.forEach(t => {
+            setTimeout(() => {
+                t.style.opacity = '0'; t.style.transform = 'translateY(-20px)';
+                setTimeout(() => t.remove(), 300);
+            }, 4000);
+        });
+    });
+</script>
+</body>
+</html>
