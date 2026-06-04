@@ -1,6 +1,7 @@
 package org.swp.my_learning_path.service;
 
-import org.swp.my_learning_path.constant.EApplicationStatus;
+import org.swp.my_learning_path.constant
+        .EApplicationStatus;
 import org.swp.my_learning_path.dto.request.ReviewApplicationRequest;
 import org.swp.my_learning_path.dto.request.SubmitApplicationRequest;
 import org.swp.my_learning_path.entity.InstructorApplication;
