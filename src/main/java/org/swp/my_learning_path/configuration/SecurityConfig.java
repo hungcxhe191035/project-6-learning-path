@@ -50,7 +50,9 @@ public class SecurityConfig {
                                 "/register",
                                 "/css/**",
                                 "/js/**",
-                                "/image/**"
+                                "/image/**",
+                                "/api/instructor/**",
+                                "/api/s3/**"
                         ).permitAll()
                         // ADMIN only
                         .requestMatchers("/admin/**")
