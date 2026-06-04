@@ -146,9 +146,27 @@
                         >
                     </div>
 
-                    <!-- Error Message -->
+                    <!-- Error: Sai email/mật khẩu -->
                     <div th:if="${param.error}" class="text-danger small fw-semibold mx-1 mb-3">
-                        <i class="bi bi-exclamation-circle-fill me-1"></i> Email hoặc mật khẩu không đúng
+                        <i class="bi bi-exclamation-circle-fill me-1"></i> Email hoặc mật khẩu không đúng.
+                    </div>
+
+                    <!-- Error: Tài khoản bị khóa (INACTIVE) -->
+                    <div th:if="${param.locked}" class="alert alert-warning small fw-semibold mb-3 py-2 px-3">
+                        <i class="bi bi-lock-fill me-1"></i>
+                        Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ.
+                    </div>
+
+                    <!-- Error: Tài khoản bị vô hiệu hóa -->
+                    <div th:if="${param.disabled}" class="alert alert-danger small fw-semibold mb-3 py-2 px-3">
+                        <i class="bi bi-x-circle-fill me-1"></i>
+                        Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để xác thực tài khoản.
+                    </div>
+
+                    <!-- Thông báo đăng xuất thành công -->
+                    <div th:if="${param.logout}" class="alert alert-success small fw-semibold mb-3 py-2 px-3">
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                        Bạn đã đăng xuất thành công.
                     </div>
 
                     <!-- Login Button -->

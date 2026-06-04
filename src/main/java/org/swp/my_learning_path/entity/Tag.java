@@ -14,11 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 @Slf4j
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Tag extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "tag_id")
+    @EqualsAndHashCode.Include
     Long tagId;
 
     @Column(name = "tag_name", nullable = false, unique = true, columnDefinition = "NVARCHAR(255)")

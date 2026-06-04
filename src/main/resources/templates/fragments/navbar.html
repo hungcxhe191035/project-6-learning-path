@@ -2,56 +2,196 @@
 <html
         lang="vi"
         xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 >
+
+<style>
+    /* Hover */
+    .hover-udemy:hover {
+        background-color: #f7f7f8 !important;
+        color: #5624d0 !important;
+    }
+
+    /* Hover chữ đậm */
+    .hover-udemy:hover .fw-bold {
+        color: #5624d0 !important;
+    }
+
+    /* Khi click */
+    .dropdown-item.hover-udemy:active,
+    .dropdown-item.hover-udemy.active {
+        background-color: #f7f7f8 !important;
+        color: #5624d0 !important;
+    }
+
+    /* Focus bằng keyboard */
+    .dropdown-item.hover-udemy:focus {
+        background-color: #f7f7f8 !important;
+        color: #5624d0 !important;
+        outline: none;
+    }
+</style>
+
 <body>
-    <nav
+
+<nav
         th:fragment="navbar"
         class="navbar navbar-expand-lg bg-white border-bottom py-2"
-    >
-        <div class="container-fluid px-4">
-            <!-- Logo -->
-            <a class="navbar-brand d-flex align-items-center" th:href="@{/}">
-                <img th:src="@{/image/logo.png}" alt="My Learning Path Logo" style="height: 50px; width: auto;" >
-            </a>
-            <!-- Search -->
-            <div class="d-none d-md-flex flex-grow-1 mx-4">
-                <div class="search-box d-flex align-items-center w-100">
-                    <i class="bi bi-search me-2"></i>
-                    <input
+>
+
+    <div class="container-fluid px-4">
+
+        <!-- Logo -->
+        <a
+                class="navbar-brand d-flex align-items-center"
+                th:href="@{/}"
+        >
+            <img
+                    th:src="@{/image/logo.png}"
+                    alt="My Learning Path Logo"
+                    style="height: 50px; width: auto;"
+            >
+        </a>
+
+        <!-- Search -->
+        <div class="d-none d-md-flex flex-grow-1 mx-4">
+
+            <div class="search-box d-flex align-items-center w-100">
+
+                <i class="bi bi-search me-2"></i>
+
+                <input
                         type="text"
                         class="search-input"
                         placeholder="Tìm kiếm nội dung bất kỳ"
-                    >
-                </div>
+                >
+
             </div>
-            <!-- Right -->
-            <div class="d-flex align-items-center gap-3">
-                <a href="#"
-                   class="text-dark text-decoration-none d-none d-xl-block">
-                    Udemy Business
-                </a>
-                <a href="#"
-                   class="text-dark text-decoration-none d-none d-xl-block">
-                    Giảng dạy trên Udemy
-                </a>
-                <button class="btn">
-                    <i class="bi bi-cart3 fs-5"></i>
-                </button>
+
+        </div>
+
+        <!-- Right -->
+        <div class="d-flex align-items-center gap-3">
+
+            <!-- Instructor -->
+            <a
+                    sec:authorize="hasRole('INSTRUCTOR')"
+                    href="#"
+                    class="text-dark text-decoration-none d-none d-xl-block"
+            >
+                Tạo khoá học
+            </a>
+
+            <!-- Student -->
+            <button
+                    sec:authorize="hasRole('STUDENT')"
+                    class="btn"
+            >
+                <i class="bi bi-cart3 fs-5"></i>
+            </button>
+
+            <!-- Chưa login -->
+            <div
+                    sec:authorize="isAnonymous()"
+                    class="d-flex align-items-center gap-2"
+            >
+
                 <a
-                    th:href="@{/login}"
-                    class="btn btn-login"
+                        th:href="@{/login}"
+                        class="btn btn-login"
                 >
                     Đăng nhập
                 </a>
+
                 <a
-                    th:href="@{/register}"
-                    class="btn btn-register"
+                        th:href="@{/register}"
+                        class="btn btn-register"
                 >
                     Đăng ký
                 </a>
+
+            </div>
+            <!-- Đã login -->
+            <div class="dropdown" sec:authorize="isAuthenticated()">
+                <!-- Nút Avatar (Kích hoạt thay cho nút text) -->
+                <a href="#" class="d-block text-decoration-none dropdown-toggle-no-caret"
+                   data-bs-toggle="dropdown"
+                   aria-expanded="false">
+                    <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center"
+                         style="width: 44px; height: 44px; font-weight: bold; font-size: 16px;">
+                        <span
+                                th:text="${#strings.substring(#authentication.principal.user.fullName,0,1)}"
+                        >
+                            U
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Menu Dropdown -->
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-0" style="width: 280px;">
+                    <!-- Header User Info -->
+                    <li>
+                        <div class="d-flex align-items-center px-3 py-3">
+                            <!-- User Info -->
+                            <div class="overflow-hidden">
+                                <!-- Full Name -->
+                                <div
+                                        class="fw-bold text-truncate"
+                                        style="font-size: 16px; color: #1c1d1f;"
+                                        th:text="${#authentication.principal.user.fullName}"
+                                >
+                                    User Name
+                                </div>
+                                <!-- Email -->
+                                <div
+                                        class="text-truncate mt-1"
+                                        style="font-size: 13px; color: #6a6f73;"
+                                        th:text="${#authentication.principal.user.email}"
+                                >
+                                    user@email.com
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li><hr class="dropdown-divider m-0"></li>
+                    <!-- Menu Hồ Sơ -->
+                    <li class="py-2">
+                        <a class="dropdown-item px-3 py-2 hover-udemy" href="#" style="font-size: 14px; color: #1c1d1f;">
+                            Hồ sơ
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider m-0"></li>
+                    <li sec:authorize="hasRole('ADMIN')" class="py-2">
+                        <a class="dropdown-item px-3 py-2 hover-udemy text-danger fw-bold" th:href="@{/admin/users}" style="font-size: 14px;">
+                            <i class="bi bi-shield-lock-fill me-2"></i>Quản trị hệ thống
+                        </a>
+                    </li>
+                    <!-- STUDENT: Link trở thành giảng viên -->
+                    <li sec:authorize="hasRole('STUDENT')"><hr class="dropdown-divider m-0"></li>
+                    <li sec:authorize="hasRole('STUDENT')" class="py-2">
+                        <a class="dropdown-item px-3 py-2 hover-udemy" th:href="@{/instructor/apply}" style="font-size: 14px; color: #a435f0; font-weight: 600;">
+                            <i class="bi bi-mortarboard-fill me-2"></i>Trở thành Giảng viên
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('STUDENT')" class="py-2">
+                        <a class="dropdown-item px-3 py-2 hover-udemy" th:href="@{/instructor/apply/status}" style="font-size: 14px; color: #1c1d1f;">
+                            <i class="bi bi-clipboard-check me-2"></i>Trạng thái gửi đơn
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider m-0"></li>
+                    <!-- Đăng Xuất -->
+                    <li class="py-2">
+                        <form th:action="@{/logout}" method="post" class="m-0">
+                            <button type="submit" class="dropdown-item px-3 py-2 hover-udemy" style="font-size: 14px; color: #1c1d1f;">
+                                Đăng xuất
+                            </button>
+                        </form>
+                    </li>
+                </ul>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
+
 </body>
 </html>
-

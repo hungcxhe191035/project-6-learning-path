@@ -23,12 +23,15 @@ public class Course extends BaseEntity {
     @Column(name = "course_id")
     Long courseId;
 
+    @Builder.Default
     @Column(name = "average_rating", precision = 3, scale = 2)
     BigDecimal averageRating = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "total_reviews")
     Integer totalReviews = 0;
 
+    @Builder.Default
     @Column(name = "total_students")
     Integer totalStudents = 0;
 

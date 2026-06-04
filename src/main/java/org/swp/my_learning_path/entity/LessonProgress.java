@@ -41,6 +41,7 @@ public class LessonProgress extends BaseEntity {
     @JoinColumn(name = "lesson_id")
     Lesson lesson;
 
+    @Builder.Default
     Boolean isCompleted = false;
 
     LocalDateTime completedAt;
