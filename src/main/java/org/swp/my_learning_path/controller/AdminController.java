@@ -1,10 +1,13 @@
 package org.swp.my_learning_path.controller;
 
 import org.swp.my_learning_path.constant.EAccountStatus;
+import org.swp.my_learning_path.constant.EApplicationStatus;
 import org.swp.my_learning_path.constant.ERole;
 import org.swp.my_learning_path.dto.request.AssignRoleRequest;
 import org.swp.my_learning_path.dto.request.CreateUserRequest;
+import org.swp.my_learning_path.dto.request.ReviewApplicationRequest;
 import org.swp.my_learning_path.dto.request.TagRequest;
+import org.swp.my_learning_path.entity.InstructorApplication;
 import org.swp.my_learning_path.entity.Tag;
 import org.swp.my_learning_path.entity.User;
 import org.swp.my_learning_path.service.AdminService;
@@ -244,6 +247,75 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("successMessage", "Đã mở khóa thành công " + userIds.size() + " tài khoản đã chọn!");
         }
         return "redirect:/admin/users";
+    }
+
+    // =============================================
+    // QUẢN LÝ ĐƠN XIN GIẢNG VIÊN
+    // =============================================
+    @GetMapping("/applications")
+    public String listApplications(
+            @RequestParam(value = "status", required = false) String statusStr,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            Model model) {
+
+        EApplicationStatus statusFilter = null;
+        if (statusStr != null && !statusStr.trim().isEmpty() && !"ALL".equalsIgnoreCase(statusStr)) {
+            try {
+                statusFilter = EApplicationStatus.valueOf(statusStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // Bỏ qua giá trị không hợp lệ
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<InstructorApplication> appPage = applicationService.getApplications(statusFilter, pageable);
+
+        model.addAttribute("applications", appPage.getContent());
+        model.addAttribute("appPage", appPage);
+        model.addAttribute("selectedStatus", statusStr != null ? statusStr.toUpperCase() : "ALL");
+        model.addAttribute("statuses", EApplicationStatus.values());
+        model.addAttribute("pendingCount", applicationService.countPending());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", appPage.getTotalPages());
+        model.addAttribute("totalElements", appPage.getTotalElements());
+        model.addAttribute("pageTitle", "Duyệt Đơn Giảng Viên");
+        model.addAttribute("activePage", "applications");
+        return "pages/admin/applications";
+    }
+
+    @GetMapping("/applications/{id}")
+    public String applicationDetail(@PathVariable("id") Long id, Model model) {
+        InstructorApplication application = applicationService.getApplicationById(id);
+        model.addAttribute("instructorApp", application);
+        model.addAttribute("reviewForm", new ReviewApplicationRequest());
+        model.addAttribute("pageTitle", "Chi tiết Đơn – " + application.getUser().getFullName());
+        model.addAttribute("activePage", "applications");
+        model.addAttribute("pendingCount", applicationService.countPending());
+        return "pages/admin/application-detail";
+    }
+
+    @PostMapping("/applications/{id}/review")
+    public String reviewApplication(
+            @PathVariable("id") Long id,
+            @ModelAttribute("reviewForm") ReviewApplicationRequest request,
+            RedirectAttributes redirectAttributes) {
+        try {
+            InstructorApplication app = applicationService.getApplicationById(id);
+            String userName = app.getUser().getFullName();
+            applicationService.reviewApplication(id, request);
+
+            if (request.getDecision() == EApplicationStatus.APPROVED) {
+                redirectAttributes.addFlashAttribute("successMessage",
+                        "Đã DUYỆT đơn của " + userName + ". Tài khoản đã được nâng cấp thành Giảng viên!");
+            } else {
+                redirectAttributes.addFlashAttribute("successMessage",
+                        "Đã TỪ CHỐI đơn của " + userName + ".");
+            }
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/admin/applications";
     }
 
     // =============================================
