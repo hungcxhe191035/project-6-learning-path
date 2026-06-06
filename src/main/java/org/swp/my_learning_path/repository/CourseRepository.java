@@ -1,5 +1,6 @@
 package org.swp.my_learning_path.repository;
 
+import org.swp.my_learning_path.constant.ECourseStatus;
 import org.swp.my_learning_path.entity.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
