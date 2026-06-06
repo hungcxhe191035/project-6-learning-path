@@ -34,4 +34,3 @@ public class UserResponse {
     String createdAt;
     String updatedAt;
 }
-

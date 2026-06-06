@@ -83,6 +83,13 @@
             </a>
 
             <!-- Student -->
+            <a
+                    sec:authorize="hasRole('STUDENT')"
+                    th:href="@{/courses}"
+                    class="text-dark text-decoration-none d-none d-xl-block"
+            >
+                Khoá học
+            </a>
             <button
                     sec:authorize="hasRole('STUDENT')"
                     class="btn"

@@ -1,6 +1,5 @@
 package org.swp.my_learning_path.security;
 
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,7 +23,9 @@ public class CustomUserDetails implements UserDetails {
                 )
         );
     }
-
+    public Long getUserId() {
+        return user.getUserId();
+    }
     @Override
     public String getPassword() {
         return user.getPassword();

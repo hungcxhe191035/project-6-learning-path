@@ -62,4 +62,17 @@ public class CourseServiceImpl implements CourseService {
                 .thumbnailUrl(anhThumbnail)
                 .build();
     }
+
+    @Override
+    public List<CourseCardDTO> getCourses() {
+        // Lấy danh sách khoá học đã duyệt, không bị xoá
+        List<Course> courses = courseRepository
+                .findByDeleteFlagFalseAndCurrentPublishedVersion_StatusOrderByCreatedAtDesc(
+                        ECourseStatus.APPROVED
+                );
+
+        return courses.stream()
+                .map(this::chuyenDoiSangDTO)
+                .toList();
+    }
 }
