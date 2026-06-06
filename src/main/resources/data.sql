@@ -195,4 +195,4 @@ UPDATE courses SET current_published_version_id =
 WHERE course_id =
       (SELECT TOP 1 course_id FROM course_versions WHERE title = N'Microservices Với Spring Cloud');
 INSERT INTO users (email, password, role, status, full_name, delete_flag)
-VALUES ('giangvientest@gmail.com', '123456', 'INSTRUCTOR', 'ACTIVE', 'Giảng viên Test', 0);
+VALUES ('giangvientest@gmail.com', '$2a$10$XmB0vP0uO/tYv.l7/Y02ueD60zM4N4vJ06aP019g.2V2O0M5bXzR2', 'INSTRUCTOR', 'ACTIVE', N'Giảng viên Test', 0);

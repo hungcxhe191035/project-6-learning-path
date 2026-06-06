@@ -76,7 +76,7 @@
             <!-- Instructor -->
             <a
                     sec:authorize="hasRole('INSTRUCTOR')"
-                    href="#"
+                    th:href="@{/instructor/courses}"
                     class="text-dark text-decoration-none d-none d-xl-block"
             >
                 Tạo khoá học

@@ -1,0 +1,40 @@
+{
+  "meta": { "schema_version": "1.1.0", "awf_version": "4.0.2" },
+  "project": { "name": "My_Learning_Path", "type": "Spring Boot Web App", "status": "development" },
+  "tech_stack": { 
+    "frontend": {"template": "Thymeleaf", "css": "Bootstrap", "js": "Vanilla JS"}, 
+    "backend": {"java": "21", "framework": "Spring Boot 3.2.6", "orm": "Hibernate/JPA"}, 
+    "database": {"type": "SQL Server"} 
+  },
+  "database_schema": { 
+    "tables": ["users", "courses", "course_versions", "course_sections", "lessons", "files", "wallets"], 
+    "relationships": ["Course -> User (Instructor)", "CourseVersion -> Course", "CourseVersion -> File (Thumbnail)", "CourseSection -> CourseVersion", "Lesson -> CourseSection"] 
+  },
+  "api_endpoints": [
+    "/api/instructor/courses/draft (POST)",
+    "/api/instructor/courses/{courseId} (PUT)",
+    "/api/instructor/courses/{courseId}/sections (POST)",
+    "/api/instructor/sections/{sectionId} (PUT/DELETE)",
+    "/api/instructor/sections/{sectionId}/lessons (POST)",
+    "/api/instructor/lessons/{lessonId} (PUT/DELETE)"
+  ],
+  "business_rules": [
+    "Only INSTRUCTOR or STUDENT can access /instructor/**",
+    "Instructor ID is dynamically extracted from Spring Security context",
+    "Editing a course modifies the DRAFT CourseVersion, not the Course itself"
+  ],
+  "features": [
+    "Authentication & Role Management",
+    "Instructor Dashboard",
+    "Course Creation Wizard (Draft & Publish)",
+    "Curriculum Management (Sections & Lessons)"
+  ],
+  "knowledge_items": { 
+    "patterns": ["Spring Security with BCrypt", "Service Layer Transactional"], 
+    "gotchas": [
+      "PowerShell swallows $ in string interpolation when updating DB hashes",
+      "Spring Security requires CSRF token for POST/PUT/DELETE requests via Javascript fetch"
+    ], 
+    "conventions": ["Use CustomUserDetails for auth context"] 
+  }
+}

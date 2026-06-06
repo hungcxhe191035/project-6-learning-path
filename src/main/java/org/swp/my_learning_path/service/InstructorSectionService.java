@@ -21,8 +21,8 @@ public class InstructorSectionService {
     @Transactional
     public Long createSection(Long courseId, SectionRequest request) {
         // 1. Tìm bản nháp của khóa học
-        CourseVersion version = courseVersionRepository.findByCourse_CourseIdAndStatus(courseId, ECourseStatus.DRAFT)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy bản nháp của khóa học này!"));
+        CourseVersion version = courseVersionRepository.findFirstByCourse_CourseIdOrderByCreatedAtDesc(courseId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy phiên bản của khóa học này!"));
 
         // 2. Tạo Chương mới
         CourseSection section = CourseSection.builder()

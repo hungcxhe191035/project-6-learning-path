@@ -7,6 +7,9 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${pageTitle} ?: 'My Learning Path'"></title>
+    <!-- Cấu hình CSRF Token cho Javascript --> 
+    <meta name="_csrf" th:content="${_csrf.token}" th:if="${_csrf != null}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" th:if="${_csrf != null}"/>
     <link
             rel="icon"
             type="image/png"

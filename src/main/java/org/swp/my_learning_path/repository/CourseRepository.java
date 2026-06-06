@@ -19,7 +19,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             ECourseStatus status
     );
     // Dành cho Giảng viên: Lấy tất cả khóa học của chính họ (sắp xếp mới nhất lên đầu)
-    //thuộc phase 4 về phần giao diện
+    //thuộc phase 4 về phần giao diện (Đã sửa ở phase 7 để lọc khóa học đã xóa)
     java.util.List<org.swp.my_learning_path.entity.Course>
-    findByInstructor_UserIdOrderByCreatedAtDesc(Long instructorId);
+    findByInstructor_UserIdAndDeleteFlagFalseOrderByCreatedAtDesc(Long instructorId);
 }
