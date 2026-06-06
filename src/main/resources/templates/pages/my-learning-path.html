@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/main-layout}"
+>
+
+<body>
+
+<div layout:fragment="content">
+
+    <div class="container py-5">
+
+        <div
+                class="d-flex
+                       justify-content-between
+                       align-items-center
+                       mb-4">
+
+            <h2>
+                Lộ trình học của tôi
+            </h2>
+
+            <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#createLearningPathModal">
+
+                <i class="bi bi-plus-lg"></i>
+                Thêm lộ trình học
+
+            </button>
+
+        </div>
+
+        <div class="row g-4">
+
+            <div
+                    class="col-md-4"
+                    th:each="path : ${learningPaths}"
+            >
+
+                <div
+                        class="card shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between">
+
+                            <h5
+                                    class="card-title mb-0"
+                                    th:text="${path.title}">
+                            </h5>
+
+                            <div class="dropdown">
+
+                                <button
+                                        class="btn btn-sm btn-light"
+                                        data-bs-toggle="dropdown">
+
+                                    <i class="bi bi-three-dots-vertical"></i>
+
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+
+                                    <li>
+
+                                        <button
+                                                class="dropdown-item"
+
+                                                th:data-id="${path.pathId}"
+                                                th:data-title="${path.title}"
+                                                th:data-description="${path.description}"
+
+                                                onclick="openEditModal(this)">
+
+                                            <i class="bi bi-pencil"></i>
+                                            Chỉnh sửa
+
+                                        </button>
+
+                                    </li>
+
+                                    <li>
+
+                                        <button
+                                                class="dropdown-item text-danger"
+
+                                                th:data-id="${path.pathId}"
+
+                                                onclick="deleteLearningPath(this)">
+
+                                            <i class="bi bi-trash"></i>
+                                            Xóa
+
+                                        </button>
+
+                                    </li>
+
+                                </ul>
+
+                            </div>
+
+                        </div>
+
+                        <p
+                                class="text-muted mt-3"
+                                th:text="${path.description}">
+                        </p>
+
+                    </div>
+
+                    <div class="card-footer bg-white">
+
+                        <a
+                                th:href="@{/my-learning-paths/{id}(id=${path.pathId})}"
+                                class="btn btn-outline-primary w-100">
+
+                            Xem lộ trình học
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!--    modal create-->
+    <div
+            class="modal fade"
+            id="createLearningPathModal"
+            tabindex="-1">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Tạo lộ trình học mới
+                    </h5>
+
+                    <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Tên lộ trình
+                        </label>
+
+                        <input
+                                type="text"
+                                id="pathTitle"
+                                class="form-control"
+                                maxlength="255">
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Mô tả
+                        </label>
+
+                        <textarea
+                                id="pathDescription"
+                                class="form-control"
+                                rows="4">
+                    </textarea>
+
+                    </div>
+
+                    <div
+                            id="createError"
+                            class="alert alert-danger d-none">
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                        Hủy
+
+                    </button>
+
+                    <button
+                            type="button"
+                            class="btn btn-primary"
+                            onclick="createLearningPath()">
+
+                        Tạo mới
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!--    modal edit-->
+    <div
+            class="modal fade"
+            id="editLearningPathModal"
+            tabindex="-1">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Chỉnh sửa lộ trình học
+                    </h5>
+
+                    <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <input
+                            type="hidden"
+                            id="editPathId">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Tên lộ trình
+
+                        </label>
+
+                        <input
+                                id="editTitle"
+                                class="form-control">
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Mô tả
+
+                        </label>
+
+                        <textarea
+                                id="editDescription"
+                                class="form-control"
+                                rows="4">
+                    </textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                        Hủy
+
+                    </button>
+
+                    <button
+                            class="btn btn-primary"
+                            onclick="updateLearningPath()">
+
+                        Lưu
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <script>
+
+        async function createLearningPath() {
+
+            const title =
+                document.getElementById("pathTitle")
+                    .value.trim();
+
+            const description =
+                document.getElementById("pathDescription")
+                    .value.trim();
+
+            const errorBox =
+                document.getElementById("createError");
+
+            errorBox.classList.add("d-none");
+
+            if (!title) {
+
+                errorBox.innerText =
+                    "Vui lòng nhập tên lộ trình";
+
+                errorBox.classList.remove("d-none");
+
+                return;
+            }
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/learning-paths",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+                            body: JSON.stringify({
+                                title: title,
+                                description: description
+                            })
+                        }
+                    );
+
+                if (!response.ok) {
+                    toastr.error(
+                        "Không thể tạo lộ trình học"
+                    );
+                }
+
+                location.reload();
+
+            } catch (e) {
+                    toastr.error(
+                        "Không thể tạo lộ trình học"
+                    );
+            }
+        }
+
+        function openEditModal(btn) {
+
+            document.getElementById(
+                "editPathId"
+            ).value =
+                btn.dataset.id;
+
+            document.getElementById(
+                "editTitle"
+            ).value =
+                btn.dataset.title;
+
+            document.getElementById(
+                "editDescription"
+            ).value =
+                btn.dataset.description;
+
+            const modal =
+                new bootstrap.Modal(
+                    document.getElementById(
+                        "editLearningPathModal"
+                    )
+                );
+
+            modal.show();
+        }
+
+        async function updateLearningPath() {
+
+            const pathId =
+                document.getElementById(
+                    "editPathId"
+                ).value;
+
+            const title =
+                document.getElementById(
+                    "editTitle"
+                ).value;
+
+            const description =
+                document.getElementById(
+                    "editDescription"
+                ).value;
+
+            const response =
+                await fetch(
+                    "/api/learning-paths/" + pathId,
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body: JSON.stringify({
+                            title,
+                            description
+                        })
+                    }
+                );
+
+            if(response.ok){
+
+                toastr.success(
+                    "Cập nhật thành công"
+                );
+
+                location.reload();
+            }
+        }
+
+        async function deleteLearningPath(btn) {
+
+            const pathId =
+                btn.dataset.id;
+
+            if (!confirm(
+                "Bạn có chắc muốn xóa lộ trình học này?"
+            )) {
+                return;
+            }
+
+            const response =
+                await fetch(
+                    "/api/learning-paths/" + pathId,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+            if(response.ok){
+
+                toastr.success(
+                    "Đã xóa lộ trình học"
+                );
+
+                location.reload();
+            }
+        }
+    </script>
+
+</div>
+
+</body>
+</html>

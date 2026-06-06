@@ -1,17 +1,20 @@
-package org.swp.my_learning_path.dto;
+package org.swp.my_learning_path.dto.response;
 
 import lombok.*;
 
-@Getter
-@Setter
+import java.util.List;
+
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class LearningPathDto {
 
     private Long pathId;
 
     private String title;
+
+    private String description;
 
     private boolean selected;
 }
