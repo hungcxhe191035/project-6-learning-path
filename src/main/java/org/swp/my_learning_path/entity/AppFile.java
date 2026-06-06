@@ -1,11 +1,12 @@
 package org.swp.my_learning_path.entity;
 
-import org.swp.my_learning_path.constant.EFilePurpose;
-import org.swp.my_learning_path.constant.EFileType;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.swp.my_learning_path.constant.EFilePurpose;
+import org.swp.my_learning_path.constant.EFileType;
 
 @Entity
 @Table(name = "files")

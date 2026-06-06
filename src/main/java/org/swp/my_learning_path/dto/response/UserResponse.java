@@ -1,9 +1,10 @@
 package org.swp.my_learning_path.dto.response;
 
-import org.swp.my_learning_path.constant.EAccountStatus;
-import org.swp.my_learning_path.constant.ERole;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.swp.my_learning_path.constant.EAccountStatus;
+import org.swp.my_learning_path.constant.ERole;
 
 import java.math.BigDecimal;
 
@@ -33,4 +34,3 @@ public class UserResponse {
     String createdAt;
     String updatedAt;
 }
-

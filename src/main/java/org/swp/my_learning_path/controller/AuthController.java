@@ -1,6 +1,6 @@
 package org.swp.my_learning_path.controller;
 
-import org.swp.my_learning_path.service.AuthService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

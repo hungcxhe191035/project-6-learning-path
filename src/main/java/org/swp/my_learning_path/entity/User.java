@@ -1,11 +1,12 @@
 package org.swp.my_learning_path.entity;
 
-import org.swp.my_learning_path.constant.EAccountStatus;
-import org.swp.my_learning_path.constant.ERole;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.swp.my_learning_path.constant.EAccountStatus;
+import org.swp.my_learning_path.constant.ERole;
 
 @Entity
 @Table(name = "users")
@@ -63,4 +64,11 @@ public class User extends BaseEntity {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     Wallet wallet;
+
+    // ---- Reset Password ----
+    @Column(name = "reset_token", length = 100)
+    String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    java.time.LocalDateTime resetTokenExpiry;
 }
