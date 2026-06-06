@@ -7,6 +7,17 @@
 <body>
 
 <div layout:fragment="content">
+    <style>
+        /* Sửa lỗi giao diện CKEditor bị chìm dưới Modal Bootstrap */
+        :root {
+            --ck-z-default: 100;
+            --ck-z-modal: 1055;
+        }
+        .ck.ck-balloon-panel {
+            z-index: 9999 !important;
+        }
+    </style>
+    
     <div class="container my-5">
 
         <!-- Header -->
@@ -18,7 +29,7 @@
             <a th:href="@{/instructor/courses}" class="btn btn-outline-secondary rounded-pill px-4">Quay lại Dashboard</a>
         </div>
 
-        <!-- Wizard Card (Glassmorphism Effect) -->
+        <!-- Wizard Card -->
         <div class="card shadow-lg border-0 rounded-4 overflow-hidden wizard-card">
 
             <!-- Tab Headers -->
@@ -75,7 +86,6 @@
                                     </div>
                                     <div class="mb-4">
                                         <label class="form-label fw-bold">Ảnh bìa khóa học</label>
-                                        <!-- Placeholder cho chức năng Upload Ảnh S3 -->
                                         <div class="border border-dashed rounded-3 p-4 text-center text-muted upload-area hover-udemy" style="cursor: pointer;">
                                             <i class="bi bi-cloud-arrow-up display-4"></i>
                                             <p class="mt-2 mb-0">Nhấn vào đây để tải ảnh lên</p>
@@ -133,6 +143,7 @@
                                                 </div>
                                                 <div class="d-flex align-items-center">
                                                     <span class="badge bg-secondary-subtle text-secondary me-4 lesson-type-badge border" th:text="${lesson.lessonType}">VIDEO</span>
+                                                    <!-- NÚT SỬA BÀI GIẢNG (CÂY BÚT) -->
                                                     <button type="button" class="btn btn-sm btn-outline-secondary me-2 btn-edit-lesson" title="Sửa bài giảng"><i class="bi bi-pencil"></i></button>
                                                     <button type="button" class="btn btn-sm btn-outline-danger btn-delete-lesson" title="Xóa bài giảng"><i class="bi bi-trash"></i></button>
                                                 </div>
@@ -171,7 +182,7 @@
         </div>
     </div>
 
-    <!-- ================= TEMPLATES (ẨN) DÀNH CHO JAVASCRIPT PHASE 5 ================= -->
+    <!-- ================= TEMPLATES (ẨN) DÀNH CHO JAVASCRIPT ================= -->
     <template id="sectionTemplate">
         <div class="accordion-item mb-3 border rounded section-item" data-section-id="">
             <h2 class="accordion-header" id="heading-section">
@@ -206,15 +217,107 @@
             </div>
             <div class="d-flex align-items-center">
                 <span class="badge bg-secondary-subtle text-secondary me-4 lesson-type-badge border">LOẠI</span>
-                <button type="button" class="btn btn-sm btn-link text-secondary p-0 me-3 btn-edit-lesson" title="Sửa bài giảng"><i class="bi bi-pencil fs-5"></i></button>
-                <button type="button" class="btn btn-sm btn-link text-danger p-0 btn-delete-lesson" title="Xóa bài giảng"><i class="bi bi-trash fs-5"></i></button>
+                <!-- NÚT SỬA BÀI GIẢNG (CÂY BÚT) CHO BÀI GIẢNG TẠO BẰNG JS -->
+                <button type="button" class="btn btn-sm btn-outline-secondary me-2 btn-edit-lesson" title="Sửa bài giảng"><i class="bi bi-pencil"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-danger btn-delete-lesson" title="Xóa bài giảng"><i class="bi bi-trash"></i></button>
             </div>
         </div>
     </template>
 
-    <!-- Nhúng Javascript gốc của giao diện Tạo khóa học -->
+    <!-- ================= MODAL THÊM BÀI GIẢNG VÀO CHƯƠNG ================= -->
+    <div class="modal fade" id="lessonModal" tabindex="-1" aria-labelledby="lessonModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="lessonModalLabel">Thêm Bài Giảng Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="modalTargetSectionId">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên bài giảng <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="modalLessonTitle" placeholder="Vd: Giới thiệu khóa học...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Loại bài giảng</label>
+                        <select class="form-select" id="modalLessonType">
+                            <option value="VIDEO">📹 Video (Tải lên file MP4)</option>
+                            <option value="ARTICLE">📝 Bài viết (Trình soạn thảo văn bản)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmAddLesson">Tạo Bài Giảng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL CHỈNH SỬA NỘI DUNG BÀI GIẢNG (PHASE 6) ================= -->
+    <div class="modal fade" id="lessonContentModal" tabindex="-1" aria-labelledby="lessonContentModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl"> <!-- Form bự ra để gõ bài viết cho sướng -->
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold" id="lessonContentModalLabel">Cập nhật Nội dung Bài giảng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Dữ liệu ngầm để JS biết đang sửa bài nào -->
+                    <input type="hidden" id="editLessonId">
+                    <input type="hidden" id="editLessonType">
+
+                    <!-- GIAO DIỆN UPLOAD VIDEO (Sẽ ẨN nếu là ARTICLE) -->
+                    <div id="videoUploadContainer" class="d-none">
+                        <div class="alert alert-info border-info bg-info-subtle text-info-emphasis">
+                            <i class="bi bi-info-circle-fill me-2"></i> Định dạng hỗ trợ: MP4. Dung lượng tối đa: 500MB (Lưu trực tiếp lên đám mây AWS S3).
+                        </div>
+                        <div class="mb-4 text-center border border-2 border-dashed rounded p-5 bg-light" id="videoDropzone">
+                            <i class="bi bi-cloud-arrow-up display-1 text-secondary mb-3"></i>
+                            <h5 class="text-secondary fw-bold">Kéo thả hoặc nhấn vào đây để tải file Video lên S3</h5>
+                            <input type="file" id="videoFileInput" accept="video/mp4,video/webm" class="d-none">
+                            <button type="button" class="btn btn-primary mt-3 px-4 rounded-pill shadow-sm" onclick="document.getElementById('videoFileInput').click()">
+                                <i class="bi bi-folder2-open me-2"></i>Chọn File từ máy tính
+                            </button>
+                        </div>
+                        <!-- Thanh tiến trình (Progress Bar) -->
+                        <div class="progress d-none shadow-sm rounded-pill" id="videoProgressBarContainer" style="height: 25px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success fw-bold" id="videoProgressBar" role="progressbar" style="width: 0%;">0%</div>
+                        </div>
+
+                        <!-- Khu vực chiếu phim (Video Player) -->
+                        <div id="videoPreviewContainer" class="d-none mt-4 text-center">
+                            <h6 class="fw-bold text-success mb-3"><i class="bi bi-play-btn me-2"></i>Video đang lưu trên hệ thống:</h6>
+                            <video id="videoPlayer" class="w-100 rounded shadow-sm border border-2 border-secondary" controls style="max-height: 400px;">
+                                <source src="" type="video/mp4">
+                                Trình duyệt của bạn không hỗ trợ thẻ video.
+                            </video>
+                        </div>
+                    </div>
+
+                    <!-- GIAO DIỆN SOẠN THẢO BÀI VIẾT (Sẽ ẨN nếu là VIDEO) -->
+                    <div id="articleEditorContainer" class="d-none">
+                        <label class="form-label fw-bold fs-5 mb-3 text-primary"><i class="bi bi-pencil-square me-2"></i>Soạn thảo bài viết</label>
+                        <!-- Biến ô textarea này thành CKEditor xịn sò -->
+                        <textarea id="ckeditorContent"></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary px-4 rounded-pill" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary px-4 rounded-pill shadow" id="btnSaveLessonContent">
+                        <i class="bi bi-floppy-fill me-2"></i>Lưu Nội Dung
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nhúng Javascript và Thư viện CKEditor 5 -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
     <script th:src="@{/js/course-wizard.js}"></script>
     <script th:src="@{/js/curriculum.js}"></script>
+
 </div>
 </body>
 </html>

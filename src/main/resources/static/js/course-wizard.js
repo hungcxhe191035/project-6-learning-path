@@ -12,7 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
             thumbnailFileId: document.getElementById("thumbnailFileId").value || null // Dành cho upload ảnh sau này
         };
     };
-//xử lý nút lưu ở tab 1 lúc tạo khóa học
+
+    //xử lý nút lưu ở tab 1 lúc tạo khóa học
     basicInfoForm.addEventListener("submit", function (e) {
         e.preventDefault(); // Ngăn trình duyệt tải lại trang khi bấm form
 
@@ -30,7 +31,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (csrfTokenMeta && csrfHeaderMeta) {
             headers[csrfHeaderMeta.content] = csrfTokenMeta.content;
         }
-// sửa lỗi chỉ hiện lưu mỗi titile khi ấn tạo khóa hoc
+
+        // sửa lỗi chỉ hiện lưu mỗi title khi ấn tạo khóa học
         if (!courseId) {
             // Nhịp 1: Gọi API POST /draft để tạo khóa học (chỉ nhận title)
             fetch("/api/instructor/courses/draft", {
@@ -47,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     return fetch(`/api/instructor/courses/${data.courseId}`, {
                         method: "PUT",
                         headers: headers,
-                        body: JSON.stringify(formData) // Gửi full mọi thứ Sếp gõ trên form
+                        body: JSON.stringify(formData) // Gửi full mọi thứ bạn gõ trên form
                     }).then(res2 => {
                         if (!res2.ok) throw new Error("Lỗi khi cất thêm thông tin phụ");
                         // Lưu thành công cả 2 nhịp rồi mới chuyển trang!
@@ -64,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Trường hợp Cập nhật: Gọi API PUT (Phase 3)
             fetch(`/api/instructor/courses/${courseId}`, {
                 method: "PUT",
-                headers: headers, // <-- Gắn thẻ bài vào đây
+                headers: headers,
                 body: JSON.stringify(formData)
             })
                 .then(res => {
@@ -87,11 +89,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Mock logic cho nút Upload Ảnh (Chờ Sếp viết API Backend upload ảnh sau)
+    // Mock logic cho nút Upload Ảnh (Chờ bạn viết API Backend upload ảnh sau)
     const uploadArea = document.querySelector(".upload-area");
     if (uploadArea) {
         uploadArea.addEventListener("click", function() {
-            alert("Sếp chưa viết API Upload Ảnh cho Khóa học ở Backend! Chỗ này tạm thời để trống nhé.");
+            alert("Bạn chưa viết API Upload Ảnh cho Khóa học ở Backend! Chỗ này tạm thời để trống nhé.");
         });
     }
 });

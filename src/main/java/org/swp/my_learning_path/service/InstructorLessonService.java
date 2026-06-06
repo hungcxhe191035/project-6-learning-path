@@ -3,6 +3,9 @@ package org.swp.my_learning_path.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.swp.my_learning_path.constant.EFilePurpose;
+import org.swp.my_learning_path.constant.EFileType;
 import org.swp.my_learning_path.constant.ELessonType;
 import org.swp.my_learning_path.dto.request.LessonRequest;
 import org.swp.my_learning_path.entity.AppFile;
@@ -11,6 +14,9 @@ import org.swp.my_learning_path.entity.Lesson;
 import org.swp.my_learning_path.repository.AppFileRepository;
 import org.swp.my_learning_path.repository.CourseSectionRepository;
 import org.swp.my_learning_path.repository.LessonRepository;
+
+import java.io.IOException;
+
 // phase 3 cụm 3 liên quan đến các lession
 @Service
 @RequiredArgsConstructor
@@ -19,14 +25,13 @@ public class InstructorLessonService {
     private final LessonRepository lessonRepository;
     private final CourseSectionRepository sectionRepository;
     private final AppFileRepository appFileRepository;
+    private final S3Service s3Service; // Thêm S3Service vào đây để bơm video lên AWS
 
     @Transactional
     public Long createLesson(Long sectionId, LessonRequest request) {
-        // 1. Tìm xem cái Chương đó có tồn tại không
         CourseSection section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy chương này!"));
 
-        // 2. Tạo sườn bài học
         Lesson lesson = Lesson.builder()
                 .section(section)
                 .title(request.getTitle())
@@ -34,7 +39,6 @@ public class InstructorLessonService {
                 .displayOrder(request.getDisplayOrder())
                 .build();
 
-        // 3. Đắp thịt tùy theo loại bài học
         if (request.getLessonType() == ELessonType.VIDEO) {
             if (request.getVideoFileId() != null) {
                 AppFile video = appFileRepository.findById(request.getVideoFileId())
@@ -45,7 +49,6 @@ public class InstructorLessonService {
         } else if (request.getLessonType() == ELessonType.ARTICLE) {
             lesson.setArticleContent(request.getArticleContent());
         }
-        // Riêng loại QUIZ thì cứ tạo cái sườn rỗng, mình sẽ dán câu hỏi vào sau ở Cụm API 4.
 
         lesson = lessonRepository.save(lesson);
         return lesson.getLessonId();
@@ -78,5 +81,76 @@ public class InstructorLessonService {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bài học này!"));
         lessonRepository.delete(lesson);
+    }
+
+    // ================== CÁC HÀM MỚI (PHASE 6) ================== //
+
+    @Transactional
+    public String uploadLessonVideo(Long lessonId, MultipartFile file) throws IOException {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài học này!"));
+
+        if (lesson.getLessonType() != ELessonType.VIDEO) {
+            throw new RuntimeException("Bài học này không phải loại VIDEO!");
+        }
+
+        String fileUrl = s3Service.uploadFile(file);
+
+        AppFile appFile = AppFile.builder()
+                .fileName(file.getOriginalFilename())
+                .fileUrl(fileUrl)
+                .fileType(EFileType.VIDEO)
+                .purpose(EFilePurpose.LESSON_VIDEO)
+                .extension("mp4")
+                .build();
+        appFile = appFileRepository.save(appFile);
+
+        lesson.setVideo(appFile);
+        lessonRepository.save(lesson);
+
+        return fileUrl;
+    }
+
+    @Transactional
+    public void updateLessonArticle(Long lessonId, String htmlContent) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài học này!"));
+
+        if (lesson.getLessonType() != ELessonType.ARTICLE) {
+            throw new RuntimeException("Bài học này không phải loại ARTICLE (Bài viết)!");
+        }
+
+        lesson.setArticleContent(htmlContent);
+        lessonRepository.save(lesson);
+    }
+
+    // Hàm Lấy toàn bộ thông tin bài giảng để hiển thị lại
+    @Transactional(readOnly = true)
+    public Lesson getLessonById(Long lessonId) {
+        return lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài học này!"));
+    }
+
+    // Hàm Upload Ảnh độc lập (từ CKEditor) lên S3
+    @Transactional
+    public String uploadIndependentImage(MultipartFile file) throws IOException {
+        String fileUrl = s3Service.uploadFile(file);
+
+        String originalFilename = file.getOriginalFilename();
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+        }
+
+        AppFile appFile = AppFile.builder()
+                .fileName(originalFilename)
+                .fileUrl(fileUrl)
+                .fileType(EFileType.IMAGE)
+                .purpose(EFilePurpose.COURSE_MATERIAL)
+                .extension(extension)
+                .build();
+        appFileRepository.save(appFile);
+
+        return fileUrl;
     }
 }
