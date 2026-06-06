@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/main-layout}"
+>
+
+<body>
+
+<div layout:fragment="content">
+
+    <div class="container py-5">
+
+        <div class="mb-4">
+
+            <h2 th:text="${path.title}"></h2>
+
+            <p class="text-muted"
+               th:text="${path.description}">
+            </p>
+
+        </div>
+        <div class="alert alert-info"
+             th:if="${selectedCourse == null}">
+            Không có khóa học nào trong lộ trình học này.
+        </div>
+        <div class="row" th:if="${selectedCourse != null}">
+
+            <!-- LEFT MENU -->
+
+            <div class="col-md-3">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        Khóa học
+
+                    </div>
+
+                    <div class="list-group list-group-flush">
+
+                        <a
+                                href="#"
+                                class="list-group-item list-group-item-action course-item"
+
+                                th:each="course : ${path.courses}"
+
+                                th:data-id="${course.courseId}"
+                                th:data-title="${course.title}"
+                                th:data-thumbnail="${course.thumbnailUrl}"
+                                th:data-description="${course.shortDescription}"
+                                th:data-rating="${course.averageRating}"
+                                th:data-students="${course.totalStudents}"
+                                th:data-instructor="${course.instructorName}"
+
+                        >
+
+                        <span
+                                th:text="${course.displayOrder}">
+                        </span>
+
+                            .
+
+                            <span
+                                    th:text="${course.title}">
+                        </span>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT CONTENT -->
+
+            <div class="col-md-9">
+
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <img
+                                id="courseThumbnail"
+                                class="img-fluid rounded mb-3"
+
+                                th:src="${selectedCourse.thumbnailUrl}"
+                        >
+
+                        <h3
+                                id="courseTitle"
+                                th:text="${selectedCourse.title}">
+                        </h3>
+
+                        <div class="mb-2">
+
+                            Giảng viên:
+
+                            <strong
+                                    id="courseInstructor"
+                                    th:text="${selectedCourse.instructorName}">
+                            </strong>
+
+                        </div>
+
+                        <div class="mb-2">
+
+                            Xếp hạng:
+
+                            <span
+                                    id="courseRating"
+                                    th:text="${selectedCourse.averageRating}">
+                        </span>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            Sinh viên:
+
+                            <span
+                                    id="courseStudents"
+                                    th:text="${selectedCourse.totalStudents}">
+                        </span>
+
+                        </div>
+
+                        <p
+                                id="courseDescription"
+                                th:text="${selectedCourse.shortDescription}">
+                        </p>
+
+                        <a
+                                id="courseLink"
+                                class="btn btn-primary"
+
+                                th:href="@{/courses/{id}(id=${selectedCourse.courseId})}"
+                        >
+
+                            Xem khóa học
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const items =
+                document.querySelectorAll(".course-item");
+
+            items.forEach(item => {
+
+                item.addEventListener("click", function(e){
+
+                    e.preventDefault();
+
+                    document.getElementById(
+                        "courseTitle"
+                    ).innerText =
+                        this.dataset.title;
+
+                    document.getElementById(
+                        "courseThumbnail"
+                    ).src =
+                        this.dataset.thumbnail;
+
+                    document.getElementById(
+                        "courseDescription"
+                    ).innerText =
+                        this.dataset.description;
+
+                    document.getElementById(
+                        "courseRating"
+                    ).innerText =
+                        this.dataset.rating;
+
+                    document.getElementById(
+                        "courseStudents"
+                    ).innerText =
+                        this.dataset.students;
+
+                    document.getElementById(
+                        "courseInstructor"
+                    ).innerText =
+                        this.dataset.instructor;
+
+                    document.getElementById(
+                        "courseLink"
+                    ).href =
+                        "/courses/" + this.dataset.id;
+
+                });
+
+            });
+
+        });
+
+    </script>
+</div>
+
+</body>
+</html>

@@ -1,68 +1,54 @@
 package org.swp.my_learning_path.controller;
 
-import org.swp.my_learning_path.dto.LearningPathDto;
-import org.swp.my_learning_path.dto.request.CreateLearningPathRequest;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.swp.my_learning_path.dto.response.LearningPathDetailDto;
 import org.swp.my_learning_path.security.CustomUserDetails;
 import org.swp.my_learning_path.service.LearningPathService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-@RestController
+@Controller
 @RequiredArgsConstructor
-@RequestMapping("/api/learning-paths")
 public class LearningPathController {
 
     private final LearningPathService learningPathService;
 
-    @GetMapping
-    public List<LearningPathDto> getMyPaths(@RequestParam Long courseId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long userId = userDetails.getUserId();
-        return learningPathService
-                .getMyLearningPaths(userId, courseId);
+    @GetMapping("/my-learning-paths")
+    public String myLearningPaths(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                            Model model) {
+        model.addAttribute(
+                "learningPaths",
+                learningPathService.getMyLearningPaths(userDetails.getUserId())
+        );
+
+        return "pages/my-learning-path";
     }
 
-    @PostMapping("/{pathId}/courses/{courseId}")
-    public ResponseEntity<?> addCourse(
+    @GetMapping("/my-learning-paths/{pathId}")
+    public String detail(
             @PathVariable Long pathId,
-            @PathVariable Long courseId
+            @AuthenticationPrincipal CustomUserDetails user,
+            Model model
     ) {
 
-        learningPathService
-                .addCourseToPath(
-                        pathId,
-                        courseId
+        LearningPathDetailDto path =
+                learningPathService.getLearningPathDetail(
+                        user.getUserId(),
+                        pathId
                 );
 
-        return ResponseEntity.ok().build();
-    }
+        model.addAttribute("path", path);
 
-    @DeleteMapping("/{pathId}/courses/{courseId}")
-    public ResponseEntity<?> removeCourse(
-            @PathVariable Long pathId,
-            @PathVariable Long courseId
-    ) {
+        if (!path.getCourses().isEmpty()) {
 
-        learningPathService.removeCourseFromPath(
-                pathId,
-                courseId
-        );
+            model.addAttribute(
+                    "selectedCourse",
+                    path.getCourses().get(0)
+            );
+        }
 
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping
-    public LearningPathDto createLearningPath(
-            @RequestBody CreateLearningPathRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-
-        return learningPathService.createLearningPath(
-                userDetails.getUserId(),
-                request
-        );
+        return "pages/learning-path-detail";
     }
 }
