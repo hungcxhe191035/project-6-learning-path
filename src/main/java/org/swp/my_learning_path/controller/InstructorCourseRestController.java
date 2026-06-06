@@ -43,4 +43,36 @@ public class InstructorCourseRestController {
             return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
         }
     }
+
+    // ================== CÁC API MỚI (PHASE 7) ================== //
+
+    @PutMapping("/{courseId}/publish")
+    public ResponseEntity<?> publishCourse(@PathVariable Long courseId) {
+        try {
+            instructorCourseService.publishCourse(courseId);
+            return ResponseEntity.ok("Đã xuất bản khóa học thành công! Học viên đã có thể xem khóa học này.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{courseId}")
+    public ResponseEntity<?> deleteDraftCourse(@PathVariable Long courseId) {
+        try {
+            instructorCourseService.deleteDraftCourse(courseId);
+            return ResponseEntity.ok("Xóa khóa học thành công!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/thumbnail")
+    public ResponseEntity<?> uploadThumbnail(@org.springframework.web.bind.annotation.RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        try {
+            java.util.Map<String, Object> result = instructorCourseService.uploadCourseThumbnail(file);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi khi tải ảnh: " + e.getMessage());
+        }
+    }
 }

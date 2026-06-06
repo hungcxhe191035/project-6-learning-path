@@ -86,11 +86,22 @@
                                     </div>
                                     <div class="mb-4">
                                         <label class="form-label fw-bold">Ảnh bìa khóa học</label>
-                                        <div class="border border-dashed rounded-3 p-4 text-center text-muted upload-area hover-udemy" style="cursor: pointer;">
-                                            <i class="bi bi-cloud-arrow-up display-4"></i>
-                                            <p class="mt-2 mb-0">Nhấn vào đây để tải ảnh lên</p>
+                                        <div class="border border-dashed rounded-3 p-4 text-center text-muted upload-area hover-udemy position-relative" style="cursor: pointer; overflow: hidden; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                                            
+                                            <!-- Khối hiển thị khi đã có ảnh -->
+                                            <div id="thumbnailPreviewContainer" class="w-100" th:style="${draft?.thumbnail != null ? '' : 'display:none;'}">
+                                                <img id="thumbnailPreview" th:src="${draft?.thumbnail?.fileUrl}" class="img-fluid rounded shadow-sm" alt="Thumbnail Preview" style="max-height: 180px; object-fit: cover; width: 100%;">
+                                            </div>
+                                            
+                                            <!-- Khối hiển thị khi chưa có ảnh -->
+                                            <div id="thumbnailUploadPrompt" th:style="${draft?.thumbnail != null ? 'display:none;' : ''}">
+                                                <i class="bi bi-cloud-arrow-up display-4 text-secondary"></i>
+                                                <p class="mt-2 mb-0">Nhấn vào đây để tải ảnh lên</p>
+                                            </div>
+
+                                            <input type="file" id="thumbnailUploadInput" accept="image/*" class="d-none">
                                         </div>
-                                        <input type="hidden" id="thumbnailFileId">
+                                        <input type="hidden" id="thumbnailFileId" th:value="${draft?.thumbnail?.fileId}">
                                     </div>
                                 </div>
                             </div>
@@ -172,8 +183,15 @@
                         <div class="text-center py-5">
                             <i class="bi bi-rocket-takeoff display-1 text-success mb-3"></i>
                             <h3 class="fw-bold">Sẵn sàng cất cánh!</h3>
-                            <p class="text-muted fs-5">Hãy kiểm tra kỹ mọi thông tin trước khi nhấn Xuất bản để gửi yêu cầu phê duyệt.</p>
-                            <button class="btn btn-success btn-lg rounded-pill px-5 mt-3 fw-bold shadow">Xuất bản khóa học</button>
+                            <p class="text-muted fs-5">Hãy kiểm tra kỹ mọi thông tin trước khi nhấn Xuất bản. Khóa học sẽ hiển thị ngay cho học viên.</p>
+                            <div class="mt-4">
+                                <a th:if="${courseId != null}" th:href="@{/instructor/courses/{id}/preview(id=${courseId})}" target="_blank" class="btn btn-outline-primary btn-lg rounded-pill px-5 me-3 fw-bold shadow-sm">
+                                    <i class="bi bi-eye me-2"></i> Xem trước khóa học
+                                </a>
+                                <button id="btnPublishCourse" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow">
+                                    Xuất bản khóa học
+                                </button>
+                            </div>
                         </div>
                     </div>
 

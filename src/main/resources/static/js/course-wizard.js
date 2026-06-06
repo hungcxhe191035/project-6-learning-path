@@ -89,11 +89,97 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Mock logic cho nút Upload Ảnh (Chờ bạn viết API Backend upload ảnh sau)
+    // Logic cho nút Upload Ảnh (Phase 8)
     const uploadArea = document.querySelector(".upload-area");
-    if (uploadArea) {
+    const thumbnailUploadInput = document.getElementById("thumbnailUploadInput");
+    const thumbnailFileIdInput = document.getElementById("thumbnailFileId");
+    const thumbnailPreviewContainer = document.getElementById("thumbnailPreviewContainer");
+    const thumbnailPreview = document.getElementById("thumbnailPreview");
+    const thumbnailUploadPrompt = document.getElementById("thumbnailUploadPrompt");
+
+    if (uploadArea && thumbnailUploadInput) {
         uploadArea.addEventListener("click", function() {
-            alert("Bạn chưa viết API Upload Ảnh cho Khóa học ở Backend! Chỗ này tạm thời để trống nhé.");
+            thumbnailUploadInput.click();
+        });
+
+        thumbnailUploadInput.addEventListener("change", function() {
+            const file = this.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
+            const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+            const headers = {};
+            if (csrfTokenMeta && csrfHeaderMeta) headers[csrfHeaderMeta.content] = csrfTokenMeta.content;
+
+            // Đổi con trỏ chuột thành wait để user biết đang load
+            uploadArea.style.cursor = "wait";
+            uploadArea.style.opacity = "0.7";
+
+            fetch("/api/instructor/courses/thumbnail", {
+                method: "POST",
+                headers: headers,
+                body: formData
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Lỗi khi tải ảnh lên server");
+                return res.json();
+            })
+            .then(data => {
+                // data = { fileId: ..., fileUrl: ... }
+                thumbnailFileIdInput.value = data.fileId;
+                thumbnailPreview.src = data.fileUrl;
+                
+                thumbnailUploadPrompt.style.display = "none";
+                thumbnailPreviewContainer.style.display = "block";
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Tải ảnh thất bại! Vui lòng thử lại.");
+            })
+            .finally(() => {
+                // Khôi phục giao diện
+                uploadArea.style.cursor = "pointer";
+                uploadArea.style.opacity = "1";
+                thumbnailUploadInput.value = ""; // Clear input
+            });
+        });
+    }
+
+    // Logic Xuất bản khóa học (Phase 7)
+    const btnPublishCourse = document.getElementById("btnPublishCourse");
+    if (btnPublishCourse) {
+        btnPublishCourse.addEventListener("click", function() {
+            const courseId = courseIdInput.value;
+            if (!courseId) {
+                return alert("Vui lòng hoàn thành Thông tin cơ bản trước khi xuất bản!");
+            }
+
+            if (confirm("Bạn có chắc chắn muốn Xuất bản khóa học này không? Khóa học sẽ được hiển thị ngay lập tức cho học viên!")) {
+                const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
+                const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+                const headers = {};
+                if (csrfTokenMeta && csrfHeaderMeta) headers[csrfHeaderMeta.content] = csrfTokenMeta.content;
+
+                fetch(`/api/instructor/courses/${courseId}/publish`, {
+                    method: 'PUT',
+                    headers: headers
+                })
+                .then(res => {
+                    if (!res.ok) return res.text().then(text => { throw new Error(text) });
+                    return res.text();
+                })
+                .then(msg => {
+                    alert(msg);
+                    window.location.href = '/instructor/courses'; // Đá về danh sách khóa học
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert(err.message || "Có lỗi xảy ra khi xuất bản khóa học! Vui lòng kiểm tra lại nội dung.");
+                });
+            }
         });
     }
 });

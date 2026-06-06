@@ -81,10 +81,20 @@
                         </td>
                         <td class="text-muted" th:text="${#temporals.format(course.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
                         <td class="text-end pe-4">
-                            <!-- ĐÃ SỬA: Truyền ID khóa học vào link để sang trang Edit -->
-                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.courseId})}" class="btn btn-sm btn-outline-primary rounded-3 px-3">
-                                <i class="bi bi-pencil-square me-1"></i> Sửa nội dung
+                            <!-- Nút Xem trước -->
+                            <a th:href="@{/instructor/courses/{id}/preview(id=${course.courseId})}" class="btn btn-sm btn-outline-success rounded-3 px-3 me-2" title="Xem trước">
+                                <i class="bi bi-eye"></i> Xem trước
                             </a>
+                            <!-- Nút Sửa nội dung -->
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.courseId})}" class="btn btn-sm btn-outline-primary rounded-3 px-3">
+                                <i class="bi bi-pencil-square"></i> Sửa
+                            </a>
+                            <!-- Nút Xóa (Chỉ hiện nếu là Bản Nháp) -->
+                            <button th:if="${course.currentPublishedVersion == null}" 
+                                    class="btn btn-sm btn-outline-danger rounded-3 px-3 ms-2 btn-delete-course"
+                                    th:data-course-id="${course.courseId}" title="Xóa">
+                                <i class="bi bi-trash"></i> Xóa
+                            </button>
                         </td>
                     </tr>
 
@@ -101,7 +111,39 @@
         </div>
     </div>
 
-</main>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
+        const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+        
+        const headers = {};
+        if (csrfTokenMeta && csrfHeaderMeta) {
+            headers[csrfHeaderMeta.content] = csrfTokenMeta.content;
+        }
 
-</body>
-</html>
+        document.querySelectorAll('.btn-delete-course').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const courseId = this.dataset.courseId;
+                if (confirm('Bạn có chắc chắn muốn XÓA VĨNH VIỄN khóa học nháp này không? Hành động này không thể hoàn tác!')) {
+                    fetch(`/api/instructor/courses/${courseId}`, {
+                        method: 'DELETE',
+                        headers: headers
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error("Lỗi khi xóa khóa học");
+                        return res.text();
+                    })
+                    .then(msg => {
+                        alert(msg);
+                        location.reload(); // Tải lại trang để cập nhật danh sách
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Có lỗi xảy ra khi xóa khóa học!");
+                    });
+                }
+            });
+        });
+    });
+    </script>
+</main>

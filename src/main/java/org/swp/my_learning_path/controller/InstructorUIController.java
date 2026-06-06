@@ -30,6 +30,8 @@ public class InstructorUIController {
     private final CourseVersionRepository courseVersionRepository;
     private final CourseSectionRepository courseSectionRepository;
     private final LessonRepository lessonRepository;
+    private final org.swp.my_learning_path.repository.QuizQuestionRepository quizQuestionRepository;
+    private final org.swp.my_learning_path.repository.QuizAnswerRepository quizAnswerRepository;
 
     @GetMapping
     public String showCourseList(Model model) {
@@ -39,7 +41,7 @@ public class InstructorUIController {
         // Bước 2: Bóc tách thông tin (ép kiểu về CustomUserDetails) để lôi cái ID thật của Giảng viên ra
         Long mockInstructorId = ((org.swp.my_learning_path.security.CustomUserDetails) auth.getPrincipal()).getUser().getUserId();
 
-        List<Course> courses = courseRepository.findByInstructor_UserIdOrderByCreatedAtDesc(mockInstructorId);
+        List<Course> courses = courseRepository.findByInstructor_UserIdAndDeleteFlagFalseOrderByCreatedAtDesc(mockInstructorId);
         model.addAttribute("courses", courses);
         return "pages/instructor/course-list";
     }
@@ -55,8 +57,8 @@ public class InstructorUIController {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học!"));
 
-        // Lấy ra bản Nháp (DRAFT) của Khóa học này để hiển thị ra màn hình
-        CourseVersion draftVersion = courseVersionRepository.findByCourse_CourseIdAndStatus(courseId, ECourseStatus.DRAFT)
+        // Lấy ra bản mới nhất (DRAFT hoặc APPROVED) của Khóa học này để hiển thị ra màn hình
+        CourseVersion draftVersion = courseVersionRepository.findFirstByCourse_CourseIdOrderByCreatedAtDesc(courseId)
                 .orElse(null);
 
         // Khởi tạo sẵn 2 cái giỏ rỗng để đựng Chương và Bài giảng
@@ -84,5 +86,49 @@ public class InstructorUIController {
         model.addAttribute("sectionLessonsMap", sectionLessonsMap);
 
         return "pages/instructor/course-wizard";
+    }
+
+    @GetMapping("/{courseId}/preview")
+    public String previewCoursePage(@PathVariable Long courseId, Model model) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học!"));
+
+        // Lấy phiên bản mới nhất để preview
+        CourseVersion previewVersion = courseVersionRepository.findFirstByCourse_CourseIdOrderByCreatedAtDesc(courseId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy nội dung để xem trước!"));
+
+        List<CourseSection> sections = courseSectionRepository.findByCourseVersion_CourseVersionIdOrderByDisplayOrderAsc(previewVersion.getCourseVersionId());
+        Map<Long, List<Lesson>> sectionLessonsMap = new HashMap<>();
+        
+        // Maps để đựng câu hỏi và đáp án cho Quiz
+        Map<Long, List<org.swp.my_learning_path.entity.QuizQuestion>> lessonQuestionsMap = new HashMap<>();
+        Map<Long, List<org.swp.my_learning_path.entity.QuizAnswer>> questionAnswersMap = new HashMap<>();
+
+        for (CourseSection section : sections) {
+            List<Lesson> lessons = lessonRepository.findBySection_SectionIdOrderByDisplayOrderAsc(section.getSectionId());
+            sectionLessonsMap.put(section.getSectionId(), lessons);
+            
+            for (Lesson lesson : lessons) {
+                if (lesson.getLessonType() == org.swp.my_learning_path.constant.ELessonType.QUIZ) {
+                    List<org.swp.my_learning_path.entity.QuizQuestion> questions = quizQuestionRepository.findByLessonOrderByDisplayOrderAsc(lesson);
+                    lessonQuestionsMap.put(lesson.getLessonId(), questions);
+                    
+                    for (org.swp.my_learning_path.entity.QuizQuestion q : questions) {
+                        List<org.swp.my_learning_path.entity.QuizAnswer> answers = quizAnswerRepository.findByQuestionOrderByDisplayOrderAsc(q);
+                        questionAnswersMap.put(q.getQuestionId(), answers);
+                    }
+                }
+            }
+        }
+
+        model.addAttribute("pageTitle", "Xem trước: " + previewVersion.getTitle());
+        model.addAttribute("course", course);
+        model.addAttribute("version", previewVersion);
+        model.addAttribute("sections", sections);
+        model.addAttribute("sectionLessonsMap", sectionLessonsMap);
+        model.addAttribute("lessonQuestionsMap", lessonQuestionsMap);
+        model.addAttribute("questionAnswersMap", questionAnswersMap);
+
+        return "pages/instructor/course-preview";
     }
 }
