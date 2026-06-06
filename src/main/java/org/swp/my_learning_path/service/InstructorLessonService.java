@@ -26,6 +26,8 @@ public class InstructorLessonService {
     private final CourseSectionRepository sectionRepository;
     private final AppFileRepository appFileRepository;
     private final S3Service s3Service; // Thêm S3Service vào đây để bơm video lên AWS
+    private final org.swp.my_learning_path.repository.QuizQuestionRepository quizQuestionRepository;
+    private final org.swp.my_learning_path.repository.QuizAnswerRepository quizAnswerRepository;
 
     @Transactional
     public Long createLesson(Long sectionId, LessonRequest request) {
@@ -129,6 +131,57 @@ public class InstructorLessonService {
     public Lesson getLessonById(Long lessonId) {
         return lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bài học này!"));
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.List<org.swp.my_learning_path.entity.QuizQuestion> getQuizQuestionsByLesson(Lesson lesson) {
+        return quizQuestionRepository.findByLessonOrderByDisplayOrderAsc(lesson);
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.List<org.swp.my_learning_path.entity.QuizAnswer> getQuizAnswersByQuestion(org.swp.my_learning_path.entity.QuizQuestion question) {
+        return quizAnswerRepository.findByQuestionOrderByDisplayOrderAsc(question);
+    }
+
+    @Transactional
+    public void saveQuizContent(Long lessonId, java.util.List<org.swp.my_learning_path.dto.request.QuizQuestionRequest> questionsRequest) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài học này!"));
+
+        if (lesson.getLessonType() != ELessonType.QUIZ) {
+            throw new RuntimeException("Bài học này không phải loại QUIZ!");
+        }
+
+        // Xóa sạch câu hỏi cũ để lưu mới toàn bộ
+        java.util.List<org.swp.my_learning_path.entity.QuizQuestion> oldQuestions = quizQuestionRepository.findByLessonOrderByDisplayOrderAsc(lesson);
+        for (org.swp.my_learning_path.entity.QuizQuestion q : oldQuestions) {
+            quizAnswerRepository.deleteByQuestion(q);
+        }
+        quizQuestionRepository.deleteByLesson(lesson);
+
+        // Lưu câu hỏi mới
+        if (questionsRequest != null) {
+            for (org.swp.my_learning_path.dto.request.QuizQuestionRequest qReq : questionsRequest) {
+                org.swp.my_learning_path.entity.QuizQuestion newQ = org.swp.my_learning_path.entity.QuizQuestion.builder()
+                        .lesson(lesson)
+                        .questionText(qReq.getQuestionText())
+                        .displayOrder(qReq.getDisplayOrder())
+                        .build();
+                newQ = quizQuestionRepository.save(newQ);
+
+                if (qReq.getAnswers() != null) {
+                    for (org.swp.my_learning_path.dto.request.QuizAnswerRequest aReq : qReq.getAnswers()) {
+                        org.swp.my_learning_path.entity.QuizAnswer newA = org.swp.my_learning_path.entity.QuizAnswer.builder()
+                                .question(newQ)
+                                .answerText(aReq.getAnswerText())
+                                .isCorrect(aReq.getIsCorrect())
+                                .displayOrder(aReq.getDisplayOrder())
+                                .build();
+                        quizAnswerRepository.save(newA);
+                    }
+                }
+            }
+        }
     }
 
     // Hàm Upload Ảnh độc lập (từ CKEditor) lên S3

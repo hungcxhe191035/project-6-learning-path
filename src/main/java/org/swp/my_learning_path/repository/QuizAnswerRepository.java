@@ -8,4 +8,5 @@ import org.swp.my_learning_path.entity.QuizAnswer;
 public interface QuizAnswerRepository extends JpaRepository<QuizAnswer, Long> {
     // Hàm này dùng để xóa tất cả đáp án khi mình muốn xóa một câu hỏi
     void deleteByQuestion(org.swp.my_learning_path.entity.QuizQuestion question);
+    java.util.List<org.swp.my_learning_path.entity.QuizAnswer> findByQuestionOrderByDisplayOrderAsc(org.swp.my_learning_path.entity.QuizQuestion question);
 }

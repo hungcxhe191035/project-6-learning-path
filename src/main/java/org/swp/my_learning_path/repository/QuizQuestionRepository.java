@@ -6,4 +6,6 @@ import org.swp.my_learning_path.entity.QuizQuestion;
 
 @Repository
 public interface QuizQuestionRepository extends JpaRepository<QuizQuestion, Long> {
+    java.util.List<QuizQuestion> findByLessonOrderByDisplayOrderAsc(org.swp.my_learning_path.entity.Lesson lesson);
+    void deleteByLesson(org.swp.my_learning_path.entity.Lesson lesson);
 }

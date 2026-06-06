@@ -243,6 +243,7 @@
                         <select class="form-select" id="modalLessonType">
                             <option value="VIDEO">📹 Video (Tải lên file MP4)</option>
                             <option value="ARTICLE">📝 Bài viết (Trình soạn thảo văn bản)</option>
+                            <option value="QUIZ">❓ Trắc nghiệm (Câu hỏi & Đáp án)</option>
                         </select>
                     </div>
                 </div>
@@ -300,6 +301,19 @@
                         <label class="form-label fw-bold fs-5 mb-3 text-primary"><i class="bi bi-pencil-square me-2"></i>Soạn thảo bài viết</label>
                         <!-- Biến ô textarea này thành CKEditor xịn sò -->
                         <textarea id="ckeditorContent"></textarea>
+                    </div>
+
+                    <!-- GIAO DIỆN TẠO TRẮC NGHIỆM (Sẽ ẨN nếu không phải QUIZ) -->
+                    <div id="quizBuilderContainer" class="d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold text-primary mb-0"><i class="bi bi-ui-checks me-2"></i>Bộ câu hỏi trắc nghiệm</h5>
+                            <button type="button" class="btn btn-success rounded-pill shadow-sm" id="btnAddQuizQuestion">
+                                <i class="bi bi-plus-lg me-2"></i>Thêm Câu Hỏi
+                            </button>
+                        </div>
+                        <div id="quizQuestionsList" class="d-flex flex-column gap-4">
+                            <!-- Chỗ này JS sẽ tự động bơm các form câu hỏi vào -->
+                        </div>
                     </div>
 
                 </div>
