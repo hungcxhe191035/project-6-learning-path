@@ -24,9 +24,9 @@ public class InstructorCourseService {
 
     @Transactional
     public Long createDraftCourse(CreateCourseRequest request) {
-        // TẠM THỜI: Gắn cứng ID = 1 là Giảng viên để test
-        // cái này thì tạo 1 nick trong database để test
-        Long mockInstructorId = 1L;
+        //
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        Long mockInstructorId = ((org.swp.my_learning_path.security.CustomUserDetails) auth.getPrincipal()).getUser().getUserId();
 
         User instructor = userRepository.findById(mockInstructorId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Giảng viên!"));
@@ -51,9 +51,8 @@ public class InstructorCourseService {
     @Transactional
     public void updateCourseInfo(Long courseId, org.swp.my_learning_path.dto.request.UpdateCourseInfoRequest request) {
         // TẠM THỜI: Vẫn dùng ID ảo để test
-        Long mockInstructorId = 1L;
-        //Long mockInstructorId = userPrincipal.getUserId(); nào mer thì dùng dòng này để lấy theo ID
-
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        Long mockInstructorId = ((org.swp.my_learning_path.security.CustomUserDetails) auth.getPrincipal()).getUser().getUserId();
         // 1. Kiểm tra khóa học có tồn tại không và có phải của Giảng viên này không
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học!"));

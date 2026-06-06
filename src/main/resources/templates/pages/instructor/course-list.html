@@ -49,9 +49,10 @@
     <div class="container mb-5" style="min-height: 50vh;">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="fw-bold text-dark mb-0">Khóa học của tôi</h3>
-            <button class="btn btn-purple px-4 py-2 rounded-3 fw-bold">
+            <!-- ĐÃ SỬA: Biến thành thẻ <a> để nhảy sang trang Wizard -->
+            <a href="/instructor/courses/create" class="btn btn-purple px-4 py-2 rounded-3 fw-bold text-decoration-none">
                 <i class="bi bi-plus-circle me-2"></i>Tạo khóa học mới
-            </button>
+            </a>
         </div>
 
         <!-- Bảng danh sách khóa học -->
@@ -71,15 +72,19 @@
                     <tr th:each="course : ${courses}" class="course-row border-bottom">
                         <td class="ps-4 py-4 fw-bold" th:text="'#' + ${course.courseId}">#1</td>
                         <td>
-                                <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary border border-secondary px-3 py-2">
-                                    <i class="bi bi-journal-text me-1"></i> Đang là Bản Nháp
+                                <span th:if="${course.currentPublishedVersion == null}" class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary border border-secondary px-3 py-2">
+                                    <i class="bi bi-journal-text me-1"></i> Bản Nháp
+                                </span>
+                            <span th:if="${course.currentPublishedVersion != null}" class="badge rounded-pill bg-success bg-opacity-10 text-success border border-success px-3 py-2">
+                                    <i class="bi bi-check-circle me-1"></i> Đã Xuất Bản
                                 </span>
                         </td>
                         <td class="text-muted" th:text="${#temporals.format(course.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
                         <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-outline-primary rounded-3 px-3">
+                            <!-- ĐÃ SỬA: Truyền ID khóa học vào link để sang trang Edit -->
+                            <a th:href="@{/instructor/courses/{id}/edit(id=${course.courseId})}" class="btn btn-sm btn-outline-primary rounded-3 px-3">
                                 <i class="bi bi-pencil-square me-1"></i> Sửa nội dung
-                            </button>
+                            </a>
                         </td>
                     </tr>
 
