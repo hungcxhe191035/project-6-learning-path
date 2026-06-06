@@ -14,10 +14,9 @@ public class CourseController {
 
     @GetMapping("/courses")
     public String courses(Model model) {
-
         model.addAttribute(
                 "courses",
-                courseService.getPublishedCourses()
+                courseService.getCourses()
         );
 
         return "pages/course-list";

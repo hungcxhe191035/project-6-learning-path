@@ -64,7 +64,15 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<Course> getPublishedCourses() {
-        return courseRepository.findAllPublishedCourses();
+    public List<CourseCardDTO> getCourses() {
+        // Lấy danh sách khoá học đã duyệt, không bị xoá
+        List<Course> courses = courseRepository
+                .findByDeleteFlagFalseAndCurrentPublishedVersion_StatusOrderByCreatedAtDesc(
+                        ECourseStatus.APPROVED
+                );
+
+        return courses.stream()
+                .map(this::chuyenDoiSangDTO)
+                .toList();
     }
 }

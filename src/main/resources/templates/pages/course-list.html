@@ -4,9 +4,141 @@
         xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
         layout:decorate="~{layouts/main-layout}"
 
->
-<link rel="stylesheet"
+><head>
+    <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* ===== HERO BANNER ===== */
+        .hero-section {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+            padding: 48px 0 40px;
+            color: white;
+        }
+        .hero-greeting {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .hero-sub {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.75);
+        }
+
+        /* ===== SECTION TITLE ===== */
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1e1b4b;
+            margin-bottom: 8px;
+        }
+        .section-subtitle {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+
+        /* ===== COURSE CARD ===== */
+        .course-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            height: 100%;
+        }
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Ảnh khoá học */
+        .course-thumbnail {
+            width: 100%;
+            height: 175px;
+            object-fit: cover;
+            background: #e5e7eb;
+        }
+        .course-thumbnail-placeholder {
+            width: 100%;
+            height: 175px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+        }
+
+        .course-body {
+            padding: 14px 16px;
+        }
+        .course-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.4;
+            margin-bottom: 4px;
+            /* Giới hạn 2 dòng */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .course-instructor {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+
+        /* Đánh giá sao */
+        .star-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 6px;
+        }
+        .star-score {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #b45309;
+        }
+        .stars {
+            color: #f59e0b;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        .star-count {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        /* Giá tiền */
+        .course-price {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e1b4b;
+        }
+        .course-price-old {
+            font-size: 0.82rem;
+            color: #9ca3af;
+            text-decoration: line-through;
+            margin-left: 6px;
+        }
+
+        /* Badge */
+        .badge-bestseller {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            display: inline-block;
+        }
+    </style>
+</head>
 <body>
 
 <div layout:fragment="content">
@@ -17,104 +149,80 @@
             Danh sách khoá học
         </h2>
 
-        <div class="row g-4">
+        <!-- Grid 5 khoá học: 5 cột trên desktop, 2 cột mobile -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 g-3">
 
-            <div
-                    class="col-md-4"
-                    th:each="course : ${courses}"
-            >
+            <!-- Lặp qua danh sách khoá học từ Controller -->
+            <div class="col" th:each="course : ${courses}">
+                <div class="course-card">
 
-                <div class="card h-100 shadow-sm">
-
+                    <!-- Ảnh khoá học -->
                     <img
-                            th:src="${course.currentPublishedVersion.thumbnail.fileUrl}"
-                            class="card-img-top"
-                            alt="course image"
+                            th:if="${course.thumbnailUrl != null}"
+                            th:src="${course.thumbnailUrl}"
+                            th:alt="${course.title}"
+                            class="course-thumbnail"
                     >
-
-                    <div class="card-body">
-
-                        <h5
-                                class="card-title"
-                                th:text="${course.currentPublishedVersion.title}"
-                        >
-                            Course Title
-                        </h5>
-
-                        <p
-                                class="card-text text-muted"
-                                th:text="${course.currentPublishedVersion.description}"
-                        >
-                            Description
-                        </p>
-
-                        <div class="mb-2">
-
-                            ⭐
-                            <span
-                                    th:text="${course.averageRating}"
-                            >
-                                5.0
-                            </span>
-
-                            (
-                            <span
-                                    th:text="${course.totalReviews}"
-                            >
-                                100
-                            </span>
-                            reviews
-                            )
-
-                        </div>
-
-                        <div class="mb-2">
-
-                            👨‍🎓
-                            <span
-                                    th:text="${course.totalStudents}"
-                            >
-                                500
-                            </span>
-                            students
-
-                        </div>
-
-                        <div class="fw-bold text-primary">
-
-                            $
-                            <span
-                                    th:text="${course.currentPublishedVersion.price}"
-                            >
-                                49.99
-                            </span>
-
-                        </div>
-
+                    <!-- Placeholder nếu chưa có ảnh -->
+                    <div
+                            th:unless="${course.thumbnailUrl != null}"
+                            class="course-thumbnail-placeholder"
+                    >
+                        <i class="bi bi-play-circle-fill"></i>
                     </div>
 
-                    <div class="card-footer bg-white">
+                    <div class="course-body">
+                        <!-- Tên khoá học -->
+                        <div class="course-title" th:text="${course.title}">
+                            Tên khoá học
+                        </div>
 
-                        <a
-                                th:href="@{/courses/{id}(id=${course.courseId})}"
-                                class="btn btn-primary w-100"
-                        >
-                            View Detail
-                        </a>
+                        <!-- Tên giảng viên -->
+                        <div class="course-instructor" th:text="${course.instructorName}">
+                            Giảng viên
+                        </div>
+
+                        <!-- Đánh giá sao -->
+                        <div class="star-rating">
+                            <span class="star-score" th:text="${#numbers.formatDecimal(course.averageRating, 1, 1)}">4.5</span>
+                            <span class="stars">
+                                    <!-- 5 sao động theo averageRating -->
+                                    <th:block th:with="rating=${course.averageRating.intValue()}">
+                                        <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                           th:class="${i <= rating} ? 'bi bi-star-fill' : 'bi bi-star'">
+                                        </i>
+                                    </th:block>
+                                </span>
+                            <span class="star-count"
+                                  th:text="'(' + ${#numbers.formatInteger(course.totalReviews, 1, 'COMMA')} + ')'">
+                                    (1,234)
+                                </span>
+                        </div>
+
+                        <!-- Giá tiền -->
+                        <div>
+                                <span class="course-price"
+                                      th:text="${#numbers.formatInteger(course.price, 1, 'COMMA')} + ' ₫'">
+                                    259.000 ₫
+                                </span>
+                        </div>
+
+                        <!-- Badge Bán chạy nhất -->
+                        <div class="d-flex" style="justify-content: space-between; align-items: center;">
+                        <div><span class="badge-bestseller">🔥 Bán chạy nhất</span></div>
                         <button
                                 class="btn btn-outline-secondary save-course-btn"
                                 th:data-course-id="${course.courseId}"
                         >
                             <i class="bi bi-bookmark"></i>
                         </button>
+                        </div>
                     </div>
-
                 </div>
-
             </div>
 
         </div>
-
+        <!-- END row -->
     </div>
 
     <!--modal learning path-->
