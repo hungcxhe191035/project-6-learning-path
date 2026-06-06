@@ -8,8 +8,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- CSRF Token cho AJAX/JS form submissions -->
-    <meta name="_csrf" th:content="${_csrf.token}">
-    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <meta name="_csrf" th:content="${_csrf.token}" th:if="${_csrf != null}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" th:if="${_csrf != null}">
     <title th:text="${pageTitle} ?: 'My Learning Path - Admin'"></title>
     <link
             rel="icon"

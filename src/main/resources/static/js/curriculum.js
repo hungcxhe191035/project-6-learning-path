@@ -27,12 +27,16 @@ document.addEventListener("DOMContentLoaded", function () {
                             const data = new FormData();
                             data.append('upload', file);
                             
-                            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-                            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                            const headers = {};
+                            const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+                            const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
+                            if (csrfHeaderMeta && csrfTokenMeta) {
+                                headers[csrfHeaderMeta.content] = csrfTokenMeta.content;
+                            }
 
                             fetch('/api/instructor/article-image-upload', {
                                 method: 'POST',
-                                headers: { [csrfHeader]: csrfToken },
+                                headers: headers,
                                 body: data
                             })
                             .then(response => response.json())
