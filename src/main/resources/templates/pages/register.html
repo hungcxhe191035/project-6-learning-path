@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/main-layout}"
+>
+
+<head>
+    <title>Đăng ký tài khoản</title>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Custom CSS cho trang mô phỏng Udemy -->
+    <style>
+        .udemy-auth-container {
+            max-width: 1040px;
+            margin: 0 auto;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #2d2f31;
+        }
+        .auth-title {
+            font-weight: 700;
+            font-size: 24px;
+            margin-bottom: 24px;
+            line-height: 1.3;
+        }
+        .udemy-input {
+            padding: 16px;
+            font-weight: 700;
+            border: 1px solid #1c1d1f;
+            border-radius: 0;
+            height: auto;
+            color: #1c1d1f;
+        }
+        .udemy-input::placeholder {
+            color: #6a6f73;
+            font-weight: 700;
+        }
+        .udemy-input:focus {
+            box-shadow: none;
+            border-color: #1c1d1f;
+            outline: 2px solid #a435f0;
+        }
+        .udemy-btn-primary {
+            background-color: #a435f0;
+            color: white;
+            font-weight: 700;
+            border: none;
+            border-radius: 0;
+            padding: 16px;
+            height: auto;
+        }
+        .udemy-btn-primary:hover {
+            background-color: #8710d8;
+            color: white;
+        }
+        .udemy-bottom-box {
+            background-color: #f7f9fa;
+        }
+        .udemy-link {
+            color: #a435f0;
+            font-weight: 700;
+            text-decoration: underline;
+        }
+        .udemy-link:hover {
+            color: #8710d8;
+        }
+    </style>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+    <div class="container-fluid pt-5 pb-5">
+        <div class="row align-items-center udemy-auth-container">
+            <!-- Left Illustration -->
+            <div class="col-lg-6 d-none d-lg-block text-center pe-5">
+                <img src="https://frontends.udemycdn.com/components/auth/desktop-illustration-step-1-x2.webp"
+                     alt="Register Illustration"
+                     class="img-fluid" style="max-width: 400px;">
+            </div>
+
+            <!-- Right Register Form -->
+            <div class="col-12 col-md-8 mx-auto col-lg-5 col-xl-4 p-0">
+                <h2 class="auth-title text-center">Đăng ký tài khoản để bắt đầu học tập</h2>
+
+                <!-- Register Form -->
+                <form th:action="@{/register}" method="post" th:object="${request}">
+                    <!-- Full Name -->
+                    <div class="mb-3">
+                        <input
+                                type="text"
+                                th:field="*{fullName}"
+                                class="form-control udemy-input"
+                                placeholder="Họ và tên"
+                                required
+                        >
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <input
+                                type="email"
+                                th:field="*{email}"
+                                class="form-control udemy-input"
+                                placeholder="Email"
+                                required
+                        >
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="mb-3">
+                        <input
+                                type="text"
+                                th:field="*{phone}"
+                                class="form-control udemy-input"
+                                placeholder="Số điện thoại"
+                        >
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3">
+                        <input
+                                type="password"
+                                th:field="*{password}"
+                                class="form-control udemy-input"
+                                placeholder="Mật khẩu"
+                                required
+                        >
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="mb-3">
+                        <input
+                                type="password"
+                                th:field="*{confirmPassword}"
+                                class="form-control udemy-input"
+                                placeholder="Xác nhận mật khẩu"
+                                required
+                        >
+                    </div>
+
+                    <!-- Error/Success Notification -->
+                    <div th:if="${errorMessage}" class="text-danger small fw-semibold mx-1 mb-3">
+                        <i class="bi bi-exclamation-circle-fill me-1"></i> <span th:text="${errorMessage}">Lỗi đăng ký</span>
+                    </div>
+
+                    <!-- Register Button -->
+                    <button type="submit" class="btn udemy-btn-primary w-100 mb-3">
+                        Đăng ký
+                    </button>
+                </form>
+
+                <!-- Bottom Login Link Box -->
+                <div class="udemy-bottom-box p-4 text-center mt-5">
+                    <div class="mb-3">
+                        Bạn đã có tài khoản rồi?
+                        <a th:href="@{/login}" class="udemy-link">Đăng nhập</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
