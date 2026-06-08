@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/main-layout}"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>Giỏ hàng của tôi</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="container py-5">
+
+        <h2 class="mb-4">
+            Giỏ hàng của tôi
+        </h2>
+
+        <div
+                class="card mb-3"
+                th:each="item : ${cartItems}">
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-2">
+                        <img
+                                th:src="${item.thumbnailUrl}"
+                                class="img-fluid">
+                    </div>
+
+                    <div class="col-md-7">
+                        <h5
+                                th:text="${item.courseTitle}">
+                        </h5>
+                        <div
+                                th:text="${item.instructorName}">
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <strong
+                                th:text="${#numbers.formatInteger(item.price,1,'COMMA')} + ' ₫'">
+                        </strong>
+                    </div>
+
+                    <div class="col-md-1">
+                        <button
+                                class="btn btn-outline-danger"
+                                th:data-course-id="${item.courseId}"
+                                onclick="removeCartItem(this)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        async function removeCartItem(btn){
+            const courseId = btn.dataset.courseId;
+
+            if(!confirm("Xóa khóa học khỏi giỏ hàng?")){
+                return;
+            }
+
+            const response = await fetch(
+                "/api/cart/" + courseId,
+                {
+                    method:"DELETE"
+                }
+            );
+
+            if(response.ok){
+                toastr.success(
+                    "Đã xóa khỏi giỏ hàng"
+                );
+                location.reload();
+            }
+        }
+    </script>
+</div>
+
+</body>
+</html>

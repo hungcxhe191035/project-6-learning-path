@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/main-layout}">
+<head>
+    <title th:text="${pageTitle}">Xem trước Khóa học</title>
+    <style>
+        .preview-banner {
+            background-color: #fef3c7;
+            color: #92400e;
+            border-bottom: 2px solid #fcd34d;
+            padding: 12px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .hero-section {
+            background: #111827;
+            color: white;
+            padding: 60px 0;
+            margin-bottom: 40px;
+        }
+        .course-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .course-subtitle {
+            font-size: 1.25rem;
+            color: #d1d5db;
+            margin-bottom: 24px;
+        }
+        .thumbnail-card {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e5e7eb;
+            background: white;
+            position: sticky;
+            top: 80px;
+        }
+        .thumbnail-card img {
+            width: 100%;
+            height: auto;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .price-tag {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #111827;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    
+    <!-- Banner cảnh báo chế độ xem trước -->
+    <div class="preview-banner shadow-sm">
+        <i class="bi bi-eye-fill me-2"></i> ĐÂY LÀ CHẾ ĐỘ XEM TRƯỚC DÀNH CHO GIẢNG VIÊN (Mô phỏng góc nhìn của Học viên)
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h1 class="course-title" th:text="${version.title}">Tiêu đề khóa học</h1>
+                    <p class="course-subtitle" th:text="${version.subtitle}">Phụ đề khóa học mô tả ngắn gọn</p>
+                    <div class="d-flex align-items-center mb-3 text-warning">
+                        <i class="bi bi-star-fill me-1"></i>
+                        <i class="bi bi-star-fill me-1"></i>
+                        <i class="bi bi-star-fill me-1"></i>
+                        <i class="bi bi-star-fill me-1"></i>
+                        <i class="bi bi-star-half me-2"></i>
+                        <span class="text-white fw-bold me-2">4.5</span>
+                        <span class="text-secondary">(0 đánh giá)</span>
+                    </div>
+                    <div class="text-light">
+                        Giảng viên: <strong th:text="${course.instructor.fullName}">Tên giảng viên</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mb-5">
+        <div class="row g-5">
+            
+            <!-- Cột trái: Nội dung khóa học -->
+            <div class="col-lg-8">
+                
+                <!-- Mô tả khóa học -->
+                <div class="mb-5">
+                    <h3 class="fw-bold mb-4">Mô tả khóa học</h3>
+                    <div class="fs-5 text-secondary" style="white-space: pre-wrap;" th:text="${version.description}">
+                        Nội dung mô tả khóa học sẽ hiển thị ở đây.
+                    </div>
+                </div>
+
+                <!-- Mục lục chương trình học -->
+                <div class="mb-5">
+                    <h3 class="fw-bold mb-4">Nội dung khóa học</h3>
+                    
+                    <div class="accordion shadow-sm rounded-4 overflow-hidden" id="curriculumAccordion">
+                        
+                        <!-- Lặp qua các Chương -->
+                        <div th:each="section, iterStat : ${sections}" class="accordion-item border-0 border-bottom">
+                            <h2 class="accordion-header" th:id="'heading' + ${section.sectionId}">
+                                <button class="accordion-button fw-bold bg-light fs-5" type="button" data-bs-toggle="collapse" th:data-bs-target="'#collapse' + ${section.sectionId}" aria-expanded="true">
+                                    <i class="bi bi-journal-bookmark-fill me-3 text-primary"></i>
+                                    <span th:text="${section.title}">Tên chương</span>
+                                </button>
+                            </h2>
+                            <div th:id="'collapse' + ${section.sectionId}" class="accordion-collapse collapse show" data-bs-parent="#curriculumAccordion">
+                                <div class="accordion-body p-0">
+                                    <ul class="list-group list-group-flush">
+                                        <!-- Lặp qua các Bài giảng -->
+                                        <li th:each="lesson : ${sectionLessonsMap.get(section.sectionId)}" 
+                                            class="list-group-item px-4 py-3 d-flex justify-content-between align-items-center list-group-item-action" 
+                                            style="cursor: pointer;"
+                                            data-bs-toggle="modal" 
+                                            th:data-bs-target="'#lessonModal' + ${lesson.lessonId}">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fs-5 me-3" th:classappend="${lesson.lessonType.name() == 'VIDEO' ? 'bi-play-circle-fill text-primary' : (lesson.lessonType.name() == 'ARTICLE' ? 'bi-file-text-fill text-success' : 'bi-patch-question-fill text-danger')}"></i>
+                                                <span th:text="${lesson.title}" class="fs-6 fw-medium text-dark">Tên bài giảng</span>
+                                            </div>
+                                            <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3" th:text="${lesson.lessonType}">VIDEO</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột phải: Sidebar Mua hàng -->
+            <div class="col-lg-4">
+                <div class="thumbnail-card" style="margin-top: -150px;">
+                    <!-- Ảnh bìa -->
+                    <img th:if="${version.thumbnail != null}" th:src="${version.thumbnail.fileUrl}" alt="Course Thumbnail">
+                    <div th:unless="${version.thumbnail != null}" class="bg-secondary text-white d-flex justify-content-center align-items-center" style="height: 220px;">
+                        <i class="bi bi-image display-1 opacity-50"></i>
+                    </div>
+                    
+                    <div class="p-4">
+                        <div class="price-tag" th:text="${#numbers.formatInteger(version.price != null ? version.price : 0, 1, 'COMMA')} + ' ₫'">
+                            0 ₫
+                        </div>
+                        
+                        <button class="btn btn-primary btn-lg w-100 rounded-pill fw-bold mb-3" disabled>
+                            Mô phỏng: Đăng ký học ngay
+                        </button>
+                        
+                        <div class="text-center text-muted small mb-4">
+                            Đảm bảo hoàn tiền trong 30 ngày
+                        </div>
+                        
+                        <h6 class="fw-bold mb-3">Khóa học này bao gồm:</h6>
+                        <ul class="list-unstyled text-secondary">
+                            <li class="mb-2"><i class="bi bi-camera-video me-2 text-dark"></i> Video theo yêu cầu</li>
+                            <li class="mb-2"><i class="bi bi-file-earmark-text me-2 text-dark"></i> Bài viết và tài liệu</li>
+                            <li class="mb-2"><i class="bi bi-phone me-2 text-dark"></i> Truy cập trên thiết bị di động</li>
+                            <li class="mb-2"><i class="bi bi-trophy me-2 text-dark"></i> Giấy chứng nhận hoàn thành</li>
+                        </ul>
+
+                        <hr class="my-4">
+                        
+                        <a th:href="@{/instructor/courses/{id}/edit(id=${course.courseId})}" class="btn btn-outline-secondary w-100 rounded-pill fw-bold">
+                            <i class="bi bi-pencil-square me-2"></i> Quay lại chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modals hiển thị Nội dung bài giảng -->
+    <th:block th:each="section : ${sections}">
+        <th:block th:each="lesson : ${sectionLessonsMap.get(section.sectionId)}">
+            <div class="modal fade" th:id="'lessonModal' + ${lesson.lessonId}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content border-0 shadow-lg">
+                        <div class="modal-header bg-light">
+                            <h5 class="modal-title fw-bold text-dark">
+                                <i class="fs-5 me-2" th:classappend="${lesson.lessonType.name() == 'VIDEO' ? 'bi-play-circle-fill text-primary' : (lesson.lessonType.name() == 'ARTICLE' ? 'bi-file-text-fill text-success' : 'bi-patch-question-fill text-danger')}"></i>
+                                <span th:text="${lesson.title}"></span>
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <!-- Hiển thị VIDEO -->
+                            <div th:if="${lesson.lessonType.name() == 'VIDEO'}">
+                                <div th:if="${lesson.video != null}">
+                                    <video controls class="w-100 rounded shadow-sm" style="max-height: 450px; background: #000;">
+                                        <source th:src="${lesson.video.fileUrl}" type="video/mp4">
+                                        Trình duyệt của bạn không hỗ trợ thẻ video.
+                                    </video>
+                                </div>
+                                <div th:unless="${lesson.video != null}" class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Bài giảng Video này chưa được tải lên video nào!
+                                </div>
+                            </div>
+
+                            <!-- Hiển thị ARTICLE -->
+                            <div th:if="${lesson.lessonType.name() == 'ARTICLE'}">
+                                <div th:if="${lesson.articleContent != null and !lesson.articleContent.isEmpty()}" th:utext="${lesson.articleContent}">
+                                </div>
+                                <div th:unless="${lesson.articleContent != null and !lesson.articleContent.isEmpty()}" class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Bài viết này chưa có nội dung!
+                                </div>
+                            </div>
+                            
+                            <!-- Hiển thị QUIZ -->
+                            <div th:if="${lesson.lessonType.name() == 'QUIZ'}">
+                                <div class="alert alert-info border-info mb-4">
+                                    <h5 class="alert-heading fw-bold"><i class="bi bi-info-circle-fill me-2"></i> Chế độ xem trước Trắc nghiệm</h5>
+                                    <p class="mb-0">Dưới đây là danh sách các câu hỏi trắc nghiệm bạn đã tạo. Học viên sẽ làm bài thi với giao diện tương tác (chọn đáp án, tính điểm) ở Phase Học viên.</p>
+                                </div>
+                                
+                                <div th:if="${lessonQuestionsMap.get(lesson.lessonId) == null or lessonQuestionsMap.get(lesson.lessonId).isEmpty()}" class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Bài kiểm tra này chưa có câu hỏi nào!
+                                </div>
+
+                                <div th:if="${lessonQuestionsMap.get(lesson.lessonId) != null and !lessonQuestionsMap.get(lesson.lessonId).isEmpty()}">
+                                    <div th:each="q, qStat : ${lessonQuestionsMap.get(lesson.lessonId)}" class="card mb-4 border-0 shadow-sm">
+                                        <div class="card-header bg-primary text-white fw-bold">
+                                            Câu hỏi <span th:text="${qStat.count}">1</span>: <span th:text="${q.questionText}">Nội dung câu hỏi</span>
+                                        </div>
+                                        <ul class="list-group list-group-flush">
+                                            <li th:each="ans : ${questionAnswersMap.get(q.questionId)}" 
+                                                class="list-group-item d-flex align-items-center"
+                                                th:classappend="${ans.isCorrect} ? 'list-group-item-success' : ''">
+                                                <i class="me-3 fs-5" th:classappend="${ans.isCorrect} ? 'bi bi-check-circle-fill text-success' : 'bi bi-circle text-secondary'"></i>
+                                                <span th:text="${ans.answerText}">Nội dung đáp án</span>
+                                                <span th:if="${ans.isCorrect}" class="badge bg-success ms-auto">Đáp án đúng</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </th:block>
+
+</div>
+
+</body>
+</html>

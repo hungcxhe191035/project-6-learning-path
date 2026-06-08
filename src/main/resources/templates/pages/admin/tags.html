@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/admin-layout}"
+>
+<head>
+    <title>Quản lý Tag</title>
+    <style>
+        .toast-alert {
+            position: fixed; top: 24px; right: 24px; z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 320px;
+            animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .tag-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #f5e6ff; border: 1px solid #c77dff;
+            color: #7b2d8b; font-weight: 600; font-size: 13px;
+            padding: 5px 14px; border-radius: 50px;
+        }
+        .form-card { border: 2px solid #1c1d1f; border-radius: 0; }
+        .form-card-header { background: #1c1d1f; color: #fff; padding: 14px 20px; font-weight: 700; }
+        .field-input {
+            border: 1px solid #1c1d1f; border-radius: 0;
+            padding: 10px 14px; font-size: 14px;
+        }
+        .field-input:focus { box-shadow: none; border-color: #1c1d1f; outline: 2px solid #a435f0; }
+        .btn-create { background: #a435f0; color: #fff; font-weight: 700; border-radius: 0; border: none; padding: 10px 24px; transition: background 0.2s; }
+        .btn-create:hover { background: #8710d8; color: #fff; }
+        .btn-edit   { background: #fff; color: #1c1d1f; border: 1px solid #1c1d1f; font-weight: 600; border-radius: 0; padding: 5px 12px; font-size: 13px; }
+        .btn-edit:hover { background: #1c1d1f; color: #fff; }
+        .btn-del    { background: #fff; color: #b32424; border: 1px solid #b32424; font-weight: 600; border-radius: 0; padding: 5px 12px; font-size: 13px; }
+        .btn-del:hover { background: #b32424; color: #fff; }
+        .edit-mode-banner { background: #fff3cd; border: 1px solid #ffc107; border-radius: 0; padding: 10px 16px; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Toasts -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-0 mb-0 toast-alert" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-0 mb-0 toast-alert" role="alert">
+        <i class="bi bi-exclamation-circle-fill me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #1c1d1f;">Quản lý Tag</h2>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- LEFT: Form tạo / sửa tag -->
+        <div class="col-lg-4">
+            <!-- Edit mode banner -->
+            <div th:if="${editTag != null}" class="edit-mode-banner mb-3">
+                <i class="bi bi-pencil-square me-2"></i>
+                Đang sửa tag: <strong th:text="${editTag.tagName}">tag</strong>
+                <a th:href="@{/admin/tags}" class="ms-2 text-decoration-none text-danger fw-bold">
+                    <i class="bi bi-x-circle"></i> Huỷ
+                </a>
+            </div>
+
+            <div class="form-card">
+                <div class="form-card-header">
+                    <span th:if="${editTag == null}"><i class="bi bi-plus-circle-fill me-2"></i>Thêm Tag mới</span>
+                    <span th:if="${editTag != null}"><i class="bi bi-pencil-fill me-2"></i>Sửa Tag</span>
+                </div>
+                <div class="p-4">
+                    <!-- Create Form -->
+                    <form th:if="${editTag == null}"
+                          th:action="@{/admin/tags/create}" method="post"
+                          th:object="${tagForm}">
+
+                        <div class="mb-3">
+                            <label for="tagName" class="form-label fw-bold" style="font-size: 13px;">
+                                Tên Tag <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="tagName" th:field="*{tagName}"
+                                   class="form-control field-input"
+                                   placeholder="Ví dụ: Java, Python, Marketing..."
+                                   maxlength="255" autofocus>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('tagName')}" th:errors="*{tagName}"></div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-bold" style="font-size: 13px;">Mô tả</label>
+                            <textarea id="description" th:field="*{description}" rows="3"
+                                      class="form-control field-input"
+                                      placeholder="Mô tả ngắn về lĩnh vực này..."
+                                      maxlength="1000"></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-create">
+                                <i class="bi bi-plus-circle-fill me-2"></i>Thêm Tag
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Edit Form -->
+                    <form th:if="${editTag != null}"
+                          th:action="@{/admin/tags/{id}/edit(id=${editTag.tagId})}" method="post"
+                          th:object="${tagForm}">
+
+                        <div class="mb-3">
+                            <label for="editTagName" class="form-label fw-bold" style="font-size: 13px;">
+                                Tên Tag <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="editTagName" th:field="*{tagName}"
+                                   class="form-control field-input" maxlength="255" autofocus>
+                        </div>
+                        <div class="mb-4">
+                            <label for="editDescription" class="form-label fw-bold" style="font-size: 13px;">Mô tả</label>
+                            <textarea id="editDescription" th:field="*{description}" rows="3"
+                                      class="form-control field-input" maxlength="1000"></textarea>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-create">
+                                <i class="bi bi-check-lg me-2"></i>Lưu thay đổi
+                            </button>
+                            <a th:href="@{/admin/tags}" class="btn btn-outline-secondary rounded-0">Huỷ</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Danh sách tags -->
+        <div class="col-lg-8">
+            <div class="card admin-card">
+                <div class="admin-card-header d-flex justify-content-between align-items-center">
+                    <span>Danh sách Tag (<span th:text="${totalTags}">0</span> tag)</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 14px;">
+                        <thead class="table-light">
+                        <tr>
+                            <th class="py-3 ps-4" style="width: 50px;">#</th>
+                            <th class="py-3">Tên Tag</th>
+                            <th class="py-3">Mô tả</th>
+                            <th class="py-3">Ngày tạo</th>
+                            <th class="py-3 pe-4 text-end" style="width: 140px;">Thao tác</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="tag, stat : ${tags}"
+                            th:classappend="${editTag != null and editTag.tagId == tag.tagId} ? 'table-warning'">
+                            <td class="ps-4 text-muted" th:text="${stat.index + 1}">1</td>
+                            <td>
+                                <span class="tag-pill">
+                                    <i class="bi bi-tag-fill" style="font-size: 11px;"></i>
+                                    <span th:text="${tag.tagName}">Tag</span>
+                                </span>
+                            </td>
+                            <td class="text-muted" style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                th:text="${tag.description ?: '—'}"
+                                th:title="${tag.description}">--</td>
+                            <td class="text-muted"
+                                th:text="${tag.createdAt != null ? #temporals.format(tag.createdAt, 'dd/MM/yyyy') : '-'}">--</td>
+                            <td class="pe-4 text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <a th:href="@{/admin/tags/{id}/edit(id=${tag.tagId})}"
+                                       class="btn btn-edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form th:action="@{/admin/tags/{id}/delete(id=${tag.tagId})}" method="post"
+                                          onsubmit="return confirm('Xóa tag \'' + /*[[${tag.tagName}]]*/ 'tag' + '\'? Hành động này không thể hoàn tác.')">
+                                        <button type="submit" class="btn btn-del">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${tags.isEmpty()}">
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="bi bi-tags fs-1 d-block mb-3"></i>
+                                Chưa có tag nào. Hãy thêm tag đầu tiên!
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toasts = document.querySelectorAll('.toast-alert');
+        toasts.forEach(t => {
+            setTimeout(() => {
+                t.style.opacity = '0'; t.style.transform = 'translateY(-20px)';
+                setTimeout(() => t.remove(), 300);
+            }, 4000);
+        });
+    });
+</script>
+</body>
+</html>
