@@ -55,9 +55,9 @@ public class AuthController {
     public String handleForgotPassword(@RequestParam("email") String email, Model model) {
         try {
             authService.forgotPassword(email);
-            model.addAttribute("success", true);
+            model.addAttribute("successMessage", "Mật khẩu mới đã được gửi về email của bạn!");
         } catch (RuntimeException e) {
-            model.addAttribute("error", true);
+            model.addAttribute("errorMessage", e.getMessage());
         }
         return "pages/forgot-password";
     }
