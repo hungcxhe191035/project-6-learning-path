@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/main-layout}"
+>
+<head>
+    <title>Đăng ký trở thành Giảng viên | Corporate LMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --primary-color: #2563EB;
+            --primary-hover: #1D4ED8;
+            --primary-light: #EFF6FF;
+            --success-color: #16A34A;
+            --warning-color: #F59E0B;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border-color: #E5E7EB;
+            --bg-body: #F9FAFB;
+            --bg-card: #FFFFFF;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+        }
+
+        /* Header Section */
+        .page-header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 48px 0;
+            margin-bottom: 32px;
+        }
+        .header-title { font-weight: 700; color: var(--text-main); letter-spacing: -0.02em; }
+        .header-desc { color: var(--text-muted); font-size: 1.125rem; max-width: 600px; }
+
+        /* Stepper */
+        .stepper-wrapper { display: flex; justify-content: space-between; position: relative; margin-top: 32px; }
+        .stepper-wrapper::before {
+            content: ""; position: absolute; top: 16px; left: 0; right: 0;
+            height: 2px; background-color: var(--border-color); z-index: 1;
+        }
+        .stepper-item { position: relative; display: flex; flex-direction: column; align-items: center; z-index: 2; width: 25%; }
+        .step-counter {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: var(--bg-card); border: 2px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 14px; color: var(--text-muted);
+            margin-bottom: 8px; transition: all 0.3s;
+        }
+        .stepper-item.active .step-counter { border-color: var(--primary-color); background-color: var(--primary-color); color: #fff; }
+        .step-name { font-size: 13px; font-weight: 500; color: var(--text-muted); text-align: center; }
+        .stepper-item.active .step-name { color: var(--text-main); font-weight: 600; }
+
+        /* Form Layout & Cards */
+        .section-card {
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
+            padding: 32px; margin-bottom: 24px;
+        }
+        .section-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+        .section-title i { color: var(--primary-color); font-size: 1.1em; }
+
+        /* Inputs */
+        .form-label { font-weight: 500; font-size: 0.9rem; color: var(--text-main); margin-bottom: 8px; }
+        .required-mark { color: #DC2626; margin-left: 4px; }
+        .form-control, .form-select {
+            border-radius: var(--radius-md); border: 1px solid var(--border-color);
+            padding: 12px 16px; font-size: 0.95rem; box-shadow: var(--shadow-sm); transition: all 0.2s;
+        }
+        .form-control:focus { border-color: var(--primary-color); box-shadow: 0 0 0 4px var(--primary-light); }
+        .form-control.is-invalid { border-color: #DC2626; box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1); }
+        .form-text { font-size: 0.85rem; color: var(--text-muted); margin-top: 6px; }
+        .char-count { font-size: 0.8rem; color: var(--text-muted); text-align: right; margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+        /* Selectable Category Cards */
+        .tag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+        .tag-card-label {
+            display: flex; flex-direction: column; align-items: flex-start;
+            padding: 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md);
+            cursor: pointer; transition: all 0.2s ease; background: var(--bg-card); user-select: none;
+            height: 100%;
+        }
+        .tag-card-label:hover { border-color: var(--primary-light); background-color: #F8FAFC; }
+        .tag-check-input { display: none; }
+        .tag-check-input:checked + .tag-card-label {
+            border-color: var(--primary-color); background-color: var(--primary-light);
+        }
+        .tag-check-input:checked + .tag-card-label .tag-icon { color: var(--primary-color); }
+        .tag-icon { font-size: 20px; color: var(--text-muted); margin-bottom: 8px; transition: color 0.2s; }
+        .tag-title { font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
+        .check-indicator {
+            position: absolute; top: 12px; right: 12px;
+            color: var(--primary-color); opacity: 0; transform: scale(0.5); transition: all 0.2s;
+        }
+        .tag-card-label { position: relative; }
+        .tag-check-input:checked + .tag-card-label .check-indicator { opacity: 1; transform: scale(1); }
+
+        /* CV Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border-color); border-radius: var(--radius-lg);
+            padding: 40px 24px; text-align: center; cursor: pointer;
+            background-color: var(--bg-body); transition: all 0.2s ease;
+        }
+        .upload-zone:hover, .upload-zone.drag-over { border-color: var(--primary-color); background-color: var(--primary-light); }
+        .upload-icon { font-size: 40px; color: var(--primary-color); margin-bottom: 16px; }
+        .file-preview-card {
+            display: none; border: 1px solid var(--border-color); border-radius: var(--radius-md);
+            padding: 16px; background: var(--bg-card); align-items: center; gap: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+        .file-preview-card.show { display: flex; }
+        .file-icon-badge {
+            width: 48px; height: 48px; border-radius: var(--radius-md);
+            background: #FEE2E2; color: #DC2626; display: flex;
+            align-items: center; justify-content: center; font-size: 24px;
+        }
+
+        /* Sticky Sidebar */
+        .sticky-sidebar { position: sticky; top: 24px; }
+        .info-card {
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color); padding: 24px; margin-bottom: 24px;
+            box-shadow: var(--shadow-md);
+        }
+        .info-card h5 { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; }
+        .check-list { list-style: none; padding: 0; margin: 0; }
+        .check-list li { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; font-size: 0.9rem; color: var(--text-muted); }
+        .check-list li i { color: var(--success-color); font-size: 1.1rem; margin-top: -2px; }
+
+        /* Action Buttons */
+        .btn-primary {
+            background-color: var(--primary-color); border-color: var(--primary-color);
+            padding: 12px 28px; font-weight: 600; border-radius: var(--radius-md);
+            transition: all 0.2s;
+        }
+        .btn-primary:hover { background-color: var(--primary-hover); box-shadow: var(--shadow-md); }
+
+        .custom-checkbox .form-check-input:checked { background-color: var(--primary-color); border-color: var(--primary-color); }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="header-title">Trở thành Giảng viên</h1>
+                    <p class="header-desc mt-2 mb-0">Chia sẻ kiến thức chuyên môn và xây dựng cộng đồng học tập cùng hàng nghìn học viên.</p>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="stepper-wrapper">
+                        <div class="stepper-item active">
+                            <div class="step-counter"><i class="bi bi-pencil-square"></i></div>
+                            <div class="step-name">Nộp hồ sơ</div>
+                        </div>
+                        <div class="stepper-item">
+                            <div class="step-counter">2</div>
+                            <div class="step-name">Đánh giá</div>
+                        </div>
+                        <div class="stepper-item">
+                            <div class="step-counter">3</div>
+                            <div class="step-name">Kích hoạt</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div th:if="${error}" class="alert alert-danger rounded-3 mb-4 d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill fs-5 me-3"></i>
+                    <div th:text="${error}"></div>
+                </div>
+
+                <form th:action="@{/instructor/apply}" method="post" th:object="${applicationForm}" enctype="multipart/form-data" id="instructorForm" novalidate>
+
+                    <div class="section-card">
+                        <h3 class="section-title"><i class="bi bi-person-vcard"></i>Hồ sơ chuyên môn</h3>
+
+                        <div class="mb-4">
+                            <label for="headline" class="form-label">
+                                Tiêu đề nghề nghiệp<span class="required-mark">*</span>
+                            </label>
+                            <input type="text" id="headline" th:field="*{headline}"
+                                   class="form-control" th:classappend="${#fields.hasErrors('headline')} ? 'is-invalid'"
+                                   placeholder="VD: Senior Data Scientist | Chuyên gia Machine Learning" maxlength="255" required aria-describedby="headlineHelp">
+                            <div class="form-text" id="headlineHelp">Hãy mô tả ngắn gọn chuyên môn nổi bật của bạn.</div>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('headline')}" th:errors="*{headline}"></div>
+                            <div class="char-count"><span id="headlineCount">0</span>/255</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="bio" class="form-label">
+                                Giới thiệu bản thân<span class="required-mark">*</span>
+                            </label>
+                            <textarea id="bio" th:field="*{bio}" rows="5"
+                                      class="form-control" th:classappend="${#fields.hasErrors('bio')} ? 'is-invalid'"
+                                      placeholder="Mô tả chi tiết kinh nghiệm làm việc, nền tảng học vấn và các thành tựu..." maxlength="2000" required aria-describedby="bioHelp"></textarea>
+                            <div class="form-text" id="bioHelp">Học viên rất muốn biết trình độ chuyên môn và lý do họ nên học từ bạn.</div>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}"></div>
+                            <div class="char-count"><span id="bioCount">0</span>/2000</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="linkedinUrl" class="form-label">Hồ sơ LinkedIn</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-linkedin" style="color: #0A66C2;"></i></span>
+                                <input type="url" id="linkedinUrl" th:field="*{linkedinUrl}"
+                                       class="form-control border-start-0 ps-0" th:classappend="${#fields.hasErrors('linkedinUrl')} ? 'is-invalid'"
+                                       placeholder="https://linkedin.com/in/your-profile" maxlength="500">
+                            </div>
+                            <div class="form-text">Bổ sung profile LinkedIn giúp tăng độ tin cậy của hồ sơ.</div>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('linkedinUrl')}" th:errors="*{linkedinUrl}"></div>
+                        </div>
+
+                        <div class="mb-2" id="cvContainer" th:data-has-existing-cv="${existingCvName != null}">
+                            <label class="form-label">Tải lên CV<span class="required-mark">*</span></label>
+
+                            <div class="upload-zone" id="cvDropZone" onclick="document.getElementById('cvFile').click()" onkeypress="if(event.key==='Enter') document.getElementById('cvFile').click()" tabindex="0" role="button" aria-label="Upload CV"
+                                 th:style="${existingCvName != null} ? 'display: none;' : ''">
+                                <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                                <h6 class="fw-bold mb-1">Nhấn để tải lên hoặc kéo thả file vào đây</h6>
+                                <p class="text-muted small mb-0">Hỗ trợ định dạng PDF, DOCX (Tối đa 10MB)</p>
+                            </div>
+                            <input type="file" id="cvFile" name="cvFile" accept=".pdf,.doc,.docx" style="display: none;" onchange="handleCvSelect(this)">
+
+                            <div class="file-preview-card mt-3" id="cvFilePreview"
+                                 th:classappend="${existingCvName != null} ? 'show' : ''">
+                                <div class="file-icon-badge"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold text-dark" id="cvFileName" style="font-size: 0.95rem;"
+                                         th:text="${existingCvName != null ? existingCvName : 'document.pdf'}">document.pdf</div>
+                                    <div class="text-muted" id="cvFileSize" style="font-size: 0.8rem;"
+                                         th:text="${existingCvName != null ? 'Đã lưu trên hệ thống' : '0 KB'}">0 KB</div>
+                                    <div class="progress mt-2" style="height: 4px;" id="uploadProgress">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%;"></div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-light text-danger btn-sm rounded-circle" onclick="clearCvFile()" aria-label="Remove file">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
+
+                            <div class="text-danger small mt-2" id="cvError" style="display: none; font-weight: 500;">
+                                <i class="bi bi-exclamation-circle me-1"></i> Vui lòng tải lên CV của bạn.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <h3 class="section-title"><i class="bi bi-grid-1x2"></i>Chuyên môn giảng dạy</h3>
+
+                        <div class="mb-2">
+                            <label class="form-label">
+                                Lĩnh vực chuyên môn <span class="required-mark">*</span>
+                            </label>
+                            <p class="form-text mt-0 mb-3">Chọn các chuyên ngành mà bạn tự tin có thể thiết kế khóa học chất lượng cao.</p>
+
+                            <div th:if="${allTags.isEmpty()}" class="alert alert-secondary py-2" style="font-size: 14px;">
+                                <i class="bi bi-info-circle me-1"></i>Hệ thống đang cập nhật danh mục. Bạn có thể bỏ qua bước này.
+                            </div>
+
+                            <div class="tag-grid" th:unless="${allTags.isEmpty()}">
+                                <div th:each="tag : ${allTags}">
+                                    <input type="checkbox" class="tag-check-input" th:id="'tag_' + ${tag.tagId}" name="tagIds" th:value="${tag.tagId}"
+                                           th:checked="${applicationForm.tagIds != null and applicationForm.tagIds.contains(tag.tagId)}">
+                                    <label class="tag-card-label" th:for="'tag_' + ${tag.tagId}" tabindex="0">
+                                        <i class="bi bi-check-circle-fill check-indicator"></i>
+                                        <i class="bi bi-book-half tag-icon"></i>
+                                        <span class="tag-title" th:text="${tag.tagName}">Technology</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <h3 class="section-title"><i class="bi bi-lightbulb"></i>Đề xuất ý tưởng về khóa học</h3>
+
+                        <div class="mb-2">
+                            <label for="motivation" class="form-label">
+                                Kế hoạch và mục tiêu giảng dạy <span class="required-mark">*</span>
+                            </label>
+                            <textarea id="motivation" th:field="*{motivation}" rows="6"
+                                      class="form-control" th:classappend="${#fields.hasErrors('motivation')} ? 'is-invalid'"
+                                      placeholder="1. Bạn dự định tạo khóa học về chủ đề gì?&#10;2. Đối tượng học viên bạn nhắm đến là ai?&#10;3. Học viên sẽ đạt được kỹ năng gì sau khi hoàn thành?" maxlength="2000" required aria-describedby="motivationHelp"></textarea>
+                            <div class="form-text" id="motivationHelp">Phác thảo lộ trình rõ ràng giúp hồ sơ của bạn được duyệt nhanh chóng hơn.</div>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('motivation')}" th:errors="*{motivation}"></div>
+                            <div class="char-count"><span id="motivationCount">0</span>/2000</div>
+                        </div>
+                    </div>
+
+                    <div class="section-card bg-light border-0">
+                        <h3 class="section-title mb-3 fs-5"><i class="bi bi-shield-check"></i> Xác nhận hồ sơ</h3>
+
+                        <div class="form-check custom-checkbox mb-3">
+                            <input class="form-check-input" type="checkbox" id="confirmAccuracy" required>
+                            <label class="form-check-label text-dark" for="confirmAccuracy">
+                                Tôi cam kết các thông tin cá nhân và chứng chỉ chuyên môn cung cấp ở trên là hoàn toàn chính xác.
+                            </label>
+                        </div>
+                        <div class="form-check custom-checkbox mb-4">
+                            <input class="form-check-input" type="checkbox" id="confirmTerms" required>
+                            <label class="form-check-label text-dark" for="confirmTerms">
+                                Tôi đã đọc và đồng ý với <a href="#" class="text-decoration-none">Điều khoản dành cho giảng viên</a> của nền tảng.
+                            </label>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center border-top pt-4">
+                            <a th:href="@{/home}" class="text-muted text-decoration-none fw-medium">
+                                <i class="bi bi-arrow-left me-1"></i>Hủy bỏ
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg fs-6">
+                                Nộp hồ sơ xét duyệt <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="sticky-sidebar">
+
+                    <div class="info-card border-top border-4 border-primary">
+                        <h5>Điều kiện trở thành giảng viên</h5>
+                        <ul class="check-list">
+                            <li><i class="bi bi-check-circle-fill"></i> Có kinh nghiệm thực tế sâu rộng trong lĩnh vực chuyên môn.</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Có khả năng sư phạm và truyền đạt kiến thức mạch lạc.</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Cam kết xây dựng nội dung chất lượng, đáp ứng tiêu chuẩn nền tảng.</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Tuân thủ nghiêm ngặt các quy định cộng đồng và bản quyền.</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-card">
+                        <h5>Quyền lợi đặc quyền</h5>
+                        <ul class="check-list">
+                            <li>
+                                <div class="text-primary mt-1 fs-5 me-2"><i class="bi bi-graph-up-arrow"></i></div>
+                                <div>
+                                    <strong class="d-block text-dark">Thu nhập thụ động</strong>
+                                    Nhận doanh thu hấp dẫn từ việc bán khóa học dài hạn.
+                                </div>
+                            </li>
+                            <li class="mt-3">
+                                <div class="text-primary mt-1 fs-5 me-2"><i class="bi bi-globe"></i></div>
+                                <div>
+                                    <strong class="d-block text-dark">Phạm vi toàn cầu</strong>
+                                    Tiếp cận hàng triệu học viên và chuyên gia trên khắp thế giới.
+                                </div>
+                            </li>
+                            <li class="mt-3">
+                                <div class="text-primary mt-1 fs-5 me-2"><i class="bi bi-pie-chart-fill"></i></div>
+                                <div>
+                                    <strong class="d-block text-dark">Phân tích chuyên sâu</strong>
+                                    Sử dụng bộ công cụ LMS Enterprise để quản lý học viên và tối ưu nội dung.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="info-card bg-light border-0">
+                        <h6 class="fw-bold mb-2"><i class="bi bi-headset me-2 text-primary"></i>Bạn cần hỗ trợ?</h6>
+                        <p class="text-muted small mb-0">Đội ngũ Partner Success của chúng tôi luôn sẵn sàng hỗ trợ bạn trong suốt quá trình đăng ký.</p>
+                        <a href="#" class="d-inline-block mt-2 small text-decoration-none fw-medium">Liên hệ hỗ trợ <i class="bi bi-chevron-right" style="font-size: 10px;"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let hasExistingCv = false;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Lấy trạng thái CV cũ từ data attribute
+        const cvContainer = document.getElementById('cvContainer');
+        if (cvContainer) {
+            hasExistingCv = cvContainer.getAttribute('data-has-existing-cv') === 'true';
+        }
+
+        // Character Counters
+        const setupCharCounter = (inputId, counterId) => {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(counterId);
+            if (!input || !counter) return;
+
+            const updateCounter = () => {
+                const len = input.value.length;
+                counter.textContent = len;
+                if(len >= input.maxLength * 0.9) {
+                    counter.classList.add('text-danger');
+                } else {
+                    counter.classList.remove('text-danger');
+                }
+            };
+            input.addEventListener('input', updateCounter);
+            updateCounter(); // Init
+        };
+
+        setupCharCounter('headline', 'headlineCount');
+        setupCharCounter('bio', 'bioCount');
+        setupCharCounter('motivation', 'motivationCount');
+
+        // Form Validation UI (Bootstrap style)
+        const form = document.getElementById('instructorForm');
+        form.addEventListener('submit', function (event) {
+            const cvFile = document.getElementById('cvFile');
+            const cvError = document.getElementById('cvError');
+            const dropZone = document.getElementById('cvDropZone');
+            const hasNewFile = cvFile && cvFile.files && cvFile.files.length > 0;
+            let isCvValid = true;
+
+            if (!hasExistingCv && !hasNewFile) {
+                isCvValid = false;
+                if (cvError) cvError.style.display = 'block';
+                if (dropZone) dropZone.style.borderColor = '#DC2626';
+            } else {
+                if (cvError) cvError.style.display = 'none';
+                if (dropZone) dropZone.style.borderColor = '';
+            }
+
+            if (!form.checkValidity() || !isCvValid) {
+                event.preventDefault();
+                event.stopPropagation();
+                // Cuộn tới lỗi đầu tiên
+                if (!isCvValid) {
+                    if (dropZone) {
+                        dropZone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                } else {
+                    const firstInvalid = form.querySelector(':invalid');
+                    if(firstInvalid) {
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+            form.classList.add('was-validated');
+        }, false);
+
+        // Accessibility for Tag Cards (Enter/Space to check)
+        const tagLabels = document.querySelectorAll('.tag-card-label');
+        tagLabels.forEach(label => {
+            label.addEventListener('keydown', (e) => {
+                if(e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    label.click();
+                }
+            });
+        });
+    });
+
+    // CV Drag & Drop Logic
+    const dropZone = document.getElementById('cvDropZone');
+    const cvInput = document.getElementById('cvFile');
+
+    if (dropZone) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files.length > 0) {
+                cvInput.files = files;
+                handleCvSelect(cvInput);
+            }
+        }, false);
+    }
+
+    function handleCvSelect(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        // Validation
+        const allowedExtensions = ['.pdf', '.doc', '.docx'];
+        const fileName = file.name.toLowerCase();
+        const isValidExt = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+        if (!isValidExt) {
+            alert('Định dạng file không hợp lệ. Vui lòng chọn file PDF hoặc DOC/DOCX.');
+            input.value = '';
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) { // 10MB
+            alert('Kích thước file vượt quá 10MB. Vui lòng nén file hoặc chọn file khác.');
+            input.value = '';
+            return;
+        }
+
+        // Cập nhật UI
+        const isPdf = fileName.endsWith('.pdf');
+        const iconElement = document.querySelector('.file-icon-badge i');
+        const badgeElement = document.querySelector('.file-icon-badge');
+
+        if(isPdf) {
+            iconElement.className = 'bi bi-file-earmark-pdf-fill';
+            badgeElement.style.background = '#FEE2E2';
+            badgeElement.style.color = '#DC2626';
+        } else {
+            iconElement.className = 'bi bi-file-earmark-word-fill';
+            badgeElement.style.background = '#DBEAFE';
+            badgeElement.style.color = '#2563EB';
+        }
+
+        document.getElementById('cvFileName').textContent = file.name;
+        document.getElementById('cvFileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+
+        document.getElementById('cvFilePreview').classList.add('show');
+        document.getElementById('cvDropZone').style.display = 'none';
+
+        // Ẩn lỗi nếu có
+        const cvError = document.getElementById('cvError');
+        if (cvError) cvError.style.display = 'none';
+        const dropZone = document.getElementById('cvDropZone');
+        if (dropZone) dropZone.style.borderColor = '';
+
+        // Mô phỏng animation upload
+        const progressBar = document.querySelector('#uploadProgress .progress-bar');
+        progressBar.style.width = '0%';
+        setTimeout(() => progressBar.style.width = '100%', 100);
+    }
+
+    function clearCvFile() {
+        const input = document.getElementById('cvFile');
+        const preview = document.getElementById('cvFilePreview');
+        const dropZone = document.getElementById('cvDropZone');
+
+        hasExistingCv = false;
+
+        if (input) {
+            input.value = '';
+        }
+        if (preview) {
+            preview.classList.remove('show');
+        }
+        if (dropZone) {
+            dropZone.style.display = 'block';
+            dropZone.style.borderColor = '';
+        }
+        const cvError = document.getElementById('cvError');
+        if (cvError) {
+            cvError.style.display = 'none';
+        }
+    }
+</script>
+</div>
+</body>
+</html>

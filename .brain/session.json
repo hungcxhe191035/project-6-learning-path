@@ -1,0 +1,26 @@
+{
+  "updated_at": "2026-06-06T23:45:00+07:00",
+  "working_on": {
+    "feature": "Course Curriculum Content Management (Phase 6)",
+    "task": "Completed handling video, article, and quiz persistence",
+    "status": "completed",
+    "files": ["InstructorLessonRestController.java", "curriculum.js", "InstructorLessonService.java"],
+    "blockers": [],
+    "notes": "User successfully pushed branch fix/image-upload-error-adminlayerhtml and merged to main."
+  },
+  "pending_tasks": [
+    { "task": "Publish Course Feature (Phase 7)", "priority": "high", "notes": "Need to connect the 'Xuất bản khóa học' button to change Draft to Published" },
+    { "task": "Student Course Listing Page", "priority": "high", "notes": "Display published courses for students to browse" }
+  ],
+  "recent_changes": [
+    { "timestamp": "2026-06-06T23:38:00+07:00", "type": "fix", "description": "Fixed CSRF token missing for CKEditor image upload & added validation for empty quiz answers", "files": ["curriculum.js"] },
+    { "timestamp": "2026-06-06T23:00:00+07:00", "type": "feature", "description": "Implemented lesson content persistence logic (video, article, quiz)", "files": ["InstructorLessonRestController.java", "InstructorLessonService.java"] }
+  ],
+  "errors_encountered": [
+    { "error": "Cannot read properties of null (reading 'content')", "solution": "CKEditor upload adapter couldn't find _csrf_header meta tag. Added safe check in curriculum.js", "resolved": true },
+    { "error": "400 Bad Request when saving quiz with empty answers", "solution": "QuizAnswerRequest requires @NotBlank. Added frontend validation to prompt user to delete or fill empty rows", "resolved": true }
+  ],
+  "decisions_made": [
+    { "decision": "Frontend validation for empty quiz answers", "reason": "Better UX than waiting for backend 400 Bad Request" }
+  ]
+}

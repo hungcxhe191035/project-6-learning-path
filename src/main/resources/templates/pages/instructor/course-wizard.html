@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/main-layout}">
+<head>
+    <title th:text="${pageTitle}">Trình tạo Khóa học</title>
+    <link rel="stylesheet" th:href="@{/css/instructor.css}">
+</head>
+<body>
+
+<div layout:fragment="content">
+    <style>
+        /* Sửa lỗi giao diện CKEditor bị chìm dưới Modal Bootstrap */
+        :root {
+            --ck-z-default: 100;
+            --ck-z-modal: 1055;
+        }
+        .ck.ck-balloon-panel {
+            z-index: 9999 !important;
+        }
+    </style>
+    
+    <div class="container my-5">
+
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold" th:text="${pageTitle}">Tạo khóa học</h2>
+                <p class="text-muted">Hoàn thiện các thông tin dưới đây để xuất bản khóa học của bạn.</p>
+            </div>
+            <a th:href="@{/instructor/courses}" class="btn btn-outline-secondary rounded-pill px-4">Quay lại Dashboard</a>
+        </div>
+
+        <!-- Wizard Card -->
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden wizard-card">
+
+            <!-- Tab Headers -->
+            <div class="card-header bg-white border-bottom p-0">
+                <ul class="nav nav-tabs nav-fill wizard-tabs" id="courseWizardTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active py-4 fw-bold fs-5" id="basic-info-tab" data-bs-toggle="tab" data-bs-target="#basic-info" type="button" role="tab">
+                            <i class="bi bi-info-circle-fill me-2"></i>1. Thông tin cơ bản
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-4 fw-bold fs-5" id="curriculum-tab" data-bs-toggle="tab" data-bs-target="#curriculum" type="button" role="tab" th:disabled="${courseId == null}">
+                            <i class="bi bi-journal-code me-2"></i>2. Chương trình học
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-4 fw-bold fs-5" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" th:disabled="${courseId == null}">
+                            <i class="bi bi-gear-fill me-2"></i>3. Cài đặt & Xuất bản
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body p-5">
+                <div class="tab-content" id="courseWizardTabsContent">
+
+                    <!-- TAB 1: THÔNG TIN CƠ BẢN -->
+                    <div class="tab-pane fade show active" id="basic-info" role="tabpanel">
+                        <form id="basicInfoForm">
+                            <input type="hidden" id="courseId" th:value="${courseId}">
+
+                            <div class="row g-4">
+                                <div class="col-md-8">
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Tiêu đề khóa học <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control form-control-lg" id="courseTitle" placeholder="Vd: Spring Boot 3 & Microservices A-Z" required th:value="${draft?.title}">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Tiêu đề phụ (Subtitle)</label>
+                                        <input type="text" class="form-control" id="courseSubtitle" placeholder="Mô tả ngắn gọn điểm nổi bật của khóa học" th:value="${draft?.subtitle}">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Mô tả chi tiết</label>
+                                        <textarea class="form-control" id="courseDescription" rows="5" placeholder="Học viên sẽ học được những gì?" th:text="${draft?.description}"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Giá tiền (VNĐ)</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="coursePrice" placeholder="0" min="0" th:value="${draft?.price != null ? draft.price : 0}">
+                                            <span class="input-group-text">₫</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Ảnh bìa khóa học</label>
+                                        <div class="border border-dashed rounded-3 p-4 text-center text-muted upload-area hover-udemy position-relative" style="cursor: pointer; overflow: hidden; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+                                            
+                                            <!-- Khối hiển thị khi đã có ảnh -->
+                                            <div id="thumbnailPreviewContainer" class="w-100" th:style="${draft?.thumbnail != null ? '' : 'display:none;'}">
+                                                <img id="thumbnailPreview" th:src="${draft?.thumbnail?.fileUrl}" class="img-fluid rounded shadow-sm" alt="Thumbnail Preview" style="max-height: 180px; object-fit: cover; width: 100%;">
+                                            </div>
+                                            
+                                            <!-- Khối hiển thị khi chưa có ảnh -->
+                                            <div id="thumbnailUploadPrompt" th:style="${draft?.thumbnail != null ? 'display:none;' : ''}">
+                                                <i class="bi bi-cloud-arrow-up display-4 text-secondary"></i>
+                                                <p class="mt-2 mb-0">Nhấn vào đây để tải ảnh lên</p>
+                                            </div>
+
+                                            <input type="file" id="thumbnailUploadInput" accept="image/*" class="d-none">
+                                        </div>
+                                        <input type="hidden" id="thumbnailFileId" th:value="${draft?.thumbnail?.fileId}">
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 wizard-btn-next">
+                                    Lưu & Tiếp tục <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- TAB 2: CHƯƠNG TRÌNH HỌC -->
+                    <div class="tab-pane fade" id="curriculum" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0 fw-bold">Chương trình học</h4>
+                            <button type="button" class="btn btn-primary rounded-pill px-4" id="btnAddSection">
+                                <i class="bi bi-plus-circle me-2"></i>Thêm Chương mới
+                            </button>
+                        </div>
+
+                        <!-- Khu vực hiển thị danh sách các Chương -->
+                        <div class="accordion shadow-sm" id="curriculumAccordion">
+
+                            <!-- Trạng thái trống (khi chưa có chương nào) -->
+                            <div th:if="${sections == null || sections.isEmpty()}" class="text-center py-5 text-muted bg-light rounded border-dashed" id="emptyCurriculumState">
+                                <i class="bi bi-journal-plus display-1 mb-3 d-block opacity-50"></i>
+                                <h5>Khóa học chưa có nội dung nào</h5>
+                                <p>Bắt đầu xây dựng khóa học bằng cách thêm Chương đầu tiên.</p>
+                            </div>
+
+                            <!-- VÒNG LẶP RENDER CÁC CHƯƠNG ĐÃ LƯU TRONG DB -->
+                            <div th:each="section : ${sections}" class="accordion-item mb-3 border rounded section-item" th:data-section-id="${section.sectionId}">
+                                <h2 class="accordion-header" th:id="'heading-' + ${section.sectionId}">
+                                    <button class="accordion-button collapsed fw-bold fs-5 bg-light" type="button" data-bs-toggle="collapse" th:data-bs-target="'#collapse-' + ${section.sectionId}" aria-expanded="false">
+                                        <i class="bi bi-list me-3 text-muted drag-handle" style="cursor: grab;"></i>
+                                        <span class="section-title" th:text="${section.title}">Tên Chương</span>
+                                    </button>
+                                </h2>
+                                <div th:id="'collapse-' + ${section.sectionId}" class="accordion-collapse collapse" data-bs-parent="#curriculumAccordion">
+                                    <div class="accordion-body bg-white">
+
+                                        <!-- VÒNG LẶP RENDER BÀI GIẢNG CỦA CHƯƠNG NÀY -->
+                                        <div class="lesson-list mb-3">
+                                            <div th:each="lesson : ${sectionLessonsMap.get(section.sectionId)}" class="d-flex justify-content-between align-items-center p-3 mb-2 bg-light border rounded lesson-item transition-hover" th:data-lesson-id="${lesson.lessonId}">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-grip-vertical text-muted me-3 fs-5 drag-handle" style="cursor: grab;"></i>
+                                                    <i class="bi lesson-icon fs-4 me-3" th:classappend="${lesson.lessonType.name() == 'VIDEO' ? 'bi-play-circle-fill text-primary' : 'bi-file-text-fill text-success'}"></i>
+                                                    <span class="lesson-title fw-medium text-dark" th:text="${lesson.title}">Tên bài giảng</span>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge bg-secondary-subtle text-secondary me-4 lesson-type-badge border" th:text="${lesson.lessonType}">VIDEO</span>
+                                                    <!-- NÚT SỬA BÀI GIẢNG (CÂY BÚT) -->
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary me-2 btn-edit-lesson" title="Sửa bài giảng"><i class="bi bi-pencil"></i></button>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete-lesson" title="Xóa bài giảng"><i class="bi bi-trash"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- HẾT VÒNG LẶP BÀI GIẢNG -->
+
+                                        <div class="d-flex justify-content-between border-top pt-3 mt-2">
+                                            <button type="button" class="btn btn-outline-primary btn-sm btn-add-lesson">
+                                                <i class="bi bi-plus"></i> Thêm Bài Giảng
+                                            </button>
+                                            <div>
+                                                <button type="button" class="btn btn-sm btn-light btn-edit-section me-2"><i class="bi bi-pencil me-1"></i>Sửa Tên Chương</button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger btn-delete-section"><i class="bi bi-trash me-1"></i>Xóa Chương</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- HẾT VÒNG LẶP CHƯƠNG -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: CÀI ĐẶT & XUẤT BẢN -->
+                    <div class="tab-pane fade" id="settings" role="tabpanel">
+                        <div class="text-center py-5">
+                            <i class="bi bi-rocket-takeoff display-1 text-success mb-3"></i>
+                            <h3 class="fw-bold">Sẵn sàng cất cánh!</h3>
+                            <p class="text-muted fs-5">Hãy kiểm tra kỹ mọi thông tin trước khi nhấn Xuất bản. Khóa học sẽ hiển thị ngay cho học viên.</p>
+                            <div class="mt-4">
+                                <a th:if="${courseId != null}" th:href="@{/instructor/courses/{id}/preview(id=${courseId})}" target="_blank" class="btn btn-outline-primary btn-lg rounded-pill px-5 me-3 fw-bold shadow-sm">
+                                    <i class="bi bi-eye me-2"></i> Xem trước khóa học
+                                </a>
+                                <button id="btnPublishCourse" class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow">
+                                    Xuất bản khóa học
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= TEMPLATES (ẨN) DÀNH CHO JAVASCRIPT ================= -->
+    <template id="sectionTemplate">
+        <div class="accordion-item mb-3 border rounded section-item" data-section-id="">
+            <h2 class="accordion-header" id="heading-section">
+                <button class="accordion-button collapsed fw-bold fs-5 bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-section" aria-expanded="false">
+                    <i class="bi bi-list me-3 text-muted drag-handle" style="cursor: grab;"></i>
+                    <span class="section-title">Tên Chương</span>
+                </button>
+            </h2>
+            <div id="collapse-section" class="accordion-collapse collapse" data-bs-parent="#curriculumAccordion">
+                <div class="accordion-body bg-white">
+                    <div class="lesson-list mb-3"></div>
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-add-lesson">
+                            <i class="bi bi-plus me-1"></i>Thêm bài giảng
+                        </button>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-light text-secondary me-2 btn-edit-section"><i class="bi bi-pencil"></i> Sửa tên</button>
+                            <button type="button" class="btn btn-sm btn-light text-danger btn-delete-section"><i class="bi bi-trash"></i> Xóa chương</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="lessonTemplate">
+        <div class="d-flex justify-content-between align-items-center p-3 mb-2 bg-light border rounded lesson-item transition-hover" data-lesson-id="">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-grid-3x3-gap me-3 text-muted drag-handle" style="cursor: grab;"></i>
+                <i class="lesson-icon bi fs-5 me-3 text-primary"></i>
+                <span class="lesson-title fw-medium text-dark">Tên bài giảng</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <span class="badge bg-secondary-subtle text-secondary me-4 lesson-type-badge border">LOẠI</span>
+                <!-- NÚT SỬA BÀI GIẢNG (CÂY BÚT) CHO BÀI GIẢNG TẠO BẰNG JS -->
+                <button type="button" class="btn btn-sm btn-outline-secondary me-2 btn-edit-lesson" title="Sửa bài giảng"><i class="bi bi-pencil"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-danger btn-delete-lesson" title="Xóa bài giảng"><i class="bi bi-trash"></i></button>
+            </div>
+        </div>
+    </template>
+
+    <!-- ================= MODAL THÊM BÀI GIẢNG VÀO CHƯƠNG ================= -->
+    <div class="modal fade" id="lessonModal" tabindex="-1" aria-labelledby="lessonModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="lessonModalLabel">Thêm Bài Giảng Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="modalTargetSectionId">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên bài giảng <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="modalLessonTitle" placeholder="Vd: Giới thiệu khóa học...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Loại bài giảng</label>
+                        <select class="form-select" id="modalLessonType">
+                            <option value="VIDEO">📹 Video (Tải lên file MP4)</option>
+                            <option value="ARTICLE">📝 Bài viết (Trình soạn thảo văn bản)</option>
+                            <option value="QUIZ">❓ Trắc nghiệm (Câu hỏi & Đáp án)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmAddLesson">Tạo Bài Giảng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL CHỈNH SỬA NỘI DUNG BÀI GIẢNG (PHASE 6) ================= -->
+    <div class="modal fade" id="lessonContentModal" tabindex="-1" aria-labelledby="lessonContentModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl"> <!-- Form bự ra để gõ bài viết cho sướng -->
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title fw-bold" id="lessonContentModalLabel">Cập nhật Nội dung Bài giảng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Dữ liệu ngầm để JS biết đang sửa bài nào -->
+                    <input type="hidden" id="editLessonId">
+                    <input type="hidden" id="editLessonType">
+
+                    <!-- GIAO DIỆN UPLOAD VIDEO (Sẽ ẨN nếu là ARTICLE) -->
+                    <div id="videoUploadContainer" class="d-none">
+                        <div class="alert alert-info border-info bg-info-subtle text-info-emphasis">
+                            <i class="bi bi-info-circle-fill me-2"></i> Định dạng hỗ trợ: MP4. Dung lượng tối đa: 500MB (Lưu trực tiếp lên đám mây AWS S3).
+                        </div>
+                        <div class="mb-4 text-center border border-2 border-dashed rounded p-5 bg-light" id="videoDropzone">
+                            <i class="bi bi-cloud-arrow-up display-1 text-secondary mb-3"></i>
+                            <h5 class="text-secondary fw-bold">Kéo thả hoặc nhấn vào đây để tải file Video lên S3</h5>
+                            <input type="file" id="videoFileInput" accept="video/mp4,video/webm" class="d-none">
+                            <button type="button" class="btn btn-primary mt-3 px-4 rounded-pill shadow-sm" onclick="document.getElementById('videoFileInput').click()">
+                                <i class="bi bi-folder2-open me-2"></i>Chọn File từ máy tính
+                            </button>
+                        </div>
+                        <!-- Thanh tiến trình (Progress Bar) -->
+                        <div class="progress d-none shadow-sm rounded-pill" id="videoProgressBarContainer" style="height: 25px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success fw-bold" id="videoProgressBar" role="progressbar" style="width: 0%;">0%</div>
+                        </div>
+
+                        <!-- Khu vực chiếu phim (Video Player) -->
+                        <div id="videoPreviewContainer" class="d-none mt-4 text-center">
+                            <h6 class="fw-bold text-success mb-3"><i class="bi bi-play-btn me-2"></i>Video đang lưu trên hệ thống:</h6>
+                            <video id="videoPlayer" class="w-100 rounded shadow-sm border border-2 border-secondary" controls style="max-height: 400px;">
+                                <source src="" type="video/mp4">
+                                Trình duyệt của bạn không hỗ trợ thẻ video.
+                            </video>
+                        </div>
+                    </div>
+
+                    <!-- GIAO DIỆN SOẠN THẢO BÀI VIẾT (Sẽ ẨN nếu là VIDEO) -->
+                    <div id="articleEditorContainer" class="d-none">
+                        <label class="form-label fw-bold fs-5 mb-3 text-primary"><i class="bi bi-pencil-square me-2"></i>Soạn thảo bài viết</label>
+                        <!-- Biến ô textarea này thành CKEditor xịn sò -->
+                        <textarea id="ckeditorContent"></textarea>
+                    </div>
+
+                    <!-- GIAO DIỆN TẠO TRẮC NGHIỆM (Sẽ ẨN nếu không phải QUIZ) -->
+                    <div id="quizBuilderContainer" class="d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold text-primary mb-0"><i class="bi bi-ui-checks me-2"></i>Bộ câu hỏi trắc nghiệm</h5>
+                            <button type="button" class="btn btn-success rounded-pill shadow-sm" id="btnAddQuizQuestion">
+                                <i class="bi bi-plus-lg me-2"></i>Thêm Câu Hỏi
+                            </button>
+                        </div>
+                        <div id="quizQuestionsList" class="d-flex flex-column gap-4">
+                            <!-- Chỗ này JS sẽ tự động bơm các form câu hỏi vào -->
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary px-4 rounded-pill" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary px-4 rounded-pill shadow" id="btnSaveLessonContent">
+                        <i class="bi bi-floppy-fill me-2"></i>Lưu Nội Dung
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nhúng Javascript và Thư viện CKEditor 5 -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <script th:src="@{/js/course-wizard.js}"></script>
+    <script th:src="@{/js/curriculum.js}"></script>
+
+</div>
+</body>
+</html>

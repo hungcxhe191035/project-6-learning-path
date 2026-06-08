@@ -2,22 +2,89 @@
 <html
         lang="vi"
         xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 >
+<head>
+    <style>
+        /* Hover */
+        .hover-udemy:hover {
+            background-color: #f7f7f8 !important;
+            color: #5624d0 !important;
+        }
+
+        /* Hover chữ đậm */
+        .hover-udemy:hover .fw-bold {
+            color: #5624d0 !important;
+        }
+
+        /* Khi click */
+        .dropdown-item.hover-udemy:active,
+        .dropdown-item.hover-udemy.active {
+            background-color: #f7f7f8 !important;
+            color: #5624d0 !important;
+        }
+
+        /* Focus bằng keyboard */
+        .dropdown-item.hover-udemy:focus {
+            background-color: #f7f7f8 !important;
+            color: #5624d0 !important;
+            outline: none;
+        }
+
+        .avatar-nav-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #1c1d1f;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .avatar-nav-circle-large {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: #1c1d1f;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 24px;
+        }
+        .dropdown-item:hover {
+            background-color: #f7f9fa !important;
+            color: #5624d0 !important;
+        }
+    </style>
+</head>
 <body>
-    <nav
+
+<nav
         th:fragment="navbar"
         class="navbar navbar-expand-lg bg-white border-bottom py-2"
-    >
-        <div class="container-fluid px-4">
-            <!-- Logo -->
-            <a class="navbar-brand d-flex align-items-center" th:href="@{/}">
-                <img th:src="@{/image/logo.png}" alt="My Learning Path Logo" style="height: 50px; width: auto;" >
-            </a>
-            <!-- Search -->
-            <div class="d-none d-md-flex flex-grow-1 mx-4">
-                <div class="search-box d-flex align-items-center w-100">
-                    <i class="bi bi-search me-2"></i>
-                    <input
+>
+    <div class="container-fluid px-4">
+        <!-- Logo -->
+        <a
+                class="navbar-brand d-flex align-items-center"
+                th:href="@{/}"
+        >
+            <img
+                    th:src="@{/image/logo.png}"
+                    alt="My Learning Path Logo"
+                    style="height: 50px; width: auto;"
+            >
+        </a>
+
+        <!-- Search -->
+        <div class="d-none d-md-flex flex-grow-1 mx-4">
+            <div class="search-box d-flex align-items-center w-100">
+                <i class="bi bi-search me-2"></i>
+                <input
                         type="text"
                         class="search-input"
                         placeholder="Tìm kiếm nội dung bất kỳ"
@@ -37,21 +104,163 @@
                 <button class="btn">
                     <i class="bi bi-cart3 fs-5"></i>
                 </button>
+                >
+            </div>
+        </div>
+
+        <!-- Right -->
+        <div class="d-flex align-items-center gap-3">
+            <!-- Instructor Link -->
+            <a
+                    sec:authorize="hasRole('INSTRUCTOR')"
+                    th:href="@{/instructor/courses}"
+                    class="text-dark text-decoration-none d-none d-xl-block"
+            >
+                Tạo khoá học
+            </a>
+
+            <!-- Student Links -->
+            <a
+                    th:href="@{/home}"
+                    class="text-dark text-decoration-none d-none d-xl-block"
+            >
+                Trang chủ
+            </a>
+            <a
+                    th:href="@{/courses}"
+                    class="text-dark text-decoration-none d-none d-xl-block"
+            >
+                Khoá học
+            </a>
+
+            <a
+                    sec:authorize="hasRole('STUDENT')"
+                    th:href="@{/cart}"
+                    class="btn"
+            >
+                <i class="bi bi-cart3 fs-5"></i>
+            </a>
+
+            <!-- Chưa login -->
+            <div
+                    sec:authorize="isAnonymous()"
+                    class="d-flex align-items-center gap-2"
+            >
                 <a
-                    th:href="@{/login}"
-                    class="btn btn-login"
+                        th:href="@{/login}"
+                        class="btn btn-login"
                 >
                     Đăng nhập
                 </a>
                 <a
-                    th:href="@{/register}"
-                    class="btn btn-register"
+                        th:href="@{/register}"
+                        class="btn btn-register"
                 >
                     Đăng ký
                 </a>
             </div>
+
+            <!-- Đã login -->
+            <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-3">
+                <a th:href="@{/profile}" class="text-dark text-decoration-none d-none d-lg-block fw-bold" style="font-size: 14px;">Học tập</a>
+                <a sec:authorize="hasAnyRole('INSTRUCTOR', 'ADMIN')" th:href="@{/revenue}" class="text-dark text-decoration-none d-none d-lg-block fw-bold" style="font-size: 14px;">Doanh thu</a>
+
+                <!-- Dropdown Avatar -->
+                <div class="dropdown">
+                    <button class="btn p-0 border-0 position-relative" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="outline: none;">
+                        <div class="avatar-nav-circle" id="navAvatarLetter" th:text="${#authentication.principal.user != null and #authentication.principal.user.fullName != null and !#authentication.principal.user.fullName.isEmpty() ? #strings.substring(#authentication.principal.user.fullName, 0, 1).toUpperCase() : 'U'}">U</div>
+                        <span class="position-absolute top-0 start-100 translate-middle p-1 border border-white rounded-circle" style="background-color: #a435f0; margin-top: 4px; margin-left: -4px;"></span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg" aria-labelledby="userMenu" style="width: 280px; border-radius: 0; border: 1px solid #d1d7dc;">
+                        <!-- Header user info -->
+                        <div class="p-3 d-flex align-items-center gap-3 border-bottom">
+                            <div class="avatar-nav-circle-large" id="menuAvatarLetter" th:text="${#authentication.principal.user != null and #authentication.principal.user.fullName != null and !#authentication.principal.user.fullName.isEmpty() ? #strings.substring(#authentication.principal.user.fullName, 0, 1).toUpperCase() : 'U'}">U</div>
+                            <div>
+                                <div class="fw-bold text-dark text-truncate" style="max-width: 170px; font-size: 16px;" th:text="${#authentication.principal.user != null ? #authentication.principal.user.fullName : 'Tên người dùng'}">Tên người dùng</div>
+                                <div class="text-muted text-truncate" style="max-width: 170px; font-size: 12px;" th:text="${#authentication.principal.user != null ? #authentication.principal.user.email : 'user@email.com'}">user@email.com</div>
+                            </div>
+                        </div>
+                        <!-- Links list (Đúng 5 mục chức năng chính theo yêu cầu của user) -->
+                        <ul class="list-unstyled py-2 m-0 border-bottom text-start" style="font-size: 14px;">
+                            <li><a class="dropdown-item py-2 px-3 text-secondary fw-semibold hover-udemy" th:href="@{/profile}">Học tập</a></li>
+                            <li>
+                                <a class="dropdown-item py-2 px-3 text-secondary fw-semibold hover-udemy d-flex justify-content-between align-items-center" th:href="@{/cart}">
+                                    <span>Giỏ hàng</span>
+                                    <span class="badge rounded-circle" style="background-color: #a435f0;">1</span>
+                                </a>
+                            </li>
+                            <li><a class="dropdown-item py-2 px-3 text-secondary fw-semibold hover-udemy" th:href="@{/profile/settings}">Cài đặt tài khoản</a></li>
+                            <li><a class="dropdown-item py-2 px-3 text-secondary fw-semibold hover-udemy" th:href="@{/profile/edit}">Chỉnh sửa hồ sơ</a></li>
+                            <li><a class="dropdown-item py-2 px-3 text-secondary fw-semibold hover-udemy" th:href="@{/profile}">Hồ sơ công khai</a></li>
+                            <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider m-0"></li>
+                            <li sec:authorize="hasRole('ADMIN')" class="py-2">
+                                <a class="dropdown-item px-3 py-2 hover-udemy text-danger fw-bold" th:href="@{/admin/users}" style="font-size: 14px;">
+                                    <i class="bi bi-shield-lock-fill me-2"></i>Quản trị hệ thống
+                                </a>
+                            </li>
+                            <!-- STUDENT: Link trở thành giảng viên -->
+                            <li sec:authorize="hasRole('STUDENT')"><hr class="dropdown-divider m-0"></li>
+                            <li sec:authorize="hasRole('STUDENT')" class="py-2">
+                                <a class="dropdown-item px-3 py-2 hover-udemy" th:href="@{/instructor/apply}" style="font-size: 14px; color: #a435f0; font-weight: 600;">
+                                    <i class="bi bi-mortarboard-fill me-2"></i>Trở thành Giảng viên
+                                </a>
+                            </li>
+                            <li sec:authorize="hasRole('STUDENT')" class="py-2">
+                                <a class="dropdown-item px-3 py-2 hover-udemy" th:href="@{/instructor/apply/status}" style="font-size: 14px; color: #1c1d1f;">
+                                    <i class="bi bi-clipboard-check me-2"></i>Trạng thái gửi đơn
+                                </a>
+                            </li>
+
+                        </ul>
+                        <!-- Logout -->
+                        <ul class="list-unstyled py-2 m-0 text-start" style="font-size: 14px;">
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="m-0">
+                                    <button type="submit" class="dropdown-item py-2 px-3 text-danger fw-semibold border-0 bg-transparent w-100 text-start hover-udemy">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Element ẩn để lấy Họ và Tên xử lý Avatar trong JS -->
+                <span id="userFullNameHidden" th:if="${#authentication.principal.user != null}" th:text="${#authentication.principal.user.fullName}" style="display:none;"></span>
+                <span id="userEmailHidden" th:text="${#authentication.name}" style="display:none;"></span>
+            </div>
         </div>
-    </nav>
+    </div>
+</nav>
+
+<script sec:authorize="isAuthenticated()">
+    document.addEventListener("DOMContentLoaded", function() {
+        var el = document.getElementById("userFullNameHidden");
+        var emailEl = document.getElementById("userEmailHidden");
+        var fallbackChar = "U";
+
+        if (emailEl && emailEl.textContent.trim()) {
+            fallbackChar = emailEl.textContent.trim().charAt(0).toUpperCase();
+        }
+
+        if (el) {
+            var fullName = el.textContent.trim();
+            var initials = "";
+            if (fullName) {
+                var parts = fullName.split(" ");
+                if (parts.length > 1) {
+                    // Lấy chữ cái đầu của từ đầu tiên và từ cuối cùng (Ví dụ: Bùi Minh Chiến -> BC)
+                    initials = parts[0].charAt(0).toUpperCase() + parts[parts.length - 1].charAt(0).toUpperCase();
+                } else {
+                    // Lấy 2 ký tự đầu
+                    initials = fullName.substring(0, Math.min(2, fullName.length)).toUpperCase();
+                }
+            }
+            var navAvatar = document.getElementById("navAvatarLetter");
+            var menuAvatar = document.getElementById("menuAvatarLetter");
+            if (navAvatar) navAvatar.textContent = initials || fallbackChar;
+            if (menuAvatar) menuAvatar.textContent = initials || fallbackChar;
+        }
+    });
+</script>
+
 </body>
 </html>
-

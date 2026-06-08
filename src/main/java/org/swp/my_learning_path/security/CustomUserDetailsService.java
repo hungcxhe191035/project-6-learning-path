@@ -1,6 +1,5 @@
 package org.swp.my_learning_path.security;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

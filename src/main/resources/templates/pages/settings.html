@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Cài đặt tài khoản</title>
+    <style>
+        .settings-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #1c1d1f;
+        }
+        .udemy-tabs .nav-link {
+            color: #6a6f73;
+            font-weight: 700;
+            border: none;
+            border-bottom: 2px solid transparent;
+            border-radius: 0;
+            padding: 12px 16px;
+            font-size: 15px;
+        }
+        .udemy-tabs .nav-link.active {
+            color: #1c1d1f;
+            border-bottom: 2px solid #1c1d1f;
+            background-color: transparent;
+        }
+        .form-label {
+            font-weight: 700;
+            color: #1c1d1f;
+            font-size: 14px;
+        }
+        .udemy-input {
+            border: 1px solid #1c1d1f;
+            border-radius: 0;
+            padding: 12px;
+            font-size: 14px;
+        }
+        .udemy-input:focus {
+            box-shadow: none;
+            border-color: #1c1d1f;
+            outline: 2px solid #a435f0;
+        }
+        .btn-pencil {
+            background-color: #a435f0;
+            color: white;
+            border: none;
+            border-radius: 0;
+            padding: 12px 16px;
+        }
+        .btn-pencil:hover {
+            background-color: #8710d8;
+            color: white;
+        }
+        .btn-purple {
+            background-color: #a435f0;
+            color: white;
+            font-weight: 700;
+            border-radius: 0;
+            padding: 12px 24px;
+            border: 1px solid #a435f0;
+        }
+        .btn-purple:hover {
+            background-color: #8710d8;
+            color: white;
+        }
+        .mfa-box {
+            border: 1px solid #d1d7dc;
+            padding: 24px;
+            background-color: white;
+            margin-top: 24px;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content" class="container py-5" style="max-width: 1000px;">
+    <h1 class="settings-title">Tài khoản</h1>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs udemy-tabs mb-4 border-bottom" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="security-tab" data-bs-toggle="tab" href="#security-pane" role="tab" aria-selected="true">Bảo mật tài khoản</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" href="#">Cài đặt thông báo</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" href="#">Giao tiếp</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" href="#">Ứng dụng API</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" href="#">Chương trình GenAI</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" href="#">Đóng tài khoản</a>
+        </li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <!-- TAB BẢO MẬT TÀI KHOẢN -->
+        <div class="tab-pane fade show active" id="security-pane" role="tabpanel" aria-labelledby="security-tab">
+            
+            <!-- Alert message -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-0 mb-4" role="alert" style="max-width: 600px;">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-0 mb-4" role="alert" style="max-width: 600px;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Email (Read-only) -->
+            <div class="mb-4" style="max-width: 600px;">
+                <label class="form-label">Email:</label>
+                <input type="email" class="form-control udemy-input bg-light" th:value="${user.email}" readonly>
+            </div>
+
+            <!-- Mật khẩu -->
+            <div class="mb-4" style="max-width: 600px;">
+                <label class="form-label">Mật khẩu:</label>
+                <div class="input-group">
+                    <input type="password" class="form-control udemy-input bg-light" value="********" readonly>
+                    <button class="btn btn-pencil" type="button" data-bs-toggle="collapse" data-bs-target="#changePasswordForm" aria-expanded="false" aria-controls="changePasswordForm">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form đổi mật khẩu ẩn (Hiện ra khi bấm nút Bút chì) -->
+            <div class="collapse mb-4" id="changePasswordForm" style="max-width: 600px;">
+                <div class="card card-body border rounded-0">
+                    <h5 class="fw-bold mb-3" style="color: #1c1d1f;">Đổi mật khẩu</h5>
+                    
+                    <form th:action="@{/profile/change-password}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu hiện tại</label>
+                            <input type="password" name="currentPassword" class="form-control udemy-input" placeholder="Nhập mật khẩu hiện tại" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu mới</label>
+                            <input type="password" name="newPassword" class="form-control udemy-input" placeholder="Nhập mật khẩu mới" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Xác nhận mật khẩu mới</label>
+                            <input type="password" name="confirmPassword" class="form-control udemy-input" placeholder="Nhập lại mật khẩu mới" required>
+                        </div>
+                        <button type="submit" class="btn btn-purple">Cập nhật mật khẩu</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Xác thực đa yếu tố -->
+            <div class="mfa-box">
+                <h5 class="fw-bold mb-2" style="font-size: 16px; color: #1c1d1f;">Xác thực đa yếu tố</h5>
+                <p class="text-secondary mb-3" style="font-size: 14px; line-height: 1.5;">
+                    Tăng cường bảo mật tài khoản của bạn bằng cách yêu cầu nhập một mã gửi đến bạn qua email khi bạn đăng nhập. 
+                    Để biết thêm thông tin về cách thức hoạt động của tính năng xác thực đa yếu tố, hãy xem <a href="#" style="color: #5624d0; text-decoration: underline;">bài viết này trên Trung tâm trợ giúp</a>.
+                </p>
+                <button class="btn btn-purple" type="button">Bật</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

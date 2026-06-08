@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}">
+
+<head>
+    <style>
+        .payment-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .payment-card {
+            background: white; border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1); overflow: hidden;
+        }
+        .payment-header {
+            background: linear-gradient(135deg, #1e1b4b, #4c1d95);
+            color: white; padding: 24px 32px;
+        }
+        .payment-header h2 { font-size: 1.5rem; font-weight: 800; margin: 0; }
+        .payment-body { padding: 32px; }
+        .course-summary {
+            display: flex; gap: 16px; align-items: center;
+            background: #f8f7ff; border-radius: 12px;
+            padding: 16px; margin-bottom: 28px;
+        }
+        .course-summary-img {
+            width: 80px; height: 60px; object-fit: cover;
+            border-radius: 8px; flex-shrink: 0;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+        .course-summary-title { font-weight: 700; color: #1e1b4b; font-size: 0.95rem; }
+        .course-summary-price { font-size: 1.3rem; font-weight: 800; color: #7c3aed; }
+
+        .payment-method-title {
+            font-size: 1rem; font-weight: 700; color: #1e1b4b; margin-bottom: 16px;
+        }
+        .payment-method-card {
+            border: 2px solid #e5e7eb; border-radius: 12px;
+            padding: 16px 20px; margin-bottom: 12px; cursor: pointer;
+            transition: all 0.2s; display: flex; align-items: center; gap: 16px;
+        }
+        .payment-method-card:hover { border-color: #7c3aed; background: #faf5ff; }
+        .payment-method-card.selected { border-color: #7c3aed; background: #f5f3ff; }
+        .payment-method-icon { font-size: 1.8rem; }
+        .payment-method-name { font-weight: 600; color: #1e1b4b; }
+        .payment-method-desc { font-size: 0.82rem; color: #6b7280; }
+
+        .notice-box {
+            background: #fffbeb; border: 1px solid #fcd34d;
+            border-radius: 10px; padding: 14px 18px;
+            font-size: 0.88rem; color: #92400e; margin-top: 24px;
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #4c1d95, #7c3aed);
+            color: white; border: none; border-radius: 12px;
+            font-weight: 700; font-size: 1rem; padding: 15px;
+            width: 100%; margin-top: 24px; transition: all 0.3s;
+        }
+        .btn-confirm:hover {
+            background: linear-gradient(135deg, #6d28d9, #9333ea);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(124,58,237,0.35);
+            color: white;
+        }
+        .btn-back {
+            display: block; text-align: center; margin-top: 12px;
+            color: #6b7280; font-size: 0.88rem; text-decoration: none;
+        }
+        .btn-back:hover { color: #4c1d95; }
+    </style>
+</head>
+
+<body>
+<main layout:fragment="content">
+    <div class="payment-container">
+
+        <!-- Tiêu đề -->
+        <div class="payment-card">
+            <div class="payment-header">
+                <h2>💳 Thanh toán khoá học</h2>
+                <p style="margin:4px 0 0; opacity:0.8; font-size:0.9rem">
+                    Hoàn tất đăng ký để bắt đầu học ngay hôm nay
+                </p>
+            </div>
+
+            <div class="payment-body">
+
+                <!-- Thông tin khoá học -->
+                <div class="course-summary">
+                    <img th:if="${course.thumbnailUrl != null}"
+                         th:src="${course.thumbnailUrl}"
+                         class="course-summary-img"
+                         th:alt="${course.title}">
+                    <div th:unless="${course.thumbnailUrl != null}"
+                         class="course-summary-img d-flex align-items-center justify-content-center">
+                        <i class="bi bi-play-circle text-white fs-3"></i>
+                    </div>
+                    <div>
+                        <div class="course-summary-title" th:text="${course.title}">Tên khoá học</div>
+                        <div style="font-size:0.82rem; color:#6b7280; margin-top:2px;"
+                             th:text="${course.instructorName}">Giảng viên</div>
+                        <div class="course-summary-price mt-2"
+                             th:text="${#numbers.formatInteger(course.price, 1, 'COMMA')} + ' ₫'">
+                            259.000 ₫
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phương thức thanh toán -->
+                <div class="payment-method-title">Chọn phương thức thanh toán</div>
+
+                <div class="payment-method-card selected" onclick="selectMethod(this)">
+                    <span class="payment-method-icon">🏦</span>
+                    <div>
+                        <div class="payment-method-name">Chuyển khoản ngân hàng</div>
+                        <div class="payment-method-desc">Vietcombank, BIDV, MB Bank, ...</div>
+                    </div>
+                </div>
+
+                <div class="payment-method-card" onclick="selectMethod(this)">
+                    <span class="payment-method-icon">💳</span>
+                    <div>
+                        <div class="payment-method-name">Thẻ tín dụng / Ghi nợ</div>
+                        <div class="payment-method-desc">Visa, MasterCard, JCB</div>
+                    </div>
+                </div>
+
+                <div class="payment-method-card" onclick="selectMethod(this)">
+                    <span class="payment-method-icon">📱</span>
+                    <div>
+                        <div class="payment-method-name">Ví điện tử</div>
+                        <div class="payment-method-desc">MoMo, ZaloPay, VNPay</div>
+                    </div>
+                </div>
+
+                <!-- Thông báo chức năng đang phát triển -->
+                <div class="notice-box">
+                    ⚠️ <strong>Chức năng đang phát triển:</strong>
+                    Trang thanh toán đầy đủ sẽ được hoàn thiện bởi thành viên phụ trách.
+                    Khoá học của bạn sẽ được kích hoạt ngay sau khi thanh toán thành công.
+                </div>
+
+                <!-- Nút xác nhận (placeholder) -->
+                <button class="btn-confirm" onclick="alert('Chức năng thanh toán đang được phát triển!')">
+                    <i class="bi bi-shield-check me-2"></i>Xác nhận thanh toán
+                </button>
+
+                <!-- Quay lại -->
+                <a th:href="@{/course/{id}(id=${course.courseId})}"
+                   class="btn-back">
+                    ← Quay lại trang khoá học
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function selectMethod(el) {
+            document.querySelectorAll('.payment-method-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+    </script>
+</main>
+</body>
+</html>
