@@ -1,26 +1,26 @@
 {
-  "updated_at": "2026-06-05T01:21:58+07:00",
+  "updated_at": "2026-06-06T23:45:00+07:00",
   "working_on": {
-    "feature": "Course Curriculum (Phase 5) & Edit Wizard",
-    "task": "Binding Database existing data (Draft, Sections, Lessons) to Thymeleaf HTML for the Edit Course view",
-    "status": "in_progress",
-    "files": ["InstructorUIController.java", "course-wizard.html", "curriculum.js"],
+    "feature": "Course Curriculum Content Management (Phase 6)",
+    "task": "Completed handling video, article, and quiz persistence",
+    "status": "completed",
+    "files": ["InstructorLessonRestController.java", "curriculum.js", "InstructorLessonService.java"],
     "blockers": [],
-    "notes": "User selected option 1 to continue with Step 2, but immediately saved brain."
+    "notes": "User successfully pushed branch fix/image-upload-error-adminlayerhtml and merged to main."
   },
   "pending_tasks": [
-    { "task": "Provide Step 2: HTML modifications for course-wizard.html (Tab 1 pre-fill & Tab 2 Curriculum loops)", "priority": "high", "notes": "Must be done when user is ready" },
-    { "task": "Provide Step 3: Updated curriculum.js to attach events to server-rendered elements", "priority": "medium", "notes": "" }
+    { "task": "Publish Course Feature (Phase 7)", "priority": "high", "notes": "Need to connect the 'Xuất bản khóa học' button to change Draft to Published" },
+    { "task": "Student Course Listing Page", "priority": "high", "notes": "Display published courses for students to browse" }
   ],
   "recent_changes": [
-    { "timestamp": "2026-06-04T22:00:00+07:00", "type": "feature", "description": "Provided updated InstructorUIController with DRAFT version and Section/Lesson queries", "files": ["InstructorUIController.java"] },
-    { "timestamp": "2026-06-04T21:40:00+07:00", "type": "fix", "description": "Resolved 403 CSRF issue by injecting CSRF tokens into main-layout.html and Javascript headers", "files": ["main-layout.html", "course-wizard.js"] }
+    { "timestamp": "2026-06-06T23:38:00+07:00", "type": "fix", "description": "Fixed CSRF token missing for CKEditor image upload & added validation for empty quiz answers", "files": ["curriculum.js"] },
+    { "timestamp": "2026-06-06T23:00:00+07:00", "type": "feature", "description": "Implemented lesson content persistence logic (video, article, quiz)", "files": ["InstructorLessonRestController.java", "InstructorLessonService.java"] }
   ],
   "errors_encountered": [
-    { "error": "403 Forbidden on Course Draft POST", "solution": "Spring Security CSRF protection blocked the Javascript fetch. Fixed by passing _csrf header", "resolved": true },
-    { "error": "Edit page blanks out data", "solution": "InstructorUIController only passed courseId. Must fetch CourseVersion (DRAFT) and pass to Model to pre-fill HTML", "resolved": true }
+    { "error": "Cannot read properties of null (reading 'content')", "solution": "CKEditor upload adapter couldn't find _csrf_header meta tag. Added safe check in curriculum.js", "resolved": true },
+    { "error": "400 Bad Request when saving quiz with empty answers", "solution": "QuizAnswerRequest requires @NotBlank. Added frontend validation to prompt user to delete or fill empty rows", "resolved": true }
   ],
   "decisions_made": [
-    { "decision": "Server-side rendering for Edit View", "reason": "Since Thymeleaf is already used, it's easier to fetch Draft, Sections, and Lessons in Controller and loop them via th:each in Tab 2 rather than fetching via AJAX on load" }
+    { "decision": "Frontend validation for empty quiz answers", "reason": "Better UX than waiting for backend 400 Bad Request" }
   ]
 }
