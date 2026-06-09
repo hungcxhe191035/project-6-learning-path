@@ -37,10 +37,11 @@ public class CourseController {
         return "pages/payment";
     }
     @GetMapping("/courses")
-    public String courses(Model model) {
+    public String courses(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long studentId = (userDetails != null) ? userDetails.getUserId() : null;
         model.addAttribute(
                 "courses",
-                courseService.getCourses()
+                courseService.getCourses(studentId)
         );
 
         return "pages/course-list";

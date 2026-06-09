@@ -22,6 +22,7 @@ import org.swp.my_learning_path.repository.CourseFeedbackRepository;
 import org.swp.my_learning_path.repository.CourseRepository;
 import org.swp.my_learning_path.repository.CourseSectionRepository;
 import org.swp.my_learning_path.repository.LessonRepository;
+import org.swp.my_learning_path.repository.EnrollmentRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -31,10 +32,11 @@ public class CourseServiceImpl implements CourseService {
     private final CourseSectionRepository courseSectionRepository;
     private final LessonRepository lessonRepository;
     private final CourseFeedbackRepository courseFeedbackRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     @Override
     @Transactional(readOnly = true)
-    public List<CourseCardDTO> getTop5Courses() {
+    public List<CourseCardDTO> getTop5Courses(Long studentId) {
         // Lấy danh sách khoá học đã duyệt, không bị xoá
         List<Course> courses = courseRepository
                 .findByDeleteFlagFalseAndCurrentPublishedVersion_StatusOrderByCreatedAtDesc(
@@ -45,12 +47,12 @@ public class CourseServiceImpl implements CourseService {
         // rồi chuyển từng Course sang CourseCardDTO
         return courses.stream()
                 .limit(5)
-                .map(this::chuyenDoiSangDTO)
+                .map(course -> chuyenDoiSangDTO(course, studentId))
                 .toList();
     }
 
     @Override
-    public List<CourseCardDTO> getCourses() {
+    public List<CourseCardDTO> getCourses(Long studentId) {
         // Lấy danh sách khoá học đã duyệt, không bị xoá
         List<Course> courses = courseRepository
                 .findByDeleteFlagFalseAndCurrentPublishedVersion_StatusOrderByCreatedAtDesc(
@@ -58,7 +60,7 @@ public class CourseServiceImpl implements CourseService {
                 );
 
         return courses.stream()
-                .map(this::chuyenDoiSangDTO)
+                .map(course -> chuyenDoiSangDTO(course, studentId))
                 .toList();
     }
 
@@ -143,7 +145,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     // Hàm chuyển đổi từ Course (entity) → CourseCardDTO
-    private CourseCardDTO chuyenDoiSangDTO(Course course) {
+    private CourseCardDTO chuyenDoiSangDTO(Course course, Long studentId) {
 
         CourseVersion phienBan = course.getCurrentPublishedVersion();
 
@@ -151,6 +153,11 @@ public class CourseServiceImpl implements CourseService {
         String anhThumbnail = null;
         if (phienBan.getThumbnail() != null) {
             anhThumbnail = phienBan.getThumbnail().getFileUrl();
+        }
+
+        boolean isEnrolled = false;
+        if (studentId != null) {
+            isEnrolled = enrollmentRepository.existsByStudent_UserIdAndCourse_CourseId(studentId, course.getCourseId());
         }
 
         // Trả về DTO với các thông tin cần hiển thị
@@ -163,6 +170,7 @@ public class CourseServiceImpl implements CourseService {
                 .averageRating(course.getAverageRating())
                 .totalReviews(course.getTotalReviews())
                 .thumbnailUrl(anhThumbnail)
+                .isEnrolled(isEnrolled)
                 .build();
     }
 }

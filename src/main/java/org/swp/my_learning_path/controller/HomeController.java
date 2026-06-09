@@ -22,10 +22,16 @@ public class HomeController {
     ) {
         // Lấy username (email) của người đang login
         String username = (userDetails != null) ? userDetails.getUsername() : "Khách";
+        
+        Long studentId = null;
+        if (userDetails instanceof org.swp.my_learning_path.security.CustomUserDetails cud) {
+            studentId = cud.getUserId();
+        }
+        
         model.addAttribute("username", username);
         model.addAttribute("pageTitle", "Trang chủ - My Learning Path");
         // Lấy danh sách 5 khoá học
-        List<CourseCardDTO> courses = courseService.getTop5Courses();
+        List<CourseCardDTO> courses = courseService.getTop5Courses(studentId);
         model.addAttribute("courses", courses);
         return "pages/home"; // → templates/pages/home.html
     }

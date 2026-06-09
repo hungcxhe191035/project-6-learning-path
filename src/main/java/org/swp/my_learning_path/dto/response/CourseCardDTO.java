@@ -17,5 +17,6 @@ public class CourseCardDTO {
     BigDecimal averageRating; // Điểm đánh giá (0.0 - 5.0)
     Integer totalReviews;   // Tổng số đánh giá
     String thumbnailUrl;    // Đường dẫn ảnh thumbnail
+    Boolean isEnrolled;     // Đã mua khoá học hay chưa
 
 }
