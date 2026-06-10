@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}">
+
+<head>
+  <title>Làm bài trắc nghiệm</title>
+  <style>
+    :root { --primary: #6366f1; --success: #22c55e; --danger: #ef4444; }
+    body { background: #111; }
+
+    .quiz-wrapper { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+
+    .quiz-header { background: linear-gradient(135deg, #1e1b4b, #312e81);
+      border-radius: 16px; padding: 32px; margin-bottom: 32px; color: white; text-align: center; }
+    .quiz-header h3 { font-weight: 800; margin-bottom: 8px; }
+    .quiz-header p { color: rgba(255,255,255,0.7); margin: 0; }
+
+    .question-card { background: #1a1a2e; border-radius: 12px; padding: 24px;
+      margin-bottom: 20px; border: 2px solid transparent; transition: border-color 0.2s; }
+    .question-card.answered { border-color: #312e81; }
+    .question-num { font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-bottom: 8px; }
+    .question-text { font-size: 1rem; font-weight: 600; color: white; margin-bottom: 16px; line-height: 1.5; }
+
+    .answer-option { display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 8px; cursor: pointer;
+      border: 1.5px solid #374151; margin-bottom: 10px;
+      transition: all 0.2s; color: #d1d5db; }
+    .answer-option:hover { border-color: var(--primary); color: white; background: rgba(99,102,241,0.1); }
+    .answer-option input[type="radio"] { accent-color: var(--primary); width: 18px; height: 18px; }
+    .answer-option.correct { border-color: var(--success); background: rgba(34,197,94,0.15); color: white; }
+    .answer-option.wrong { border-color: var(--danger); background: rgba(239,68,68,0.15); color: white; }
+    .answer-option.show-correct { border-color: var(--success); background: rgba(34,197,94,0.1); }
+
+    /* Progress bar */
+    .quiz-progress { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+    .q-dot { width: 12px; height: 12px; border-radius: 50%; background: #374151; cursor: pointer; transition: background 0.2s; }
+    .q-dot.answered { background: var(--primary); }
+    .q-dot.correct { background: var(--success); }
+    .q-dot.wrong { background: var(--danger); }
+
+    /* Result */
+    .result-card { background: #1a1a2e; border-radius: 16px; padding: 40px; text-align: center; color: white; }
+    .result-score { font-size: 5rem; font-weight: 900; line-height: 1; }
+    .result-score.pass { color: var(--success); }
+    .result-score.fail { color: var(--danger); }
+    .result-label { font-size: 1.2rem; margin-top: 8px; color: rgba(255,255,255,0.7); }
+    .result-badge { display: inline-block; padding: 8px 24px; border-radius: 99px;
+      font-weight: 700; font-size: 1rem; margin-top: 16px; }
+    .badge-pass { background: rgba(34,197,94,0.2); color: var(--success); border: 2px solid var(--success); }
+    .badge-fail { background: rgba(239,68,68,0.2); color: var(--danger); border: 2px solid var(--danger); }
+
+    .btn-submit { background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      border: none; color: white; padding: 14px 40px; border-radius: 10px;
+      font-weight: 700; font-size: 1rem; cursor: pointer; transition: opacity 0.2s; }
+    .btn-submit:hover { opacity: 0.85; }
+    .btn-back { display: inline-flex; align-items: center; gap: 8px;
+      color: #9ca3af; text-decoration: none; font-size: 0.9rem; margin-bottom: 24px; }
+    .btn-back:hover { color: white; }
+  </style>
+</head>
+
+<body>
+<div layout:fragment="content" style="background: #111; min-height: 100vh; padding: 24px;">
+
+  <div class="quiz-wrapper">
+    <!-- Back -->
+    <a th:href="@{/learn/{id}(id=${courseId})}" class="btn-back">
+      <i class="bi bi-arrow-left"></i> Quay lại khoá học
+    </a>
+
+    <!-- Header -->
+    <div class="quiz-header">
+      <div style="font-size: 2.5rem; margin-bottom: 12px;">📝</div>
+      <h3>Bài Trắc Nghiệm</h3>
+      <p>Trả lời đúng ≥ 80% để hoàn thành bài học và mở khoá bài tiếp theo</p>
+    </div>
+
+    <!-- Loading -->
+    <div id="loadingArea" style="text-align:center; color:#9ca3af; padding: 60px;">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-3">Đang tải câu hỏi...</p>
+    </div>
+
+    <!-- Quiz Form -->
+    <div id="quizArea" style="display:none;">
+      <div class="quiz-progress" id="progressDots"></div>
+      <div id="questionList"></div>
+      <div style="text-align: center; margin-top: 32px;">
+        <button class="btn-submit" onclick="submitQuiz()">
+          <i class="bi bi-send-check me-2"></i>Nộp bài
+        </button>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div id="resultArea" style="display:none;"></div>
+  </div>
+
+  <script th:inline="javascript">
+    const COURSE_ID = /*[[${courseId}]]*/ 0;
+    const LESSON_ID = /*[[${lessonId}]]*/ 0;
+    let quizData = [];
+
+    // Load câu hỏi
+    fetch(`/api/learn/${COURSE_ID}/quiz/${LESSON_ID}`)
+            .then(r => r.json())
+            .then(data => {
+              quizData = data;
+              document.getElementById('loadingArea').style.display = 'none';
+              document.getElementById('quizArea').style.display = 'block';
+              renderQuiz(data);
+            })
+            .catch(() => {
+              document.getElementById('loadingArea').innerHTML =
+                      '<p style="color:#ef4444;">Không thể tải câu hỏi. Vui lòng thử lại.</p>';
+            });
+
+    function renderQuiz(questions) {
+      // Dots
+      const dots = document.getElementById('progressDots');
+      dots.innerHTML = questions.map((_, i) =>
+              `<div class="q-dot" id="dot-${i}" title="Câu ${i+1}" onclick="scrollToQ(${i})"></div>`
+      ).join('');
+
+      // Questions
+      const list = document.getElementById('questionList');
+      list.innerHTML = questions.map((q, i) => `
+                <div class="question-card" id="qcard-${i}">
+                    <div class="question-num">Câu ${i + 1} / ${questions.length}</div>
+                    <div class="question-text">${q.questionText}</div>
+                    ${q.answers.map(a => `
+                        <label class="answer-option" id="opt-${q.questionId}-${a.answerId}">
+                            <input type="radio" name="q${q.questionId}" value="${a.answerId}"
+                                   onchange="onAnswered(${i}, ${q.questionId})">
+                            <span>${a.answerText}</span>
+                        </label>`).join('')}
+                </div>`).join('');
+    }
+
+    function onAnswered(qIndex, questionId) {
+      document.getElementById('qcard-' + qIndex).classList.add('answered');
+      document.getElementById('dot-' + qIndex).classList.add('answered');
+    }
+
+    function scrollToQ(index) {
+      document.getElementById('qcard-' + index).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function submitQuiz() {
+      const answers = {};
+      let allAnswered = true;
+      quizData.forEach(q => {
+        const sel = document.querySelector(`input[name="q${q.questionId}"]:checked`);
+        if (sel) {
+          answers[q.questionId] = parseInt(sel.value);
+        } else {
+          allAnswered = false;
+        }
+      });
+
+      if (!allAnswered) {
+        if (!confirm('Bạn chưa trả lời hết tất cả câu hỏi. Vẫn muốn nộp bài?')) return;
+      }
+
+      fetch(`/api/learn/${COURSE_ID}/quiz/${LESSON_ID}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(answers)
+      })
+              .then(r => r.json())
+              .then(result => showResult(result));
+    }
+
+    function showResult(result) {
+      document.getElementById('quizArea').style.display = 'none';
+
+      const passed = result.passed;
+      const score = result.scorePercent;
+
+      // Hiển thị kết quả chi tiết từng câu
+      const detailHtml = result.questionResults.map((qr, i) => {
+        const aList = qr.answers.map(function(a) {
+          const aId = Number(a.answerId);
+          const studentId = Number(qr.studentAnswerId);
+
+          let cls = '';
+          let icon = '◯';
+          let label = '';
+
+          // Chỉ hiển thị kết quả cho ĐÁP ÁN MÀ SINH VIÊN ĐÃ CHỌN
+          if (aId === studentId) {
+            if (qr.isCorrect) {
+              cls = 'correct';
+              icon = '✅';
+              label = '<span style="font-size:0.75rem; color:#22c55e; font-weight:700; margin-left:8px;">Chính xác</span>';
+            } else {
+              cls = 'wrong';
+              icon = '❌';
+              label = '<span style="font-size:0.75rem; color:#ef4444; font-weight:700; margin-left:8px;">Bạn đã chọn sai</span>';
+            }
+          }
+          // Nếu sinh viên KHÔNG CHỌN đáp án này thì để trống hoàn toàn (giấu đáp án đúng đi)
+
+          return '<div class="answer-option ' + cls + '" style="cursor:default; pointer-events:none;">' +
+                  '<span style="font-size:1rem;">' + icon + '</span>' +
+                  '<span>' + a.answerText + '</span>' +
+                  label +
+                  '</div>';
+        }).join('');
+        return `<div class="question-card" style="margin-bottom:16px; ${qr.isCorrect ? 'border-color:#22c55e' : 'border-color:#ef4444'}">
+                    <div class="question-num">Câu ${i+1} ${qr.isCorrect ? '✅' : '❌'}</div>
+                    <div class="question-text">${qr.questionText}</div>
+                    ${aList}
+                </div>`;
+      }).join('');
+
+      document.getElementById('resultArea').style.display = 'block';
+      document.getElementById('resultArea').innerHTML = `
+                <div class="result-card mb-4">
+                    <div class="result-score ${passed ? 'pass' : 'fail'}">${score}%</div>
+                    <div class="result-label">${result.correctCount} / ${result.totalQuestions} câu đúng</div>
+                    <div class="result-badge ${passed ? 'badge-pass' : 'badge-fail'}">
+                        ${passed ? '🎉 Chúc mừng! Bạn đã vượt qua!' : '😔 Chưa đạt — Cần ≥80% để qua bài'}
+                    </div>
+                    <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        ${passed
+              ? `<a href="/learn/${COURSE_ID}" class="btn btn-success">
+                                <i class="bi bi-arrow-left me-1"></i>Quay lại học tiếp
+                               </a>`
+              : `<button class="btn btn-warning" onclick="location.reload()">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Làm lại bài
+                               </button>
+                               <a href="/learn/${COURSE_ID}" class="btn btn-outline-secondary">
+                                Quay lại
+                               </a>`}
+                    </div>
+                </div>
+                <h6 style="color:white; margin-bottom:16px;">Chi tiết từng câu:</h6>
+                ${detailHtml}`;
+    }
+  </script>
+</div>
+</body>
+</html>
