@@ -147,9 +147,9 @@ public class InstructorLessonService {
     public void saveQuizContent(Long lessonId, java.util.List<org.swp.my_learning_path.dto.request.QuizQuestionRequest> questionsRequest) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bài học này!"));
-
-        if (lesson.getLessonType() != ELessonType.QUIZ) {
-            throw new RuntimeException("Bài học này không phải loại QUIZ!");
+// nêếu bài giảng không phải định dạng là quiz hoăặc vid thì không được tạo quiz
+        if (lesson.getLessonType() != ELessonType.QUIZ && lesson.getLessonType() != ELessonType.VIDEO) {
+            throw new RuntimeException("Bài học này không hỗ trợ lưu bài tập trắc nghiệm!");
         }
 
         // Xóa sạch câu hỏi cũ để lưu mới toàn bộ
@@ -166,6 +166,7 @@ public class InstructorLessonService {
                         .lesson(lesson)
                         .questionText(qReq.getQuestionText())
                         .displayOrder(qReq.getDisplayOrder())
+                        .videoTimestampSeconds(qReq.getVideoTimestampSeconds())
                         .build();
                 newQ = quizQuestionRepository.save(newQ);
 

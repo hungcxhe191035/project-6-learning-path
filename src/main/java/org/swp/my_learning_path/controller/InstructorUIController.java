@@ -109,7 +109,7 @@ public class InstructorUIController {
             sectionLessonsMap.put(section.getSectionId(), lessons);
             
             for (Lesson lesson : lessons) {
-                if (lesson.getLessonType() == org.swp.my_learning_path.constant.ELessonType.QUIZ) {
+                if (lesson.getLessonType() == org.swp.my_learning_path.constant.ELessonType.QUIZ || lesson.getLessonType() == org.swp.my_learning_path.constant.ELessonType.VIDEO) {
                     List<org.swp.my_learning_path.entity.QuizQuestion> questions = quizQuestionRepository.findByLessonOrderByDisplayOrderAsc(lesson);
                     lessonQuestionsMap.put(lesson.getLessonId(), questions);
                     

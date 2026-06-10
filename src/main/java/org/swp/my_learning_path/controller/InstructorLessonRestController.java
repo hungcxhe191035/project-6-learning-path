@@ -120,8 +120,8 @@ public class InstructorLessonRestController {
                 response.put("videoUrl", lesson.getVideo().getFileUrl());
             }
 
-            // Xử lý riêng cho loại Trắc nghiệm: Gom nhóm Câu hỏi và Đáp án
-            if(lesson.getLessonType() == org.swp.my_learning_path.constant.ELessonType.QUIZ) {
+            // Xử lý riêng cho loại Trắc nghiệm hoặc Video (có đính kèm quiz tương tác)
+            if(lesson.getLessonType() == org.swp.my_learning_path.constant.ELessonType.QUIZ || lesson.getLessonType() == org.swp.my_learning_path.constant.ELessonType.VIDEO) {
                 // Lấy danh sách câu hỏi
                 java.util.List<org.swp.my_learning_path.entity.QuizQuestion> questions = lessonService.getQuizQuestionsByLesson(lesson);
                 java.util.List<Map<String, Object>> questionsResponse = new java.util.ArrayList<>();
@@ -131,6 +131,7 @@ public class InstructorLessonRestController {
                     qMap.put("questionId", q.getQuestionId());
                     qMap.put("questionText", q.getQuestionText());
                     qMap.put("displayOrder", q.getDisplayOrder());
+                    qMap.put("videoTimestampSeconds", q.getVideoTimestampSeconds());
 
                     // Lấy toàn bộ đáp án thuộc về câu hỏi này
                     java.util.List<org.swp.my_learning_path.entity.QuizAnswer> answers = lessonService.getQuizAnswersByQuestion(q);
