@@ -29,5 +29,6 @@ public interface LearnService {
     void submitFeedback(Long courseId, Long studentId, int rating, String comment);
 
     Map<String, Object> getLessonDetail(Long lessonId);
-
+    // Lấy danh sách câu hỏi quiz có gắn mốc thời gian video
+    List<Map<String, Object>> getVideoTimestampQuizzes(Long lessonId);
 }

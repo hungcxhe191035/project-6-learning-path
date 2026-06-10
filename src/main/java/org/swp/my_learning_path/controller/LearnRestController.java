@@ -77,4 +77,10 @@ public class LearnRestController {
         // Bạn cần inject LessonRepository vào LearnRestController
         return ResponseEntity.ok(learnService.getLessonDetail(lessonId));
     }
+
+    // Lấy câu hỏi quiz gắn theo mốc thời gian của video
+    @GetMapping("/lesson/{lessonId}/video-quizzes")
+    public ResponseEntity<?> getVideoTimestampQuizzes(@PathVariable Long lessonId) {
+        return ResponseEntity.ok(learnService.getVideoTimestampQuizzes(lessonId));
+    }
 }

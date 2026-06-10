@@ -480,9 +480,7 @@
         </div>
     </section>
 
-</main>
-
-<th:block layout:fragment="scripts">
+    <!-- Script phải nằm TRONG thẻ main thì mới không bị Thymeleaf xóa -->
     <script>
         document.querySelectorAll(".add-cart-btn").forEach(btn => {
             btn.addEventListener("click", async function(e) {
@@ -490,19 +488,32 @@
                 e.stopPropagation();
 
                 const courseId = this.dataset.courseId;
-                const response = await fetch("/api/cart/" + courseId, { method: "POST" });
-                
-                if (response.redirected && response.url.includes("/login")) {
-                    window.location.href = "/login";
-                    return;
-                }
-                if(response.ok) {
-                    toastr.success("Đã thêm vào giỏ hàng");
+                try {
+                    const response = await fetch("/api/cart/" + courseId, { method: "POST" });
+
+                    if (response.redirected && response.url.includes("/login")) {
+                        window.location.href = "/login";
+                        return;
+                    }
+                    if(response.ok) {
+                        toastr.success("Đã thêm vào giỏ hàng");
+
+                        // Tự động tăng số đếm trên biểu tượng giỏ hàng (navbar)
+                        let navBadge = document.querySelector('.dropdown-item[href="/cart"] .badge');
+                        if(navBadge) {
+                            let count = parseInt(navBadge.innerText) || 0;
+                            navBadge.innerText = count + 1;
+                        }
+                    } else {
+                        toastr.error("Có lỗi xảy ra hoặc khoá học đã trong giỏ!");
+                    }
+                } catch(err) {
+                    console.error("Lỗi:", err);
                 }
             });
         });
     </script>
-</th:block>
+</main> <!-- Đóng thẻ main ở đây -->
 
 </body>
 </html>

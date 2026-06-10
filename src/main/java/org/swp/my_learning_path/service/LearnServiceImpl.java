@@ -356,5 +356,36 @@ public class LearnServiceImpl implements LearnService {
         return result;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getVideoTimestampQuizzes(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài học!"));
 
+        List<QuizQuestion> questions = quizQuestionRepository.findByLessonOrderByDisplayOrderAsc(lesson);
+
+        // Chỉ lấy câu hỏi có cấu hình timestamp (bỏ qua câu hỏi null)
+        return questions.stream()
+                .filter(q -> q.getVideoTimestampSeconds() != null)
+                .map(q -> {
+                    List<QuizAnswer> answers = quizAnswerRepository
+                            .findByQuestionOrderByDisplayOrderAsc(q);
+
+                    List<Map<String, Object>> answerList = answers.stream().map(a -> {
+                        Map<String, Object> aMap = new LinkedHashMap<>();
+                        aMap.put("answerId", a.getAnswerId());
+                        aMap.put("answerText", a.getAnswerText());
+                        aMap.put("isCorrect", a.getIsCorrect()); // <-- QUAN TRỌNG NHẤT LÀ DÒNG NÀY!
+                        return aMap;
+                    }).collect(Collectors.toList());
+
+                    Map<String, Object> qMap = new LinkedHashMap<>();
+                    qMap.put("questionId", q.getQuestionId());
+                    qMap.put("questionText", q.getQuestionText());
+                    qMap.put("videoTimestampSeconds", q.getVideoTimestampSeconds());
+                    qMap.put("answers", answerList);
+                    return qMap;
+                })
+                .collect(Collectors.toList());
+    }
 }
