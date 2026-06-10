@@ -14,4 +14,9 @@ public interface RevenueService {
     // Dành cho Admin
     BigDecimal getAdminTotalRevenue();
     List<Order> getAdminSalesHistory();
+
+    // [MỚI] Lấy doanh thu theo từng tháng (12 tháng) trong năm hiện tại
+    // Trả về List 12 phần tử BigDecimal, index 0 = Tháng 1, index 11 = Tháng 12
+    List<BigDecimal> getInstructorMonthlyRevenue(Long instructorId, int year);
+    List<BigDecimal> getAdminMonthlyRevenue(int year);
 }

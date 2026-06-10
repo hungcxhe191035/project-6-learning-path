@@ -163,6 +163,12 @@
                         Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để xác thực tài khoản.
                     </div>
 
+                    <!-- Thông báo đóng tài khoản thành công -->
+                    <div th:if="${param.closed}" class="alert alert-success small fw-semibold mb-3 py-2 px-3">
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                        Tài khoản của bạn đã được đóng thành công.
+                    </div>
+
                     <!-- Thông báo đăng xuất thành công -->
                     <div th:if="${param.logout}" class="alert alert-success small fw-semibold mb-3 py-2 px-3">
                         <i class="bi bi-check-circle-fill me-1"></i>

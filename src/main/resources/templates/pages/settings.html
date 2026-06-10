@@ -12,7 +12,7 @@
             margin-bottom: 24px;
             color: #1c1d1f;
         }
-        .udemy-tabs .nav-link {
+        .mlp-tabs .nav-link {
             color: #6a6f73;
             font-weight: 700;
             border: none;
@@ -21,7 +21,7 @@
             padding: 12px 16px;
             font-size: 15px;
         }
-        .udemy-tabs .nav-link.active {
+        .mlp-tabs .nav-link.active {
             color: #1c1d1f;
             border-bottom: 2px solid #1c1d1f;
             background-color: transparent;
@@ -31,13 +31,13 @@
             color: #1c1d1f;
             font-size: 14px;
         }
-        .udemy-input {
+        .mlp-input {
             border: 1px solid #1c1d1f;
             border-radius: 0;
             padding: 12px;
             font-size: 14px;
         }
-        .udemy-input:focus {
+        .mlp-input:focus {
             box-shadow: none;
             border-color: #1c1d1f;
             outline: 2px solid #a435f0;
@@ -49,10 +49,7 @@
             border-radius: 0;
             padding: 12px 16px;
         }
-        .btn-pencil:hover {
-            background-color: #8710d8;
-            color: white;
-        }
+        .btn-pencil:hover { background-color: #8710d8; color: white; }
         .btn-purple {
             background-color: #a435f0;
             color: white;
@@ -61,10 +58,7 @@
             padding: 12px 24px;
             border: 1px solid #a435f0;
         }
-        .btn-purple:hover {
-            background-color: #8710d8;
-            color: white;
-        }
+        .btn-purple:hover { background-color: #8710d8; color: white; }
         .mfa-box {
             border: 1px solid #d1d7dc;
             padding: 24px;
@@ -72,6 +66,35 @@
             margin-top: 24px;
             max-width: 600px;
         }
+
+        /* ===== TOGGLE SWITCH ===== */
+        .notif-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+            max-width: 640px;
+        }
+        .notif-row:last-child { border-bottom: none; }
+        .notif-label { font-weight: 700; color: #1c1d1f; font-size: 15px; }
+        .notif-desc  { color: #6a6f73; font-size: 13px; margin-top: 4px; }
+        .form-switch .form-check-input {
+            width: 48px;
+            height: 26px;
+            cursor: pointer;
+        }
+        .form-switch .form-check-input:checked { background-color: #a435f0; border-color: #a435f0; }
+        .form-switch .form-check-input:focus    { box-shadow: 0 0 0 0.2rem rgba(164,53,240,.25); }
+
+        /* placeholder tab */
+        .coming-soon-box {
+            max-width: 500px;
+            text-align: center;
+            padding: 60px 24px;
+            margin: 0 auto;
+        }
+        .coming-soon-box i { font-size: 48px; color: #d1d7dc; }
     </style>
 </head>
 <body>
@@ -79,78 +102,69 @@
     <h1 class="settings-title">Tài khoản</h1>
 
     <!-- Nav tabs -->
-    <ul class="nav nav-tabs udemy-tabs mb-4 border-bottom" role="tablist">
+    <ul class="nav nav-tabs mlp-tabs mb-4 border-bottom" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="security-tab" data-bs-toggle="tab" href="#security-pane" role="tab" aria-selected="true">Bảo mật tài khoản</a>
+            <a class="nav-link active" id="security-tab"
+               data-bs-toggle="tab" href="#security-pane" role="tab" aria-controls="security-pane" aria-selected="true">Bảo mật tài khoản</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" href="#">Cài đặt thông báo</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" href="#">Giao tiếp</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" href="#">Ứng dụng API</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" href="#">Chương trình GenAI</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" href="#">Đóng tài khoản</a>
+            <a class="nav-link" id="close-tab"
+               data-bs-toggle="tab" href="#close-pane" role="tab" aria-controls="close-pane" aria-selected="false">Đóng tài khoản</a>
         </li>
     </ul>
 
     <!-- Tab panes -->
     <div class="tab-content">
-        <!-- TAB BẢO MẬT TÀI KHOẢN -->
+
+        <!-- ===== TAB 1: BẢO MẬT ===== -->
         <div class="tab-pane fade show active" id="security-pane" role="tabpanel" aria-labelledby="security-tab">
-            
-            <!-- Alert message -->
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-0 mb-4" role="alert" style="max-width: 600px;">
+
+            <!-- Alert -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-0 mb-4" role="alert" style="max-width:600px;">
                 <i class="bi bi-check-circle-fill me-2"></i>
                 <span th:text="${successMessage}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-0 mb-4" role="alert" style="max-width: 600px;">
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-0 mb-4" role="alert" style="max-width:600px;">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                 <span th:text="${errorMessage}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
-            <!-- Email (Read-only) -->
-            <div class="mb-4" style="max-width: 600px;">
+            <!-- Email (read-only) -->
+            <div class="mb-4" style="max-width:600px;">
                 <label class="form-label">Email:</label>
-                <input type="email" class="form-control udemy-input bg-light" th:value="${user.email}" readonly>
+                <input type="email" class="form-control mlp-input bg-light" th:value="${user.email}" readonly>
             </div>
 
             <!-- Mật khẩu -->
-            <div class="mb-4" style="max-width: 600px;">
+            <div class="mb-4" style="max-width:600px;">
                 <label class="form-label">Mật khẩu:</label>
                 <div class="input-group">
-                    <input type="password" class="form-control udemy-input bg-light" value="********" readonly>
-                    <button class="btn btn-pencil" type="button" data-bs-toggle="collapse" data-bs-target="#changePasswordForm" aria-expanded="false" aria-controls="changePasswordForm">
+                    <input type="password" class="form-control mlp-input bg-light" value="********" readonly>
+                    <button class="btn btn-pencil" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#changePasswordForm">
                         <i class="bi bi-pencil-fill"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Form đổi mật khẩu ẩn (Hiện ra khi bấm nút Bút chì) -->
-            <div class="collapse mb-4" id="changePasswordForm" style="max-width: 600px;">
+            <!-- Form đổi mật khẩu -->
+            <div class="collapse mb-4" id="changePasswordForm" style="max-width:600px;">
                 <div class="card card-body border rounded-0">
-                    <h5 class="fw-bold mb-3" style="color: #1c1d1f;">Đổi mật khẩu</h5>
-                    
+                    <h5 class="fw-bold mb-3" style="color:#1c1d1f;">Đổi mật khẩu</h5>
                     <form th:action="@{/profile/change-password}" method="post">
                         <div class="mb-3">
                             <label class="form-label">Mật khẩu hiện tại</label>
-                            <input type="password" name="currentPassword" class="form-control udemy-input" placeholder="Nhập mật khẩu hiện tại" required>
+                            <input type="password" name="currentPassword" class="form-control mlp-input" placeholder="Nhập mật khẩu hiện tại" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Mật khẩu mới</label>
-                            <input type="password" name="newPassword" class="form-control udemy-input" placeholder="Nhập mật khẩu mới" required>
+                            <input type="password" name="newPassword" class="form-control mlp-input" placeholder="Nhập mật khẩu mới" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Xác nhận mật khẩu mới</label>
-                            <input type="password" name="confirmPassword" class="form-control udemy-input" placeholder="Nhập lại mật khẩu mới" required>
+                            <input type="password" name="confirmPassword" class="form-control mlp-input" placeholder="Nhập lại mật khẩu mới" required>
                         </div>
                         <button type="submit" class="btn btn-purple">Cập nhật mật khẩu</button>
                     </form>
@@ -159,16 +173,39 @@
 
             <!-- Xác thực đa yếu tố -->
             <div class="mfa-box">
-                <h5 class="fw-bold mb-2" style="font-size: 16px; color: #1c1d1f;">Xác thực đa yếu tố</h5>
-                <p class="text-secondary mb-3" style="font-size: 14px; line-height: 1.5;">
-                    Tăng cường bảo mật tài khoản của bạn bằng cách yêu cầu nhập một mã gửi đến bạn qua email khi bạn đăng nhập. 
-                    Để biết thêm thông tin về cách thức hoạt động của tính năng xác thực đa yếu tố, hãy xem <a href="#" style="color: #5624d0; text-decoration: underline;">bài viết này trên Trung tâm trợ giúp</a>.
+                <h5 class="fw-bold mb-2" style="font-size:16px;color:#1c1d1f;">Xác thực đa yếu tố</h5>
+                <p class="text-secondary mb-3" style="font-size:14px;line-height:1.5;">
+                    Tăng cường bảo mật tài khoản bằng cách yêu cầu nhập mã gửi qua email khi đăng nhập.
                 </p>
                 <button class="btn btn-purple" type="button">Bật</button>
             </div>
-
         </div>
+
+        <!-- ===== TAB 2: ĐÓNG TÀI KHOẢN ===== -->
+        <div class="tab-pane fade" id="close-pane" role="tabpanel" aria-labelledby="close-tab">
+            <div class="card border rounded-0 p-4" style="max-width: 600px;">
+                <h5 class="fw-bold text-danger mb-3"><i class="bi bi-exclamation-triangle-fill"></i> Cảnh báo đóng tài khoản</h5>
+                <p class="text-dark fw-semibold" style="font-size: 15px;">
+                    Nếu bạn đóng tài khoản, bạn sẽ bị hủy đăng ký khỏi tất cả các khóa học của mình và sẽ mất quyền truy cập vĩnh viễn vào các khóa học này.
+                </p>
+                <p class="text-secondary" style="font-size: 14px; line-height: 1.5;">
+                    Hành động đóng tài khoản là <strong>không thể hoàn tác</strong>. Mọi tiến trình học tập, chứng chỉ và lịch sử giao dịch liên quan đến tài khoản này cũng sẽ bị xóa vĩnh viễn hoặc vô hiệu hóa.
+                </p>
+                
+                <form th:action="@{/profile/settings/close-account}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn đóng tài khoản vĩnh viễn không? Hành động này không thể khôi phục!');">
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="confirmClose" required>
+                        <label class="form-check-label text-dark fw-bold" for="confirmClose" style="font-size: 14px; cursor: pointer;">
+                            Tôi hiểu các hệ quả và đồng ý đóng tài khoản của mình.
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-danger rounded-0 py-2 px-4 fw-bold">Đóng tài khoản</button>
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
 </body>
 </html>
+

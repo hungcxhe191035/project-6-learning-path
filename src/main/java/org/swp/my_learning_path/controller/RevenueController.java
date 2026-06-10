@@ -10,7 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/revenue")
@@ -26,19 +26,27 @@ public class RevenueController {
         }
 
         User user = userDetails.getUser();
-        String role = user.getRole().name(); // STUDENT, INSTRUCTOR, ADMIN
+        String role = user.getRole().name();
+
+        // Lấy năm hiện tại để query dữ liệu biểu đồ
+        int currentYear = LocalDate.now().getYear();
 
         model.addAttribute("user", user);
+        model.addAttribute("currentYear", currentYear);
 
         if ("ADMIN".equals(role)) {
             model.addAttribute("totalRevenue", revenueService.getAdminTotalRevenue());
             model.addAttribute("salesHistory", revenueService.getAdminSalesHistory());
+            // [MỚI] Truyền dữ liệu 12 tháng thật cho biểu đồ
+            model.addAttribute("monthlyRevenue", revenueService.getAdminMonthlyRevenue(currentYear));
             model.addAttribute("isAdmin", true);
             return "pages/revenue";
             
         } else if ("INSTRUCTOR".equals(role)) {
             model.addAttribute("totalRevenue", revenueService.getInstructorTotalRevenue(user.getUserId()));
             model.addAttribute("salesHistory", revenueService.getInstructorSalesHistory(user.getUserId()));
+            // [MỚI] Truyền dữ liệu 12 tháng thật cho biểu đồ
+            model.addAttribute("monthlyRevenue", revenueService.getInstructorMonthlyRevenue(user.getUserId(), currentYear));
             model.addAttribute("isAdmin", false);
             return "pages/revenue";
             

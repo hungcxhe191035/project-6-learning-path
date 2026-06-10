@@ -1,126 +1,190 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/main-layout}"
+>
 <head>
-    <meta charset="UTF-8">
-    <title>Thống kê Doanh Thu - SWP Project</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Thống kê Doanh Thu</title>
     <!-- Chart.js để vẽ biểu đồ -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', Arial, sans-serif; }
         .card-revenue {
             background: linear-gradient(135deg, #1f4068 0%, #162447 100%);
-            color: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); border: none;
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: none;
         }
         .table-container {
-            background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
     </style>
 </head>
 <body>
 
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark" th:text="${isAdmin} ? 'Quản Lý Doanh Thu Hệ Thống' : 'Thống Kê Doanh Thu'">Báo Cáo Doanh Thu</h2>
-        <a href="/" class="btn btn-outline-secondary">Về trang chủ</a>
-    </div>
+<main layout:fragment="content" class="flex-grow-1">
 
-    <div class="row g-4 mb-4">
-        <!-- Card tổng doanh thu -->
-        <div class="col-md-4">
-            <div class="card card-revenue p-4 h-100 d-flex flex-column justify-content-between">
-                <div>
-                    <span class="text-uppercase tracking-wider opacity-75 small">Tổng Doanh Thu</span>
-                    <h1 class="display-6 fw-bold mt-2" 
-                        th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h1>
+    <!-- ===== HERO BANNER (giống trang chủ) ===== -->
+    <section style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%); padding: 48px 0 40px; color: white;">
+        <div class="container">
+            <p style="font-size: 2rem; font-weight: 700; margin-bottom: 6px;"
+               th:text="${isAdmin} ? '📊 Quản Lý Doanh Thu Hệ Thống' : '📊 Thống Kê Doanh Thu'">
+                📊 Thống Kê Doanh Thu
+            </p>
+            <p style="font-size: 1rem; color: rgba(255,255,255,0.75); margin: 0;">
+                Theo dõi doanh thu và lịch sử giao dịch của bạn.
+            </p>
+        </div>
+    </section>
+
+    <!-- ===== NỘI DUNG CHÍNH ===== -->
+    <section class="py-5 bg-light">
+        <div class="container">
+
+            <div class="row g-4 mb-4">
+                <!-- Card tổng doanh thu -->
+                <div class="col-md-4">
+                    <div class="card card-revenue p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <span class="text-uppercase opacity-75 small">Tổng Doanh Thu</span>
+                            <h1 class="display-6 fw-bold mt-2" 
+                                th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h1>
+                        </div>
+                        <p class="mb-0 mt-3"><small class="text-success fw-semibold">● Cập nhật thời gian thực</small></p>
+                    </div>
                 </div>
-                <p class="mb-0 mt-3"><small class="text-success fw-semibold">● Cập nhật thời gian thực</small></p>
+
+                <!-- Biểu đồ doanh thu gần đây -->
+                <div class="col-md-8">
+                    <div class="bg-white p-4 rounded-3 shadow-sm h-100">
+                        <h6 class="text-secondary mb-3">Biểu đồ doanh thu gần đây</h6>
+                        <canvas id="revenueChart" style="max-height: 180px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bảng danh sách giao dịch -->
+            <div class="table-container">
+                <h5 class="mb-4 fw-bold text-secondary" 
+                    th:text="${isAdmin} ? 'Lịch Sử Đơn Hàng Hệ Thống' : 'Danh Sách Học Viên Mua Khóa Học'">Lịch sử giao dịch</h5>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Mã GD</th>
+                                <th>Khách hàng</th>
+                                <th th:unless="${isAdmin}">Khóa học</th>
+                                <th>Doanh thu nhận</th>
+                                <th>Thời gian</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Admin (Duyệt theo Order) -->
+                            <tr th:if="${isAdmin}" th:each="order : ${salesHistory}">
+                                <td th:text="'#' + ${order.orderId}">#01</td>
+                                <td th:text="${order.user.fullName}">Nguyen Van A</td>
+                                <td class="fw-bold text-primary" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">100k</td>
+                                <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
+                                <td><span class="badge bg-success">Thành công</span></td>
+                            </tr>
+
+                            <!-- Giảng viên (Duyệt theo OrderItem) -->
+                            <tr th:unless="${isAdmin}" th:each="item : ${salesHistory}">
+                                <td th:text="'#' + ${item.orderItemId}">#01</td>
+                                <td th:text="${item.order.user.fullName}">Nguyen Van A</td>
+                                <td th:text="${item.course.currentPublishedVersion != null ? item.course.currentPublishedVersion.title : 'Khóa học'}">Tên khóa học</td>
+                                <td class="fw-bold text-primary" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">100k</td>
+                                <td th:text="${#temporals.format(item.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
+                                <td><span class="badge bg-success">Thành công</span></td>
+                            </tr>
+
+                            <!-- Nếu chưa có giao dịch -->
+                            <tr th:if="${#lists.isEmpty(salesHistory)}">
+                                <td colspan="6" class="text-center text-muted py-4">Chưa có giao dịch thành công nào.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+    </section>
 
-        <!-- Biểu đồ doanh thu gần đây -->
-        <div class="col-md-8">
-            <div class="bg-white p-4 rounded-3 shadow-sm h-100">
-                <h6 class="text-secondary mb-3">Biểu đồ doanh thu gần đây</h6>
-                <canvas id="revenueChart" style="max-height: 180px;"></canvas>
-            </div>
-        </div>
-    </div>
+    <script th:inline="javascript">
+        const ctx = document.getElementById('revenueChart').getContext('2d');
 
-    <!-- Bảng danh sách giao dịch -->
-    <div class="table-container">
-        <h5 class="mb-4 fw-bold text-secondary" 
-            th:text="${isAdmin} ? 'Lịch Sử Đơn Hàng Hệ Thống' : 'Danh Sách Học Viên Mua Khóa Học'">Lịch sử giao dịch</h5>
-        
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Mã GD</th>
-                        <th>Khách hàng</th>
-                        <th th:unless="${isAdmin}">Khóa học</th>
-                        <th>Doanh thu nhận</th>
-                        <th>Thời gian</th>
-                        <th>Trạng thái</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Admin (Duyệt theo Order) -->
-                    <tr th:if="${isAdmin}" th:each="order : ${salesHistory}">
-                        <td th:text="'#' + ${order.orderId}">#01</td>
-                        <td th:text="${order.user.fullName}">Nguyen Van A</td>
-                        <td class="fw-bold text-primary" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">100k</td>
-                        <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
-                        <td><span class="badge bg-success">Thành công</span></td>
-                    </tr>
+        // Nhãn 12 tháng kèm năm hiện tại
+        const currentYear = [[${currentYear}]];
+        const labels = [
+            'T1/' + currentYear, 'T2/' + currentYear, 'T3/' + currentYear,
+            'T4/' + currentYear, 'T5/' + currentYear, 'T6/' + currentYear,
+            'T7/' + currentYear, 'T8/' + currentYear, 'T9/' + currentYear,
+            'T10/' + currentYear, 'T11/' + currentYear, 'T12/' + currentYear
+        ];
 
-                    <!-- Giảng viên (Duyệt theo OrderItem) -->
-                    <tr th:unless="${isAdmin}" th:each="item : ${salesHistory}">
-                        <td th:text="'#' + ${item.orderItemId}">#01</td>
-                        <td th:text="${item.order.user.fullName}">Nguyen Van A</td>
-                        <td th:text="${item.course.currentPublishedVersion != null ? item.course.currentPublishedVersion.title : 'Khóa học'}">Tên khóa học</td>
-                        <td class="fw-bold text-primary" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">100k</td>
-                        <td th:text="${#temporals.format(item.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
-                        <td><span class="badge bg-success">Thành công</span></td>
-                    </tr>
+        // Dữ liệu THẬT từ DB (12 phần tử, tháng nào không có = 0)
+        const monthlyRevenue = /*[[${monthlyRevenue}]]*/ [];
+        const data = monthlyRevenue.map(v => Number(v));
 
-                    <!-- Nếu chưa có giao dịch -->
-                    <tr th:if="${#lists.isEmpty(salesHistory)}">
-                        <td colspan="6" class="text-center text-muted py-4">Chưa có giao dịch thành công nào.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+        // Tô màu điểm của tháng hiện tại khác biệt
+        const currentMonth = new Date().getMonth(); // 0-indexed
+        const pointColors = data.map((_, i) =>
+            i === currentMonth ? '#f59e0b' : '#1f4068'
+        );
+        const pointRadius = data.map((_, i) => i === currentMonth ? 6 : 4);
 
-<script th:inline="javascript">
-    const ctx = document.getElementById('revenueChart').getContext('2d');
-    const labels = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'];
-    const currentRevenue = [[${totalRevenue}]];
-    const data = [400000, 900000, 1500000, 2200000, 1300000, currentRevenue];
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Doanh thu (VNĐ)',
-                data: data,
-                borderColor: '#1f4068',
-                backgroundColor: 'rgba(31, 64, 104, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } }
-        }
-    });
-</script>
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: data,
+                    borderColor: '#1f4068',
+                    backgroundColor: 'rgba(31, 64, 104, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointBackgroundColor: pointColors,
+                    pointRadius: pointRadius
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                // Hiển thị tooltip dạng tiền VNĐ
+                                const val = context.parsed.y;
+                                return ' ' + val.toLocaleString('vi-VN') + ' đ';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                // Trục Y hiển thị dạng rút gọn: 1.000.000 → 1M
+                                if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                                if (value >= 1000) return (value / 1000).toFixed(0) + 'K';
+                                return value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</main>
 </body>
 </html>

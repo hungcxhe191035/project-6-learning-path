@@ -147,6 +147,7 @@
             <!-- Đã login -->
             <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-3">
                 <a th:href="@{/profile}" class="text-dark text-decoration-none d-none d-lg-block fw-bold" style="font-size: 14px;">Học tập</a>
+                <a sec:authorize="hasRole('INSTRUCTOR')" th:href="@{/instructor/students}" class="text-dark text-decoration-none d-none d-lg-block fw-bold" style="font-size: 14px;">Học viên</a>
                 <a sec:authorize="hasAnyRole('INSTRUCTOR', 'ADMIN')" th:href="@{/revenue}" class="text-dark text-decoration-none d-none d-lg-block fw-bold" style="font-size: 14px;">Doanh thu</a>
                 
                 <!-- Dropdown Avatar -->
