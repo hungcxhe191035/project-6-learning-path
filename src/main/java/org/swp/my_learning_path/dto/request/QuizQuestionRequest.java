@@ -17,4 +17,6 @@ public class QuizQuestionRequest {
     // Danh sách các đáp án (Thường là 4 đáp án A,B,C,D)
     @Valid
     private List<QuizAnswerRequest> answers;
+//Cập nhật giỏ hàng QuizQuestionRequest để nó nhận thêm thông số thời gian từ jvscr
+    private Integer videoTimestampSeconds;
 }

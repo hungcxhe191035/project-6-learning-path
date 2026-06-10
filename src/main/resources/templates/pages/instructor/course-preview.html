@@ -196,11 +196,31 @@
                         <div class="modal-body p-4">
                             <!-- Hiển thị VIDEO -->
                             <div th:if="${lesson.lessonType.name() == 'VIDEO'}">
-                                <div th:if="${lesson.video != null}">
-                                    <video controls class="w-100 rounded shadow-sm" style="max-height: 450px; background: #000;">
+                                <div th:if="${lesson.video != null}" class="position-relative video-container" th:data-lesson-id="${lesson.lessonId}">
+                                    <video controls class="w-100 rounded shadow-sm interactive-video" style="max-height: 450px; background: #000;" th:id="'videoPlayer' + ${lesson.lessonId}">
                                         <source th:src="${lesson.video.fileUrl}" type="video/mp4">
                                         Trình duyệt của bạn không hỗ trợ thẻ video.
                                     </video>
+                                    
+                                    <!-- Xoá bỏ Thymeleaf inlining gây lỗi JS -->
+
+                                    <!-- Vùng đè lên để hiển thị form câu hỏi (Overlay) -->
+                                    <div th:id="'quizOverlay' + ${lesson.lessonId}" class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-none flex-column justify-content-center align-items-center p-4 text-white z-3" style="border-radius: 0.375rem;">
+                                        <div class="card bg-white text-dark w-100 shadow-lg" style="max-width: 600px;">
+                                            <div class="card-header bg-warning text-dark fw-bold">
+                                                <i class="bi bi-patch-question-fill me-2"></i> Câu hỏi tương tác
+                                            </div>
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold mb-4" th:id="'quizQuestionText' + ${lesson.lessonId}">Nội dung câu hỏi</h5>
+                                                <div th:id="'quizAnswersContainer' + ${lesson.lessonId}" class="d-flex flex-column gap-2">
+                                                    <!-- Nơi render đáp án -->
+                                                </div>
+                                                <div class="mt-4 text-end">
+                                                    <button type="button" class="btn btn-primary" th:onclick="'submitVideoQuiz(' + ${lesson.lessonId} + ')'">Trả lời</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div th:unless="${lesson.video != null}" class="alert alert-warning">
                                     <i class="bi bi-exclamation-triangle-fill me-2"></i> Bài giảng Video này chưa được tải lên video nào!
@@ -251,6 +271,124 @@
         </th:block>
     </th:block>
 
+    <script>
+    // Logic quản lý Video Interactive Quiz cho trang Xem trước
+    const videoStates = {};
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.interactive-video').forEach(video => {
+            const lessonId = video.closest('.video-container').dataset.lessonId;
+            videoStates[lessonId] = { answeredQuestions: new Set(), quizzes: [] };
+            
+            // Gọi API lấy quiz tĩnh thay vì chèn thẳng vào HTML để tránh lỗi Syntax
+            fetch(`/api/instructor/lessons/${lessonId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.questions) {
+                        videoStates[lessonId].quizzes = data.questions;
+                    }
+                }).catch(err => console.log("Không có quiz hoặc lỗi lấy quiz: ", err));
+            
+            video.addEventListener('timeupdate', function() {
+                const currentTime = Math.floor(video.currentTime);
+                const quizzes = videoStates[lessonId].quizzes;
+                
+                if (quizzes && quizzes.length > 0) {
+                    // Lấy câu hỏi ĐẦU TIÊN chưa trả lời tại giây hiện tại
+                    const currentQ = quizzes.find(q => q.videoTimestampSeconds === currentTime && !videoStates[lessonId].answeredQuestions.has(q.questionId));
+                    if (currentQ) {
+                        video.pause();
+                        showQuizOverlay(lessonId, currentQ);
+                    }
+                }
+            });
+        });
+    });
+
+    function showQuizOverlay(lessonId, question) {
+        const video = document.getElementById('videoPlayer' + lessonId);
+        
+        // Thoát chế độ Fullscreen (Toàn màn hình) nếu đang bật để không bị che mất Popup Câu hỏi
+        if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) { /* Firefox */
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) { /* IE11 */
+                document.msExitFullscreen();
+            }
+        }
+
+        video.controls = false; // Tắt controls để cấm tua khi đang làm bài
+        
+        const overlay = document.getElementById('quizOverlay' + lessonId);
+        const questionText = document.getElementById('quizQuestionText' + lessonId);
+        const answersContainer = document.getElementById('quizAnswersContainer' + lessonId);
+        
+        overlay.dataset.currentQuestionId = question.questionId;
+        questionText.textContent = question.questionText;
+        
+        const answers = question.answers || [];
+        answersContainer.innerHTML = '';
+        answers.forEach((ans, idx) => {
+            answersContainer.insertAdjacentHTML('beforeend', `
+                <div class="form-check p-3 border rounded mb-2 quiz-answer-option" style="cursor:pointer;" onclick="this.querySelector('input').checked=true">
+                    <input class="form-check-input ms-1" type="radio" name="video_quiz_answer_${lessonId}" value="${ans.answerId}" id="ans_${ans.answerId}">
+                    <label class="form-check-label ms-2 fw-medium" for="ans_${ans.answerId}">
+                        ${ans.answerText}
+                    </label>
+                </div>
+            `);
+        });
+        
+        overlay.classList.remove('d-none');
+        overlay.classList.add('d-flex');
+    }
+
+    function submitVideoQuiz(lessonId) {
+        const overlay = document.getElementById('quizOverlay' + lessonId);
+        const questionId = parseInt(overlay.dataset.currentQuestionId);
+        const selectedRadio = document.querySelector(`input[name="video_quiz_answer_${lessonId}"]:checked`);
+        
+        if (!selectedRadio) {
+            alert("Vui lòng chọn một đáp án!");
+            return;
+        }
+        
+        const selectedAnswerId = parseInt(selectedRadio.value);
+        
+        // Tìm câu hỏi trong state
+        const question = videoStates[lessonId].quizzes.find(q => q.questionId === questionId);
+        const correctAns = question ? question.answers.find(a => a.isCorrect) : null;
+        
+        if (correctAns && correctAns.answerId === selectedAnswerId) {
+            alert("Chính xác!");
+            
+            // Đánh dấu đã trả lời đúng
+            videoStates[lessonId].answeredQuestions.add(questionId);
+            
+            // Kiểm tra xem ở giây này CÒN câu hỏi nào chưa trả lời không
+            const video = document.getElementById('videoPlayer' + lessonId);
+            const currentTime = Math.floor(video.currentTime);
+            const remainingQ = videoStates[lessonId].quizzes.find(q => q.videoTimestampSeconds === currentTime && !videoStates[lessonId].answeredQuestions.has(q.questionId));
+            
+            if (remainingQ) {
+                // Nếu còn câu hỏi khác ở cùng giây, hiển thị tiếp câu đó
+                showQuizOverlay(lessonId, remainingQ);
+            } else {
+                // Nếu đã trả lời hết câu hỏi ở giây này, ẩn overlay và chạy tiếp video
+                overlay.classList.remove('d-flex');
+                overlay.classList.add('d-none');
+                video.controls = true;
+                video.play();
+            }
+        } else {
+            alert("Sai rồi! Vui lòng chọn lại đáp án đúng để được xem tiếp.");
+        }
+    }
+    </script>
 </div>
 
 </body>
