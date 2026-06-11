@@ -23,4 +23,10 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
             @Param("instructorId") Long instructorId,
             @Param("courseId") Long courseId
     );
+
+    // Kiểm tra học viên đã đăng ký khoá học chưa
+    boolean existsByStudent_UserIdAndCourse_CourseId(Long studentId, Long courseId);
+
+    // Lấy tất cả khoá học đã đăng ký của học viên
+    List<Enrollment> findByStudent_UserId(Long studentId);
 }

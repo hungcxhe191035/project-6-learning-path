@@ -17,4 +17,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     public List<Enrollment> getStudentsByInstructor(Long instructorId, Long courseId) {
         return enrollmentRepository.findEnrollmentsByInstructorAndCourse(instructorId, courseId);
     }
+
+    @Override
+    public boolean isEnrolled(Long studentId, Long courseId) {
+        return enrollmentRepository.existsByStudent_UserIdAndCourse_CourseId(studentId, courseId);
+    }
 }

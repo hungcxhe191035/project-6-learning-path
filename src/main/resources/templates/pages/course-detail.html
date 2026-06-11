@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}">
+
+<head>
+    <style>
+        /* ===== HERO ===== */
+        .course-hero {
+            background: linear-gradient(135deg, #0f0c29, #1e1b4b, #312e81);
+            color: white;
+            padding: 48px 0 40px;
+        }
+        .badge-bestseller {
+            background: #fef3c7; color: #92400e;
+            border-radius: 4px; font-size: 0.75rem;
+            font-weight: 700; padding: 3px 10px;
+            display: inline-block; margin-right: 6px;
+        }
+        .badge-tophighest {
+            background: #d1fae5; color: #065f46;
+            border-radius: 4px; font-size: 0.75rem;
+            font-weight: 700; padding: 3px 10px;
+            display: inline-block;
+        }
+        .hero-title { font-size: 1.9rem; font-weight: 800; line-height: 1.3; }
+        .hero-subtitle { font-size: 1.05rem; color: rgba(255,255,255,0.8); margin-top: 10px; }
+        .hero-rating-score { color: #f59e0b; font-weight: 700; }
+        .hero-stars { color: #f59e0b; }
+        .hero-meta { font-size: 0.88rem; color: rgba(255,255,255,0.75); margin-top: 10px; }
+
+        /* ===== SIDEBAR ===== */
+        .course-sidebar {
+            position: sticky;
+            top: 80px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .sidebar-thumbnail {
+            width: 100%; height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+        .sidebar-thumbnail-placeholder {
+            width: 100%; height: 200px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 3rem;
+        }
+        .sidebar-body { padding: 20px; }
+        .sidebar-price { font-size: 2rem; font-weight: 800; color: #1e1b4b; }
+        .sidebar-price-old {
+            font-size: 1rem; color: #9ca3af;
+            text-decoration: line-through; margin-left: 8px;
+        }
+        .sidebar-discount {
+            font-size: 0.9rem; color: #059669; font-weight: 600;
+        }
+        .sidebar-countdown {
+            font-size: 0.82rem; color: #dc2626; margin-top: 4px;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn-enroll {
+            background: linear-gradient(135deg, #4c1d95, #7c3aed);
+            color: white; border: none; border-radius: 10px;
+            font-weight: 700; font-size: 1rem;
+            padding: 14px; width: 100%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-enroll:hover {
+            background: linear-gradient(135deg, #6d28d9, #9333ea);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(124,58,237,0.4);
+            color: white;
+        }
+        .btn-enrolled {
+            background: linear-gradient(135deg, #065f46, #059669);
+            color: white; border: none; border-radius: 10px;
+            font-weight: 700; font-size: 1rem;
+            padding: 14px; width: 100%;
+            transition: all 0.3s ease;
+        }
+        .btn-enrolled:hover {
+            background: linear-gradient(135deg, #047857, #10b981);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16,185,129,0.4);
+            color: white;
+        }
+        .btn-add-cart {
+            background: white;
+            color: #4c1d95;
+            border: 2px solid #4c1d95;
+            border-radius: 10px;
+            font-weight: 700; font-size: 1rem;
+            padding: 12px; width: 100%;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .btn-add-cart:hover { background: #f5f3ff; }
+
+        /* ===== COURSE INCLUDES ===== */
+        .includes-item {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 0.88rem; color: #374151; padding: 4px 0;
+        }
+        .includes-item i { color: #6366f1; width: 18px; }
+
+        /* ===== WHAT YOU LEARN ===== */
+        .learn-box {
+            border: 1px solid #e5e7eb; border-radius: 12px;
+            padding: 24px; background: #fafafa; margin-bottom: 32px;
+        }
+        .learn-box h3 { font-size: 1.3rem; font-weight: 700; color: #1e1b4b; margin-bottom: 16px; }
+        .learn-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            font-size: 0.9rem; color: #374151; margin-bottom: 10px;
+        }
+        .learn-item i { color: #7c3aed; margin-top: 2px; flex-shrink: 0; }
+
+        /* ===== ACCORDION (Nội dung khoá học) ===== */
+        .section-title-text { font-size: 1.2rem; font-weight: 700; color: #1e1b4b; margin-bottom: 12px; }
+        .accordion-item { border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+        .accordion-button {
+            background: #f8f7ff; color: #1e1b4b;
+            font-weight: 600; font-size: 0.95rem;
+            padding: 14px 20px;
+        }
+        .accordion-button:not(.collapsed) {
+            background: #ede9fe; color: #4c1d95;
+            box-shadow: none;
+        }
+        .accordion-button::after { filter: hue-rotate(230deg); }
+        .lesson-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px; font-size: 0.88rem;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background 0.2s;
+        }
+        .lesson-row:last-child { border-bottom: none; }
+        .lesson-row:hover { background: #f9f7ff; }
+        .lesson-icon { color: #7c3aed; margin-right: 10px; }
+        .lesson-duration { color: #9ca3af; font-size: 0.82rem; }
+
+        /* ===== INSTRUCTOR ===== */
+        .instructor-section { margin: 40px 0; }
+        .instructor-name { font-size: 1.1rem; font-weight: 700; color: #4c1d95; }
+        .instructor-avatar {
+            width: 72px; height: 72px; border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.8rem; font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* ===== REVIEWS ===== */
+        .review-section { margin: 40px 0; }
+        .review-score-big {
+            font-size: 3rem; font-weight: 900; color: #b45309; line-height: 1;
+        }
+        .review-stars-big { color: #f59e0b; font-size: 1.4rem; }
+        .review-card {
+            background: white; border: 1px solid #e5e7eb;
+            border-radius: 12px; padding: 20px; margin-bottom: 16px;
+        }
+        .reviewer-avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #a78bfa);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; flex-shrink: 0;
+        }
+        .review-stars { color: #f59e0b; font-size: 0.85rem; }
+        .review-comment { font-size: 0.9rem; color: #374151; margin-top: 8px; }
+        .review-date { font-size: 0.78rem; color: #9ca3af; }
+
+        /* ===== SECTION DIVIDER ===== */
+        .section-divider {
+            border: 0; border-top: 2px solid #f3f4f6; margin: 40px 0;
+        }
+        .section-label {
+            font-size: 1.5rem; font-weight: 800; color: #1e1b4b; margin-bottom: 6px;
+        }
+        .section-sub { font-size: 0.95rem; color: #6b7280; margin-bottom: 24px; }
+    </style>
+</head>
+
+<body>
+<main layout:fragment="content">
+
+    <!-- ===== HERO SECTION ===== -->
+    <section class="course-hero">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Badges -->
+                    <div class="mb-3">
+                        <span class="badge-bestseller">🔥 Bán chạy nhất</span>
+                        <span class="badge-tophighest">⭐ Xếp hạng cao nhất</span>
+                    </div>
+
+                    <!-- Tên khoá học -->
+                    <h1 class="hero-title" th:text="${course.title}">Tên khoá học</h1>
+
+                    <!-- Mô tả ngắn -->
+                    <p class="hero-subtitle" th:text="${course.subtitle}">Subtitle khoá học</p>
+
+                    <!-- Rating -->
+                    <div class="d-flex align-items-center gap-2 mt-3">
+                        <span class="hero-rating-score"
+                              th:text="${#numbers.formatDecimal(course.averageRating, 1, 1)}">4.8</span>
+                        <span class="hero-stars">
+                            <th:block th:with="rating=${course.averageRating.intValue()}">
+                                <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                   th:class="${i <= rating} ? 'bi bi-star-fill' : 'bi bi-star'"></i>
+                            </th:block>
+                        </span>
+                        <span style="color:rgba(255,255,255,0.7); font-size:0.88rem"
+                              th:text="'(' + ${#numbers.formatInteger(course.totalReviews, 1, 'COMMA')} + ' xếp hạng)'">
+                            (1,250 xếp hạng)
+                        </span>
+                        <span style="color:rgba(255,255,255,0.7); font-size:0.88rem"
+                              th:text="${#numbers.formatInteger(course.totalStudents, 1, 'COMMA')} + ' học viên'">
+                            3,400 học viên
+                        </span>
+                    </div>
+
+                    <!-- Giảng viên -->
+                    <div class="hero-meta mt-2">
+                        Được tạo bởi:
+                        <span th:text="${course.instructorName}"
+                              style="color:#a5b4fc; font-weight:600;">Giảng viên</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row gx-5">
+
+                <!-- ===== CỘT TRÁI (70%) ===== -->
+                <div class="col-lg-8">
+
+                    <!-- Bạn sẽ học được gì -->
+                    <div class="learn-box">
+                        <h3>📚 Bạn sẽ học được gì</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="learn-item">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>Xây dựng ứng dụng web hoàn chỉnh với Spring Boot</span>
+                                </div>
+                                <div class="learn-item">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>Thao tác cơ sở dữ liệu với JPA và Hibernate</span>
+                                </div>
+                                <div class="learn-item">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>Bảo mật ứng dụng với Spring Security</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="learn-item">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>Thiết kế RESTful API chuẩn</span>
+                                </div>
+                                <div class="learn-item">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>Deploy ứng dụng lên môi trường thực tế</span>
+                                </div>
+                                <div class="learn-item">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>Áp dụng các design pattern phổ biến</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nội dung khoá học (Sections + Lessons) -->
+                    <hr class="section-divider">
+                    <div class="section-label">📋 Nội dung khoá học</div>
+                    <p class="section-sub"
+                       th:text="${#lists.size(course.sections)} + ' phần • ' + 'Tổng số bài học đa dạng'">
+                        3 phần • Tổng số bài học đa dạng
+                    </p>
+
+                    <div class="accordion" id="courseAccordion">
+                        <div th:each="section, iterStat : ${course.sections}"
+                             class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button"
+                                        th:classappend="${iterStat.index > 0} ? ' collapsed' : ''"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        th:attr="data-bs-target='#section' + ${section.sectionId},
+                                                 aria-controls='section' + ${section.sectionId}">
+                                    <div class="d-flex justify-content-between w-100 pe-3">
+                                        <span th:text="${section.title}">Tên phần học</span>
+                                        <span style="font-weight:400; font-size:0.85rem; color:#6b7280"
+                                              th:text="${#lists.size(section.lessons)} + ' bài học'">
+                                            4 bài học
+                                        </span>
+                                    </div>
+                                </button>
+                            </h2>
+                            <div th:id="'section' + ${section.sectionId}"
+                                 class="accordion-collapse collapse"
+                                 th:classappend="${iterStat.index == 0} ? ' show' : ''"
+                                 data-bs-parent="#courseAccordion">
+                                <div class="accordion-body p-0">
+                                    <div th:each="lesson : ${section.lessons}"
+                                         class="lesson-row">
+                                        <div class="d-flex align-items-center">
+                                            <i th:class="${lesson.lessonType == 'VIDEO'} ? 'bi bi-play-circle lesson-icon' :
+                                                         (${lesson.lessonType == 'QUIZ'} ? 'bi bi-patch-question lesson-icon' : 'bi bi-file-text lesson-icon')"></i>
+                                            <span th:text="${lesson.title}">Tên bài học</span>
+                                        </div>
+                                        <!-- Hiển thị thời lượng nếu là VIDEO -->
+                                        <span class="lesson-duration"
+                                              th:if="${lesson.durationSeconds != null}"
+                                              th:text="${lesson.durationSeconds / 60} + ':' + ${#numbers.formatInteger(lesson.durationSeconds % 60, 2, 'NONE')}">
+                                            10:00
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Giảng viên -->
+                    <hr class="section-divider">
+                    <div class="instructor-section">
+                        <div class="section-label">👨‍🏫 Giảng viên</div>
+                        <div class="d-flex align-items-center gap-3 mt-3">
+                            <div class="instructor-avatar"
+                                 th:text="${#strings.substring(course.instructorName, 0, 1)}">G</div>
+                            <div>
+                                <div class="instructor-name" th:text="${course.instructorName}">Giảng viên</div>
+                                <div style="font-size:0.85rem; color:#6b7280;">
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                    <span th:text="${#numbers.formatDecimal(course.averageRating, 1, 1)} + ' xếp hạng giảng viên'">4.8 xếp hạng</span>
+                                    &nbsp;•&nbsp;
+                                    <i class="bi bi-people"></i>
+                                    <span th:text="${#numbers.formatInteger(course.totalStudents, 1, 'COMMA')} + ' học viên'">3,400 học viên</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Đánh giá học viên -->
+                    <hr class="section-divider">
+                    <div class="review-section" th:if="${not #lists.isEmpty(course.feedbacks)}">
+                        <div class="section-label">⭐ Đánh giá của học viên</div>
+                        <div class="d-flex align-items-center gap-4 mt-3 mb-4">
+                            <div class="text-center">
+                                <div class="review-score-big"
+                                     th:text="${#numbers.formatDecimal(course.averageRating, 1, 1)}">4.8</div>
+                                <div class="review-stars-big mt-1">★★★★★</div>
+                                <div style="font-size:0.8rem; color:#6b7280;">Xếp hạng khoá học</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6" th:each="feedback : ${course.feedbacks}">
+                                <div class="review-card">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="reviewer-avatar"
+                                             th:text="${#strings.substring(feedback.studentName, 0, 1)}">H</div>
+                                        <div>
+                                            <div style="font-weight:600; font-size:0.9rem"
+                                                 th:text="${feedback.studentName}">Học viên</div>
+                                            <div class="review-stars">
+                                                <i th:each="i : ${#numbers.sequence(1, feedback.rating)}"
+                                                   class="bi bi-star-fill"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="review-comment" th:text="${feedback.comment}">
+                                        Khoá học rất hay!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ===== CỘT PHẢI — SIDEBAR ===== -->
+                <div class="col-lg-4">
+                    <div class="course-sidebar">
+
+                        <!-- Thumbnail -->
+                        <img th:if="${course.thumbnailUrl != null}"
+                             th:src="${course.thumbnailUrl}"
+                             th:alt="${course.title}"
+                             class="sidebar-thumbnail">
+                        <div th:unless="${course.thumbnailUrl != null}"
+                             class="sidebar-thumbnail-placeholder">
+                            <i class="bi bi-play-circle-fill"></i>
+                        </div>
+
+                        <div class="sidebar-body">
+                            <!-- TRƯỜNG HỢP CHƯA ĐĂNG KÝ -->
+                            <div th:unless="${enrolled}">
+                                <!-- Giá tiền -->
+                                <div class="d-flex align-items-baseline gap-2">
+                                    <span class="sidebar-price"
+                                          th:text="${#numbers.formatInteger(course.price, 1, 'COMMA')} + ' ₫'">
+                                        259.000 ₫
+                                    </span>
+                                </div>
+                                <div class="sidebar-countdown">⏰ Giá ưu đãi có hạn!</div>
+
+                                <div class="mt-3">
+                                    <!-- Nút Thêm Vào Giỏ Hàng -->
+                                    <button class="btn-add-cart add-cart-btn"
+                                            th:data-course-id="${course.courseId}"
+                                            title="Thêm vào giỏ hàng"
+                                            style="cursor: pointer; opacity: 1;">
+                                        <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ hàng
+                                    </button>
+
+                                    <!-- Chưa đăng ký → Đăng ký ngay -->
+                                    <a th:href="@{/payment/{id}(id=${course.courseId})}"
+                                       class="btn btn-enroll d-block text-center text-decoration-none">
+                                        <i class="bi bi-lightning-charge-fill me-2"></i>Đăng ký ngay
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- TRƯỜNG HỢP ĐÃ ĐĂNG KÝ -->
+                            <div th:if="${enrolled}">
+                                <div class="alert alert-success text-center fw-bold mb-3" style="font-size: 0.9rem;">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Đã sở hữu khoá học
+                                </div>
+                                <div class="mt-2">
+                                    <!-- Đã đăng ký → Vào học ngay (xanh lá) -->
+                                    <span th:href="@{/learn/{id}(id=${course.courseId})}"
+                                       class="btn btn-enrolled d-block text-center text-decoration-none">
+                                        <i class="bi bi-play-circle-fill me-2"></i>Vào học ngay
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Khoá học bao gồm -->
+                            <div class="mt-4">
+                                <div style="font-size:0.9rem; font-weight:700; color:#1e1b4b; margin-bottom:12px;">
+                                    Khoá học này bao gồm:
+                                </div>
+                                <div class="includes-item">
+                                    <i class="bi bi-camera-video"></i>
+                                    <span>Video bài giảng theo yêu cầu</span>
+                                </div>
+                                <div class="includes-item">
+                                    <i class="bi bi-phone"></i>
+                                    <span>Truy cập trên điện thoại và TV</span>
+                                </div>
+                                <div class="includes-item">
+                                    <i class="bi bi-infinity"></i>
+                                    <span>Quyền truy cập đầy đủ suốt đời</span>
+                                </div>
+                                <div class="includes-item">
+                                    <i class="bi bi-award"></i>
+                                    <span>Chứng chỉ hoàn thành</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<th:block layout:fragment="scripts">
+    <script>
+        document.querySelectorAll(".add-cart-btn").forEach(btn => {
+            btn.addEventListener("click", async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const courseId = this.dataset.courseId;
+                const response = await fetch("/api/cart/" + courseId, { method: "POST" });
+                
+                if (response.redirected && response.url.includes("/login")) {
+                    window.location.href = "/login";
+                    return;
+                }
+                if(response.ok) {
+                    toastr.success("Đã thêm vào giỏ hàng");
+                }
+            });
+        });
+    </script>
+</th:block>
+
+</body>
+</html>

@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return headers;
     };
 
-    function createQuestionHTML(questionIndex, qData = { questionText: '', answers: [] }) {
+    function createQuestionHTML(questionIndex, qData = { questionText: '', answers: [], videoTimestampSeconds: null }) {
         let answersHTML = '';
         const answers = qData.answers && qData.answers.length > 0 ? qData.answers : [
             { answerText: '', isCorrect: true },
@@ -102,11 +102,17 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         });
 
+        const timestampBadge = (qData.videoTimestampSeconds !== undefined && qData.videoTimestampSeconds !== null) 
+            ? `<span class="badge bg-danger ms-2"><i class="bi bi-clock me-1"></i>Xuất hiện tại giây: ${qData.videoTimestampSeconds}</span>` : '';
+        const timestampInput = (qData.videoTimestampSeconds !== undefined && qData.videoTimestampSeconds !== null) 
+            ? `<input type="hidden" class="q-timestamp" value="${qData.videoTimestampSeconds}">` : `<input type="hidden" class="q-timestamp" value="">`;
+
         return `
             <div class="card shadow-sm border-0 bg-light question-block mb-4">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold mb-0 text-secondary">Câu hỏi <span class="q-index">${questionIndex + 1}</span></h6>
+                        <h6 class="fw-bold mb-0 text-secondary">Câu hỏi <span class="q-index">${questionIndex + 1}</span>${timestampBadge}</h6>
+                        ${timestampInput}
                         <button type="button" class="btn btn-sm btn-outline-danger btn-remove-question"><i class="bi bi-trash"></i> Xóa câu này</button>
                     </div>
                     <div class="mb-3">
@@ -191,10 +197,19 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch(`/api/instructor/lessons/${lessonId}`)
                 .then(res => res.json())
                 .then(data => {
+                    const quizList = document.getElementById('quizQuestionsList');
+                    quizList.innerHTML = '';
+                    if(data.questions && data.questions.length > 0) {
+                        data.questions.forEach((q, index) => {
+                            quizList.insertAdjacentHTML('beforeend', createQuestionHTML(index, q));
+                        });
+                    }
+
                     if(rawLessonType === 'VIDEO') {
                         document.getElementById('videoUploadContainer').classList.remove('d-none');
                         document.getElementById('articleEditorContainer').classList.add('d-none');
-                        document.getElementById('quizBuilderContainer').classList.add('d-none');
+                        document.getElementById('quizBuilderContainer').classList.remove('d-none'); // Video cũng hiện Quiz
+                        document.getElementById('btnAddQuizQuestion').classList.add('d-none'); // Ẩn nút Thêm Câu Hỏi mặc định
 
                         const progressBar = document.getElementById('videoProgressBar');
                         document.getElementById('videoFileInput').value = "";
@@ -227,14 +242,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         document.getElementById('videoUploadContainer').classList.add('d-none');
                         document.getElementById('articleEditorContainer').classList.add('d-none');
                         document.getElementById('quizBuilderContainer').classList.remove('d-none');
+                        document.getElementById('btnAddQuizQuestion').classList.remove('d-none'); // Hiển thị nút Thêm Câu Hỏi mặc định
 
-                        const quizList = document.getElementById('quizQuestionsList');
-                        quizList.innerHTML = '';
-                        if(data.questions && data.questions.length > 0) {
-                            data.questions.forEach((q, index) => {
-                                quizList.insertAdjacentHTML('beforeend', createQuestionHTML(index, q));
-                            });
-                        } else {
+                        // Nếu là bài QUIZ mới mà chưa có câu nào, tự động thêm 1 câu trống
+                        if(!data.questions || data.questions.length === 0) {
                             quizList.insertAdjacentHTML('beforeend', createQuestionHTML(0));
                         }
                     }
@@ -407,22 +418,29 @@ document.addEventListener("DOMContentLoaded", function () {
                     console.error(err);
                     alert("Lỗi khi lưu bài viết!");
                 });
-            } else if (lessonType.includes('QUIZ')) {
+            } else if (lessonType.includes('QUIZ') || lessonType.includes('VIDEO')) {
                 const payload = [];
                 document.querySelectorAll('.question-block').forEach((qBlock, qIdx) => {
                     const qText = qBlock.querySelector('.question-text').value.trim();
+                    const qTimestampInput = qBlock.querySelector('.q-timestamp');
+                    const qTimestamp = qTimestampInput && qTimestampInput.value ? parseInt(qTimestampInput.value) : null;
+                    
                     const answers = [];
-                    qBlock.querySelectorAll('.answer-item').forEach((aItem, aIdx) => {
-                        answers.push({
-                            answerText: aItem.querySelector('.answer-text').value.trim(),
-                            isCorrect: aItem.querySelector('.is-correct-radio').checked,
-                            displayOrder: aIdx + 1
-                        });
+                    qBlock.querySelectorAll('.answer-item').forEach((aItem) => {
+                        const aText = aItem.querySelector('.answer-text').value.trim();
+                        if (aText) {
+                            answers.push({
+                                answerText: aText,
+                                isCorrect: aItem.querySelector('.is-correct-radio').checked,
+                                displayOrder: answers.length + 1
+                            });
+                        }
                     });
                     if(qText) {
                         payload.push({
                             questionText: qText,
                             displayOrder: qIdx + 1,
+                            videoTimestampSeconds: qTimestamp,
                             answers: answers
                         });
                     }
@@ -434,22 +452,51 @@ document.addEventListener("DOMContentLoaded", function () {
                     body: JSON.stringify(payload)
                 }).then(res => {
                     if(!res.ok) throw new Error("Lỗi lưu trắc nghiệm");
-                    alert("Lưu trắc nghiệm thành công rực rỡ!");
+                    alert(lessonType.includes('VIDEO') ? "Lưu video và câu hỏi tương tác thành công!" : "Lưu trắc nghiệm thành công rực rỡ!");
                     
                     const lessonItem = document.querySelector(`.lesson-item[data-lesson-id="${lessonId}"]`);
                     if(lessonItem) {
                         const badge = lessonItem.querySelector('.lesson-type-badge');
                         badge.classList.remove('bg-secondary-subtle', 'text-secondary');
                         badge.classList.add('bg-success-subtle', 'text-success', 'fw-bold');
-                        badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>ĐÃ CÓ TRẮC NGHIỆM';
+                        badge.innerHTML = lessonType.includes('VIDEO') ? '<i class="bi bi-check-circle-fill me-1"></i>ĐÃ CÓ VIDEO' : '<i class="bi bi-check-circle-fill me-1"></i>ĐÃ CÓ TRẮC NGHIỆM';
                     }
                     lessonContentModal.hide();
                 }).catch(err => {
                     console.error(err);
                     alert("Lỗi khi lưu trắc nghiệm!");
                 });
-            } else {
-                alert("Đối với Video thì hệ thống tự động tải lên khi bạn chọn File rồi, không cần bấm Lưu nữa!");
+            }
+        });
+    }
+
+    // ================== LOGIC CHO VIDEO INTERACTIVE QUIZ ==================
+    const videoPlayer = document.getElementById('videoPlayer');
+    const currentVideoTimeBadge = document.getElementById('currentVideoTimeBadge');
+    const btnAddVideoQuiz = document.getElementById('btnAddVideoQuiz');
+
+    if (videoPlayer && currentVideoTimeBadge) {
+        videoPlayer.addEventListener('timeupdate', function() {
+            currentVideoTimeBadge.textContent = Math.floor(videoPlayer.currentTime);
+        });
+    }
+
+    if (btnAddVideoQuiz) {
+        btnAddVideoQuiz.addEventListener('click', function() {
+            if (!videoPlayer) return;
+            videoPlayer.pause(); // Dừng video lại để dễ thêm
+            const currentTime = Math.floor(videoPlayer.currentTime);
+            
+            const quizList = document.getElementById('quizQuestionsList');
+            if(quizList) {
+                const qCount = quizList.querySelectorAll('.question-block').length;
+                quizList.insertAdjacentHTML('beforeend', createQuestionHTML(qCount, { questionText: '', answers: [], videoTimestampSeconds: currentTime }));
+                
+                // Cuộn xuống chỗ câu hỏi vừa thêm
+                const newQuestionBlock = quizList.lastElementChild;
+                if(newQuestionBlock) {
+                    newQuestionBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             }
         });
     }

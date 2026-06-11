@@ -1,141 +1,134 @@
 <!DOCTYPE html>
-<html
-        lang="vi"
-        xmlns:th="http://www.thymeleaf.org"
-        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-        layout:decorate="~{layouts/main-layout}"
->
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}">
+
 <head>
     <style>
-        /* ===== HERO BANNER ===== */
+        /* ===== HERO ===== */
         .hero-section {
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
-            padding: 48px 0 40px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4c1d95 100%);
+            padding: 56px 0 52px;
             color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            width: 480px; height: 480px; border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            top: -180px; right: -120px;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            width: 280px; height: 280px; border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+            bottom: -80px; left: 40%;
+        }
+        .hero-logo-small {
+            height: 40px; width: auto;
+            margin-bottom: 20px;
+            filter: brightness(0) invert(1);
         }
         .hero-greeting {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 6px;
+            font-size: 2.6rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            line-height: 1.2;
         }
         .hero-sub {
-            font-size: 1rem;
-            color: rgba(255,255,255,0.75);
+            font-size: 1.05rem;
+            color: rgba(255,255,255,0.7);
+            margin: 0;
+        }
+        .hero-logo-bg {
+            position: absolute;
+            right: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 220px;
+            width: auto;
+            filter: brightness(0) invert(1);
+            opacity: 0.08;
+            pointer-events: none;
+            user-select: none;
         }
 
-        /* ===== SECTION TITLE ===== */
-        .section-title {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #1e1b4b;
-            margin-bottom: 8px;
+        /* ===== COURSES SECTION ===== */
+        .courses-section {
+            padding: 52px 0 60px;
+            background: white;
         }
-        .section-subtitle {
-            font-size: 0.95rem;
-            color: #6b7280;
-            margin-bottom: 24px;
-        }
-
-        /* ===== COURSE CARD ===== */
         .course-card {
             border: 1px solid #e5e7eb;
             border-radius: 12px;
             overflow: hidden;
-            background: #fff;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            cursor: pointer;
+            background: white;
             height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         }
         .course-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(76,29,149,0.13);
+            border-color: #c4b5fd;
         }
-
-        /* Ảnh khoá học */
+        .thumb-wrap { overflow: hidden; }
         .course-thumbnail {
-            width: 100%;
-            height: 175px;
-            object-fit: cover;
-            background: #e5e7eb;
+            width: 100%; height: 172px;
+            object-fit: cover; display: block;
+            transition: transform 0.35s ease;
         }
+        .course-card:hover .course-thumbnail { transform: scale(1.05); }
         .course-thumbnail-placeholder {
-            width: 100%;
-            height: 175px;
+            width: 100%; height: 172px;
             background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2.5rem;
+            display: flex; align-items: center;
+            justify-content: center; color: white; font-size: 2.8rem;
         }
-
+        /* Thân card sẽ tự giãn dài lấp đầy khoảng trống */
         .course-body {
-            padding: 14px 16px;
-        }
-        .course-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #111827;
-            line-height: 1.4;
-            margin-bottom: 4px;
-            /* Giới hạn 2 dòng */
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .course-instructor {
-            font-size: 0.8rem;
-            color: #6b7280;
-            margin-bottom: 6px;
+            padding: 14px 15px 16px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Để phần thân chiếm trọn khoảng trống */
         }
 
-        /* Đánh giá sao */
-        .star-rating {
+        /* Tên khoá học: Khóa cứng chiều cao bằng đúng 2 dòng chữ */
+        .course-title {
+            font-size: 0.92rem; font-weight: 700; color: #111827;
+            line-height: 1.45; margin-bottom: 5px;
+            display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden;
+            min-height: 2.9rem; /* Luôn giữ khoảng trống 2 dòng cho tên khoá học */
+        }
+
+        /* Thần chú đẩy mọi thứ sát mép dưới (Nút bấm, giá tiền) */
+        .mt-3 {
+            margin-top: 0 !important;
+        }
+        .course-instructor { font-size: 0.78rem; color: #6b7280; margin-bottom: 8px; }
+        .star-row { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; }
+        .star-score { font-size: 0.83rem; font-weight: 700; color: #b45309; }
+        .stars { color: #f59e0b; font-size: 0.78rem; }
+        .star-count { font-size: 0.72rem; color: #9ca3af; }
+        .price-row {
+            margin-top: auto !important; /* Đẩy mạnh cụm giá và nút xuống đáy */
+            margin-bottom: 14px !important; /* Đẩy giá cách xa nút giỏ hàng ra 14px cho thoáng */
             display: flex;
             align-items: center;
-            gap: 4px;
-            margin-bottom: 6px;
+            justify-content: space-between;
         }
-        .star-score {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #b45309;
-        }
-        .stars {
-            color: #f59e0b;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-        }
-        .star-count {
-            font-size: 0.75rem;
-            color: #9ca3af;
-        }
-
-        /* Giá tiền */
-        .course-price {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #1e1b4b;
-        }
-        .course-price-old {
-            font-size: 0.82rem;
-            color: #9ca3af;
-            text-decoration: line-through;
-            margin-left: 6px;
-        }
-
-        /* Badge */
-        .badge-bestseller {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fcd34d;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            display: inline-block;
-            margin-top: 6px;
+        .course-price { font-size: 1rem; font-weight: 800; color: #111827; }
+        .badge-hot {
+            background: #fef9c3; color: #854d0e;
+            border: 1px solid #fde047;
+            border-radius: 4px; font-size: 0.68rem;
+            font-weight: 700; padding: 2px 7px;
         }
     </style>
 </head>
@@ -143,94 +136,226 @@
 <body>
 <main layout:fragment="content">
 
-    <!-- ===== HERO / WELCOME BANNER ===== -->
+    <!-- ===== HERO ===== -->
     <section class="hero-section">
-        <div class="container">
-            <p class="hero-greeting">
-                Chào mừng bạn trở lại! 👋
-            </p>
-            <p class="hero-sub">
-                Tiếp tục hành trình học tập của bạn hôm nay.
-            </p>
+        <div class="container position-relative" style="z-index:2">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <img th:src="@{/image/logo.png}" alt="My Learning Path" class="hero-logo-small">
+                    <h1 class="hero-greeting">Chào mừng bạn trở lại! 👋</h1>
+                    <p class="hero-sub">Tiếp tục hành trình học tập của bạn hôm nay.</p>
+                </div>
+            </div>
         </div>
+        <img th:src="@{/image/logo.png}" alt="" class="hero-logo-bg">
     </section>
 
-    <!-- ===== DANH SÁCH KHOÁ HỌC ===== -->
-    <section class="py-5">
+    <!-- ===== KHOÁ HỌC ===== -->
+    <section class="courses-section">
         <div class="container">
             <h2 class="section-title">Lĩnh vực sẽ học tiếp theo</h2>
-            <p class="section-subtitle">Được đề xuất cho bạn</p>
+            <p class="section-sub">Được đề xuất cho bạn</p>
 
-            <!-- Grid 5 khoá học: 5 cột trên desktop, 2 cột mobile -->
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 g-3">
-
-                <!-- Lặp qua danh sách khoá học từ Controller -->
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
                 <div class="col" th:each="course : ${courses}">
-                    <div class="course-card">
 
-                        <!-- Ảnh khoá học -->
-                        <img
-                                th:if="${course.thumbnailUrl != null}"
-                                th:src="${course.thumbnailUrl}"
-                                th:alt="${course.title}"
-                                class="course-thumbnail"
-                        >
-                        <!-- Placeholder nếu chưa có ảnh -->
-                        <div
-                                th:unless="${course.thumbnailUrl != null}"
-                                class="course-thumbnail-placeholder"
-                        >
-                            <i class="bi bi-play-circle-fill"></i>
+                    <div class="course-card" style="cursor: pointer;" th:onclick="|window.location.href='@{/course/{id}(id=${course.courseId})}'|">
+
+                        <div class="thumb-wrap">
+                            <img th:if="${course.thumbnailUrl != null}"
+                                 th:src="${course.thumbnailUrl}"
+                                 th:alt="${course.title}"
+                                 class="course-thumbnail">
+                            <div th:unless="${course.thumbnailUrl != null}"
+                                 class="course-thumbnail-placeholder">
+                                <i class="bi bi-play-circle-fill"></i>
+                            </div>
                         </div>
 
                         <div class="course-body">
-                            <!-- Tên khoá học -->
-                            <div class="course-title" th:text="${course.title}">
-                                Tên khoá học
-                            </div>
+                            <div class="course-title" th:text="${course.title}">Tên khoá học</div>
+                            <div class="course-instructor" th:text="${course.instructorName}">Giảng viên</div>
 
-                            <!-- Tên giảng viên -->
-                            <div class="course-instructor" th:text="${course.instructorName}">
-                                Giảng viên
-                            </div>
-
-                            <!-- Đánh giá sao -->
-                            <div class="star-rating">
-                                <span class="star-score" th:text="${#numbers.formatDecimal(course.averageRating, 1, 1)}">4.5</span>
+                            <div class="star-row">
+                                <span class="star-score" th:text="${#numbers.formatDecimal(course.averageRating,1,1)}">4.8</span>
                                 <span class="stars">
-                                    <!-- 5 sao động theo averageRating -->
-                                    <th:block th:with="rating=${course.averageRating.intValue()}">
-                                        <i th:each="i : ${#numbers.sequence(1, 5)}"
-                                           th:class="${i <= rating} ? 'bi bi-star-fill' : 'bi bi-star'">
-                                        </i>
+                                    <th:block th:with="r=${course.averageRating.intValue()}">
+                                        <i th:each="i : ${#numbers.sequence(1,5)}" th:class="${i<=r}?'bi bi-star-fill':'bi bi-star'"></i>
                                     </th:block>
                                 </span>
-                                <span class="star-count"
-                                      th:text="'(' + ${#numbers.formatInteger(course.totalReviews, 1, 'COMMA')} + ')'">
-                                    (1,234)
-                                </span>
+                                <span class="star-count" th:text="'('+${#numbers.formatInteger(course.totalReviews,1,'COMMA')}+')'">(1,250)</span>
                             </div>
 
-                            <!-- Giá tiền -->
-                            <div>
-                                <span class="course-price"
-                                      th:text="${#numbers.formatInteger(course.price, 1, 'COMMA')} + ' ₫'">
-                                    259.000 ₫
-                                </span>
+                            <div class="price-row mt-2">
+                                <span class="course-price" th:text="${#numbers.formatInteger(course.price,1,'COMMA')}+' ₫'">259.000 ₫</span>
+                                <span class="badge-hot" th:if="${!course.isEnrolled}">Bán chạy 🔥</span>
                             </div>
 
-                            <!-- Badge Bán chạy nhất -->
-                            <span class="badge-bestseller">🔥 Bán chạy nhất</span>
+                            <!-- StopPropagation để chặn việc bấm giỏ hàng bị nhảy sang trang View khoá học -->
+                            <div class="mt-3" onclick="event.stopPropagation()">
+
+                                <div class="d-flex gap-2 w-100" th:if="${course.isEnrolled}">
+                                    <button class="btn btn-success w-100 fw-bold" th:onclick="|window.location.href='@{/course/{id}(id=${course.courseId})}'|">
+                                        <i class="bi bi-play-circle me-1"></i> Vào học ngay
+                                    </button>
+                                </div>
+
+                                <div class="d-flex gap-2 w-100" th:unless="${course.isEnrolled}">
+                                    <button class="btn btn-outline-primary add-cart-btn flex-grow-1"
+                                            th:data-course-id="${course.courseId}"
+                                            title="Thêm vào giỏ hàng">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary save-course-btn"
+                                            th:data-course-id="${course.courseId}"
+                                            title="Lưu khóa học">
+                                        <i class="bi bi-bookmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
-
             </div>
-            <!-- END row -->
-
         </div>
     </section>
 
+    <!-- Modal Learning Path (mang từ course-list sang) -->
+    <div class="modal fade" id="learningPathModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Lưu vào</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="learningPathContainer"></div>
+                    <hr>
+                    <button class="btn btn-outline-primary w-100" id="showCreatePathForm">
+                        <i class="bi bi-plus-lg"></i> Tạo Learning Path mới
+                    </button>
+                    <div id="createPathSection" class="mt-3 d-none">
+                        <input type="text" id="newPathTitle" class="form-control mb-2" placeholder="Tên Learning Path">
+                        <textarea id="newPathDescription" class="form-control mb-2" rows="3" placeholder="Mô tả (không bắt buộc)"></textarea>
+                        <button class="btn btn-primary w-100" id="createPathBtn">Tạo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script đặt TRỰC TIẾP trong thẻ main như trang course-list -->
+    <script>
+        // ======= XỬ LÝ NÚT GIỎ HÀNG =======
+        document.querySelectorAll(".add-cart-btn").forEach(btn => {
+            btn.addEventListener("click", async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const courseId = this.dataset.courseId;
+                try {
+                    // API thêm vào giỏ hàng của team
+                    const response = await fetch("/api/cart/" + courseId, { method: "POST" });
+
+                    if (response.redirected && response.url.includes("/login")) {
+                        window.location.href = "/login";
+                        return;
+                    }
+                    if(response.ok) {
+                        toastr.success("Đã thêm vào giỏ hàng");
+
+                        let navBadge = document.querySelector('.dropdown-item[href="/cart"] .badge');
+                        if(navBadge) {
+                            let count = parseInt(navBadge.innerText) || 0;
+                            navBadge.innerText = count + 1;
+                        }
+                    } else {
+                        toastr.error("Có lỗi xảy ra hoặc khoá học đã trong giỏ!");
+                    }
+                } catch(err) {
+                    console.error("Lỗi:", err);
+                }
+            });
+        });
+
+        // ======= XỬ LÝ NÚT LƯU KHOÁ HỌC (WISHLIST) =======
+        let selectedCourseId = null;
+        document.querySelectorAll(".save-course-btn").forEach(button => {
+            button.addEventListener("click", async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                selectedCourseId = this.dataset.courseId;
+                try {
+                    const response = await fetch(`/api/learning-paths?courseId=${selectedCourseId}`);
+                    const paths = await response.json();
+                    let html = "";
+                    paths.forEach(path => {
+                        html += `
+                            <div class="form-check mb-2">
+                                <input class="form-check-input path-checkbox" type="checkbox"
+                                    ${path.selected ? "checked" : ""} data-path-id="${path.pathId}">
+                                <label class="form-check-label">${path.title}</label>
+                            </div>`;
+                    });
+                    document.getElementById("learningPathContainer").innerHTML = html;
+                    new bootstrap.Modal(document.getElementById("learningPathModal")).show();
+                } catch(err) {
+                    console.error(err);
+                }
+            });
+        });
+
+        document.addEventListener("change", async function(event) {
+            if (!event.target.classList.contains("path-checkbox")) return;
+            const checkbox = event.target;
+            const pathId = checkbox.dataset.pathId;
+            try {
+                if (checkbox.checked) {
+                    await fetch(`/api/learning-paths/${pathId}/courses/${selectedCourseId}`, { method: "POST" });
+                    toastr.success("Đã thêm khóa học vào Learning Path");
+                } else {
+                    await fetch(`/api/learning-paths/${pathId}/courses/${selectedCourseId}`, { method: "DELETE" });
+                    toastr.success("Đã xoá khóa học khỏi Learning Path");
+                }
+            } catch (e) {
+                toastr.error("Có lỗi xảy ra");
+                checkbox.checked = !checkbox.checked;
+            }
+        });
+
+        document.getElementById("showCreatePathForm").addEventListener("click", function() {
+            document.getElementById("createPathSection").classList.toggle("d-none");
+        });
+
+        document.getElementById("createPathBtn").addEventListener("click", async function() {
+            const title = document.getElementById("newPathTitle").value.trim();
+            const description = document.getElementById("newPathDescription").value.trim();
+            if (!title) { toastr.warning("Vui lòng nhập tên Learning Path"); return; }
+            try {
+                const response = await fetch("/api/learning-paths", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title, description })
+                });
+                const path = await response.json();
+                const html = `
+                    <div class="form-check mb-2">
+                        <input checked class="form-check-input path-checkbox" type="checkbox" data-path-id="${path.pathId}">
+                        <label class="form-check-label">${path.title}</label>
+                    </div>`;
+                document.getElementById("learningPathContainer").insertAdjacentHTML("beforeend", html);
+                await fetch(`/api/learning-paths/${path.pathId}/courses/${selectedCourseId}`, { method: "POST" });
+                toastr.success("Đã tạo Learning Path");
+                document.getElementById("newPathTitle").value = "";
+                document.getElementById("newPathDescription").value = "";
+                document.getElementById("createPathSection").classList.add("d-none");
+            } catch (e) {
+                toastr.error("Không thể tạo Learning Path");
+            }
+        });
+    </script>
 </main>
 </body>
 </html>

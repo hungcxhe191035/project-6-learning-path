@@ -29,4 +29,7 @@ public class QuizQuestion extends BaseEntity {
 
     @Column(name = "display_order")
     Integer displayOrder;
+// cái này là để thêm giây thứ mấy thì quy định hiển thị quiz
+    @Column(name = "video_timestamp_seconds")
+    Integer videoTimestampSeconds;
 }

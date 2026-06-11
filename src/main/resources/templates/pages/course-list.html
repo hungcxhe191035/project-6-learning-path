@@ -155,6 +155,7 @@
 
             <!-- Lặp qua danh sách khoá học từ Controller -->
             <div class="col" th:each="course : ${courses}">
+                <a th:href="@{/course/{id}(id=${course.courseId})}" style="text-decoration:none; display:block; height:100%;">
                 <div class="course-card">
 
                     <!-- Ảnh khoá học -->
@@ -209,22 +210,31 @@
                                 </span>
                         </div>
 
-                        <!-- Badge Bán chạy nhất -->
-                        <div class="d-flex justify-content-between align-items-center">
+                        <!-- Nút hành động -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
 
                             <div>
-                                <span class="badge-bestseller">
+                                <span class="badge-bestseller" th:if="${!course.isEnrolled}">
                                     🔥 Bán chạy nhất
                                 </span>
                             </div>
 
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 w-100" th:if="${course.isEnrolled}">
+                                <span th:href="@{/course/{id}(id=${course.courseId})}"
+                                   class="btn btn-success w-100 fw-bold"
+                                   style="position: relative; z-index: 10;">
+                                    <i class="bi bi-play-circle me-1"></i> Vào học ngay
+                                </span>
+                            </div>
+
+                            <div class="d-flex gap-2" th:unless="${course.isEnrolled}">
 
                                 <!-- Add to cart -->
                                 <button
                                         class="btn btn-outline-primary add-cart-btn"
                                         th:data-course-id="${course.courseId}"
-                                        title="Thêm vào giỏ hàng">
+                                        title="Thêm vào giỏ hàng"
+                                        style="position: relative; z-index: 10;">
 
                                     <i class="bi bi-cart-plus"></i>
 
@@ -234,7 +244,8 @@
                                 <button
                                         class="btn btn-outline-secondary save-course-btn"
                                         th:data-course-id="${course.courseId}"
-                                        title="Lưu khóa học">
+                                        title="Lưu khóa học"
+                                        style="position: relative; z-index: 10;">
 
                                     <i class="bi bi-bookmark"></i>
 
@@ -245,6 +256,7 @@
                         </div>
                     </div>
                 </div>
+                </a>
             </div>
 
         </div>
@@ -334,7 +346,9 @@
 
             button.addEventListener(
                 "click",
-                async function() {
+                async function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
                     selectedCourseId =
                         this.dataset.courseId;
@@ -591,7 +605,9 @@
 
             btn.addEventListener(
                 "click",
-                async function() {
+                async function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
                     const courseId =
                         this.dataset.courseId;
