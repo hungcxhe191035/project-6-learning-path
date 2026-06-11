@@ -258,12 +258,11 @@
             </div>
         </div>
     </div>
-</div>
 
-
-<div layout:fragment="scripts">
+    <!-- JS Scripts đặt trong fragment content để không bị Thymeleaf Layout Dialect loại bỏ -->
     <script th:inline="javascript">
         document.addEventListener("DOMContentLoaded", function() {
+            // Tách họ và tên hiển thị lên form
             var fullName = [[${user.fullName}]];
             if (fullName) {
                 var parts = fullName.trim().split(" ");
@@ -278,12 +277,26 @@
                 }
             }
 
+            // Ghép họ và tên khi submit form
             var form = document.getElementById("profileForm");
-            form.addEventListener("submit", function(e) {
-                var first = document.getElementById("firstName").value.trim();
-                var last = document.getElementById("lastName").value.trim();
-                document.getElementById("hiddenFullName").value = last + " " + first;
-            });
+            if (form) {
+                form.addEventListener("submit", function(e) {
+                    var first = document.getElementById("firstName").value.trim();
+                    var last = document.getElementById("lastName").value.trim();
+                    document.getElementById("hiddenFullName").value = last + " " + first;
+                });
+            }
+
+            // Tự động chuyển tab theo Hash trong URL khi load trang (hỗ trợ cả gạch ngang và gạch dưới)
+            var hash = window.location.hash;
+            if (hash) {
+                var normalizedHash = hash.replace('_', '-'); // Chuyển #avatar_pane thành #avatar-pane
+                var tabEl = document.querySelector('a[href="' + normalizedHash + '"]');
+                if (tabEl) {
+                    var tab = new bootstrap.Tab(tabEl);
+                    tab.show();
+                }
+            }
         });
 
         function formatText(command) {

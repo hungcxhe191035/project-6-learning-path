@@ -153,13 +153,23 @@
                 <!-- Dropdown Avatar -->
                 <div class="dropdown">
                     <button class="btn p-0 border-0 position-relative" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false" style="outline: none;">
-                        <div class="avatar-nav-circle" id="navAvatarLetter" th:text="${#authentication.principal.user != null and #authentication.principal.user.fullName != null and !#authentication.principal.user.fullName.isEmpty() ? #strings.substring(#authentication.principal.user.fullName, 0, 1).toUpperCase() : 'U'}">U</div>
+                        <div th:if="${#authentication.principal.user != null and #authentication.principal.user.avatar != null}"
+                             style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; border: 1px solid #d1d7dc;">
+                            <img th:src="${#authentication.principal.user.avatar.fileUrl}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div th:unless="${#authentication.principal.user != null and #authentication.principal.user.avatar != null}"
+                             class="avatar-nav-circle" id="navAvatarLetter" th:text="${#authentication.principal.user != null and #authentication.principal.user.fullName != null and !#authentication.principal.user.fullName.isEmpty() ? #strings.substring(#authentication.principal.user.fullName, 0, 1).toUpperCase() : 'U'}">U</div>
                         <span class="position-absolute top-0 start-100 translate-middle p-1 border border-white rounded-circle" style="background-color: #a435f0; margin-top: 4px; margin-left: -4px;"></span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg" aria-labelledby="userMenu" style="width: 280px; border-radius: 0; border: 1px solid #d1d7dc;">
                         <!-- Header user info -->
                         <div class="p-3 d-flex align-items-center gap-3 border-bottom">
-                            <div class="avatar-nav-circle-large" id="menuAvatarLetter" th:text="${#authentication.principal.user != null and #authentication.principal.user.fullName != null and !#authentication.principal.user.fullName.isEmpty() ? #strings.substring(#authentication.principal.user.fullName, 0, 1).toUpperCase() : 'U'}">U</div>
+                            <div th:if="${#authentication.principal.user != null and #authentication.principal.user.avatar != null}"
+                                 style="width: 64px; height: 64px; border-radius: 50%; overflow: hidden; border: 1px solid #d1d7dc;">
+                                <img th:src="${#authentication.principal.user.avatar.fileUrl}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div th:unless="${#authentication.principal.user != null and #authentication.principal.user.avatar != null}"
+                                 class="avatar-nav-circle-large" id="menuAvatarLetter" th:text="${#authentication.principal.user != null and #authentication.principal.user.fullName != null and !#authentication.principal.user.fullName.isEmpty() ? #strings.substring(#authentication.principal.user.fullName, 0, 1).toUpperCase() : 'U'}">U</div>
                             <div>
                                 <div class="fw-bold text-dark text-truncate" style="max-width: 170px; font-size: 16px;" th:text="${#authentication.principal.user != null ? #authentication.principal.user.fullName : 'Tên người dùng'}">Tên người dùng</div>
                                 <div class="text-muted text-truncate" style="max-width: 170px; font-size: 12px;" th:text="${#authentication.principal.user != null ? #authentication.principal.user.email : 'user@email.com'}">user@email.com</div>
