@@ -7,75 +7,122 @@
 <head>
     <title th:text="${course.title} + ' — Học khoá học'">Học khoá học</title>
     <style>
-        :root { --primary: #6366f1; --success: #22c55e; }
+        :root {
+            --primary: #7c3aed;
+            --primary-light: #ede9fe;
+            --primary-dark: #6d28d9;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
 
         /* ===== LAYOUT ===== */
-        .learn-wrapper { display: flex; height: calc(100vh - 64px); overflow: hidden; background: #0f0f0f; }
-        .learn-main { flex: 1; overflow-y: auto; background: #111; color: white; }
-        .learn-sidebar { width: 380px; min-width: 380px; overflow-y: auto; background: #1a1a2e; border-left: 1px solid #333; }
+        .learn-wrapper { display: flex; height: calc(100vh - 64px); overflow: hidden; background: var(--bg-main); font-family: 'Inter', sans-serif; }
+        .learn-main { flex: 1; overflow-y: auto; background: var(--bg-main); color: var(--text-main); }
+        .learn-sidebar { width: 380px; min-width: 380px; overflow-y: auto; background: var(--bg-card); border-left: 1px solid var(--border-color); box-shadow: -4px 0 15px rgba(0,0,0,0.03); z-index: 5; }
 
         /* ===== VIDEO AREA ===== */
-        .video-container { position: relative; background: #000; padding-top: 56.25%; }
+        .video-container { position: relative; background: #000; padding-top: 56.25%; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         .video-container video { position: absolute; top:0; left:0; width:100%; height:100%; }
-        .no-video { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#9ca3af; gap:12px; }
+        .no-video { position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#94a3b8; gap:12px; background: #1e293b; }
+
+        /* ===== HEADER INFO ===== */
+        .course-info-bar { padding: 20px 32px; background: var(--bg-card); border-bottom: 1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; gap:16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .course-info-bar h5 { margin:0; color:var(--text-main); font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px; }
+        .course-info-bar small { color:var(--text-muted); font-size: 0.9rem; margin-top: 4px; display: block; }
+        .btn-back-course { display:inline-flex; align-items:center; gap:8px; color:var(--primary); text-decoration:none; font-size:0.95rem; font-weight: 700; padding:10px 20px; border:2px solid var(--primary-light); border-radius:12px; transition:all 0.3s; background: white; }
+        .btn-back-course:hover { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(124,58,237,0.25); }
 
         /* ===== TABS ===== */
-        .learn-tabs { background: #1a1a1a; border-bottom: 1px solid #333; position: sticky; top:0; z-index: 10; }
-        .learn-tabs .nav-link { color: #9ca3af; border: none; border-bottom: 3px solid transparent; padding: 14px 20px; font-size: 0.9rem; border-radius: 0; cursor: pointer; background: transparent; }
-        .learn-tabs .nav-link.active { color: white; border-bottom-color: var(--primary); }
-        .learn-tabs .nav-link:hover { color: white; }
-        .tab-body { padding: 28px; color: #e5e7eb; display: none; }
-        .tab-body.active-tab { display: block; }
+        .learn-tabs { background: var(--bg-card); border-bottom: 1px solid var(--border-color); position: sticky; top:0; z-index: 10; padding: 0 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .learn-tabs .nav { display: flex; gap: 8px; }
+        .learn-tabs .nav-link { color: var(--text-muted); border: none; border-bottom: 3px solid transparent; padding: 18px 20px; font-size: 0.95rem; font-weight: 700; border-radius: 0; cursor: pointer; background: transparent; transition: all 0.2s; margin-bottom: -1px; }
+        .learn-tabs .nav-link.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .learn-tabs .nav-link:hover:not(.active) { color: var(--text-main); border-bottom-color: var(--border-color); }
+
+        .tab-body { padding: 32px 32px; color: var(--text-main); display: none; background: var(--bg-main); }
+        .tab-body.active-tab { display: block; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .tab-title { color: var(--text-main); font-weight: 800; margin-bottom: 20px; font-size: 1.2rem; }
 
         /* ===== SIDEBAR ===== */
-        .sidebar-header { padding: 16px 20px; border-bottom: 1px solid #333; }
-        .progress-bar-wrap { height: 6px; background: #333; border-radius: 3px; overflow: hidden; margin-top: 8px; }
-        .progress-bar-fill { height: 100%; background: var(--primary); border-radius: 3px; transition: width 0.4s; }
-        .section-header { padding: 14px 20px; background: #222; cursor: pointer; border-bottom: 1px solid #333; font-weight: 600; font-size: 0.9rem; color: #e5e7eb; display: flex; justify-content: space-between; align-items: flex-start; }
-        .section-header:hover { background: #2a2a3e; }
-        .lesson-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #1f1f1f; transition: background 0.2s; }
-        .lesson-item:hover { background: #2a2a3e; }
-        .lesson-item.active { background: #312e81; }
-        .lesson-item.locked { cursor: not-allowed; opacity: 0.5; pointer-events: none; }
-        .lesson-check { font-size: 1.1rem; margin-top: 2px; min-width: 20px; }
+        .sidebar-header { padding: 28px 24px 24px; border-bottom: 1px solid var(--border-color); background: var(--bg-card); position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .progress-bar-wrap { height: 10px; background: var(--primary-light); border-radius: 99px; overflow: hidden; margin-top: 14px; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #a78bfa); border-radius: 99px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 -2px 4px rgba(0,0,0,0.1); }
+
+        .section-header { padding: 18px 24px; background: #f8fafc; cursor: pointer; border-bottom: 1px solid var(--border-color); font-weight: 800; font-size: 1rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: flex-start; transition: all 0.2s; }
+        .section-header:hover { background: var(--primary-light); color: var(--primary-dark); }
+        .section-header .bi { transition: transform 0.3s; }
+
+        .lesson-item { display: flex; align-items: flex-start; gap: 16px; padding: 16px 24px; cursor: pointer; border-bottom: 1px solid var(--border-color); transition: all 0.2s; background: var(--bg-card); }
+        .lesson-item:hover:not(.locked) { background: #f5f3ff; padding-left: 28px; }
+        .lesson-item.active { background: var(--primary-light); border-left: 4px solid var(--primary); padding-left: 20px; }
+        .lesson-item.locked { cursor: not-allowed; opacity: 0.6; background: #f8fafc; }
+
+        .lesson-check { font-size: 1.3rem; margin-top: 0px; min-width: 24px; display: flex; align-items: center; justify-content: center; }
         .lesson-info { flex: 1; }
-        .lesson-title-text { font-size: 0.85rem; color: #e5e7eb; line-height: 1.4; }
-        .lesson-meta { font-size: 0.75rem; color: #6b7280; margin-top: 4px; }
-        .lesson-type-badge { font-size: 0.7rem; padding: 2px 7px; border-radius: 99px; font-weight: 600; display: inline-block; margin-right: 4px; }
-        .badge-video { background: #1d4ed8; color: white; }
-        .badge-quiz { background: #7c3aed; color: white; }
-        .badge-article { background: #047857; color: white; }
+        .lesson-title-text { font-size: 0.95rem; color: var(--text-main); font-weight: 600; line-height: 1.4; transition: color 0.2s; }
+        .lesson-item.active .lesson-title-text { color: var(--primary-dark); font-weight: 800; }
+
+        .lesson-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 10px; font-weight: 500; }
+        .lesson-type-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .badge-video { background: #e0e7ff; color: #4338ca; }
+        .badge-quiz { background: #fce7f3; color: #be185d; }
+        .badge-article { background: #d1fae5; color: #047857; }
 
         /* ===== COMMENTS ===== */
-        .comment-card { background: #1f2937; border-radius: 10px; padding: 16px; margin-bottom: 14px; }
-        .comment-user { font-weight: 600; font-size: 0.85rem; color: var(--primary); margin-bottom: 4px; }
-        .comment-time { font-size: 0.75rem; color: #6b7280; }
-        .comment-text { font-size: 0.9rem; color: #d1d5db; margin-top: 6px; line-height: 1.5; }
-        .reply-btn { font-size: 0.78rem; color: var(--primary); cursor: pointer; border: none; background: none; padding: 0; margin-top: 8px; }
-        .reply-list { margin-left: 20px; margin-top: 10px; border-left: 2px solid #374151; padding-left: 14px; }
+        .comment-card { background: var(--bg-card); border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border-color); transition: transform 0.2s; }
+        .comment-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.05); }
+        .comment-user { font-weight: 800; font-size: 1rem; color: var(--primary-dark); margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+        .comment-user::before { content: ''; display: inline-block; width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary), #a78bfa); border-radius: 50%; box-shadow: 0 2px 6px rgba(124,58,237,0.3); }
+        .comment-time { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+        .comment-text { font-size: 1rem; color: var(--text-main); margin-top: 12px; line-height: 1.6; }
+        .reply-btn { font-size: 0.85rem; color: var(--primary); cursor: pointer; border: none; background: none; padding: 0; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .reply-btn:hover { color: var(--primary-dark); text-decoration: underline; }
+        .reply-list { margin-left: 20px; margin-top: 16px; border-left: 3px solid var(--primary-light); padding-left: 20px; }
+
+        .qa-textarea { background: var(--bg-card); border: 2px solid var(--border-color); color: var(--text-main); border-radius: 12px; padding: 16px; transition: all 0.3s; font-size: 0.95rem; }
+        .qa-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); outline: none; }
+        .btn-qa-send { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; border-radius: 10px; font-weight: 700; padding: 10px 24px; transition: all 0.3s; box-shadow: 0 4px 10px rgba(124,58,237,0.2); }
+        .btn-qa-send:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(124,58,237,0.3); color: white; }
 
         /* ===== STAR RATING ===== */
-        .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 4px; }
+        .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 8px; }
         .star-rating input { display: none; }
-        .star-rating label { font-size: 2rem; color: #4b5563; cursor: pointer; }
-        .star-rating label:hover, .star-rating label:hover ~ label, .star-rating input:checked ~ label { color: #f59e0b; }
+        .star-rating label { font-size: 2.5rem; color: #cbd5e1; cursor: pointer; transition: all 0.2s; }
+        .star-rating label:hover, .star-rating label:hover ~ label, .star-rating input:checked ~ label { color: #fbbf24; transform: scale(1.15); text-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
 
         /* ===== VIDEO QUIZ POPUP ===== */
-        .video-quiz-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.88); display:flex; align-items:center; justify-content:center; z-index: 100; }
-        .video-quiz-popup { background: #1a1a2e; border-radius: 16px; padding: 28px; max-width: 480px; width: 90%; border: 2px solid #6366f1; animation: popupIn 0.3s ease; }
-        @keyframes popupIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .vq-badge { background: linear-gradient(135deg,#6366f1,#8b5cf6); color:white; padding:4px 14px; border-radius:99px; font-size:0.75rem; font-weight:700; display:inline-block; margin-bottom:14px; }
-        .vq-question { color: white; font-size: 1rem; font-weight: 600; margin-bottom: 18px; line-height: 1.5; }
-        .vq-answer { display:flex; align-items:center; gap:10px; padding:10px 16px; border-radius:8px; cursor:pointer; border:1.5px solid #374151; margin-bottom:8px; color:#d1d5db; transition:all 0.2s; background:transparent; width:100%; text-align:left; font-size:0.9rem; }
-        .vq-answer:hover:not(:disabled) { border-color:#6366f1; color:white; background:rgba(99,102,241,0.1); }
+        .video-quiz-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center; z-index: 100; backdrop-filter: blur(8px); }
+        .video-quiz-popup { background: var(--bg-card); border-radius: 24px; padding: 40px; max-width: 550px; width: 90%; border: 1px solid var(--border-color); box-shadow: 0 25px 50px -12px rgba(124,58,237,0.25); animation: popupIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popupIn { from { transform: scale(0.8) translateY(30px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+
+        .vq-badge { background: var(--primary-light); color: var(--primary-dark); padding: 8px 20px; border-radius: 99px; font-size: 0.85rem; font-weight: 800; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 24px; letter-spacing: 0.5px; text-transform: uppercase; box-shadow: 0 4px 10px rgba(124,58,237,0.1); }
+        .vq-question { color: var(--text-main); font-size: 1.25rem; font-weight: 800; margin-bottom: 28px; line-height: 1.5; }
+        .vq-answer { display:flex; align-items:center; gap:14px; padding:16px 24px; border-radius:14px; cursor:pointer; border:2px solid var(--border-color); margin-bottom:14px; color:var(--text-main); transition:all 0.2s; background:var(--bg-card); width:100%; text-align:left; font-size:1.05rem; font-weight: 600; }
+        .vq-answer:hover:not(:disabled) { border-color:var(--primary); background:var(--primary-light); transform: translateX(6px); box-shadow: 0 4px 12px rgba(124,58,237,0.1); }
         .vq-answer:disabled { cursor: not-allowed; }
-        .vq-result { margin-top: 14px; padding: 10px 14px; border-radius: 8px; font-size: 0.88rem; font-weight: 600; display: none; }
-        .vq-resume-btn { margin-top: 16px; background: linear-gradient(135deg,#6366f1,#8b5cf6); border:none; color:white; padding:10px 28px; border-radius:8px; font-weight:700; cursor:pointer; display:none; transition: opacity 0.2s; }
-        .vq-resume-btn:hover { opacity: 0.85; }
+
+        .vq-result { margin-top: 24px; padding: 16px 24px; border-radius: 14px; font-size: 1rem; font-weight: 700; display: none; animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .vq-resume-btn { margin-top: 32px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border:none; color:white; padding:16px 32px; border-radius:14px; font-weight:800; font-size: 1.1rem; cursor:pointer; display:none; transition: all 0.3s; width: 100%; text-align: center; box-shadow: 0 8px 20px rgba(124,58,237,0.3); }
+        .vq-resume-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(124,58,237,0.4); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; border: 3px solid var(--bg-main); }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         @media (max-width: 768px) {
             .learn-wrapper { flex-direction: column; height: auto; }
-            .learn-sidebar { width: 100%; min-width: unset; border-left: none; border-top: 1px solid #333; }
+            .learn-sidebar { width: 100%; min-width: unset; border-left: none; border-top: 1px solid var(--border-color); }
         }
     </style>
 </head>
@@ -91,23 +138,20 @@
             <div id="lessonContentArea">
                 <div class="video-container">
                     <div class="no-video">
-                        <i class="bi bi-play-circle" style="font-size: 3rem;"></i>
-                        <span>Chọn bài học để bắt đầu</span>
+                        <i class="bi bi-play-circle" style="font-size: 3.5rem;"></i>
+                        <span style="font-weight: 600; font-size: 1.1rem; margin-top: 8px;">Chọn bài học để bắt đầu</span>
                     </div>
                 </div>
             </div>
 
             <!-- Tên khoá học + Nút quay lại -->
-            <div style="padding: 16px 24px; background: #1a1a1a; border-bottom: 1px solid #333; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+            <div class="course-info-bar">
                 <div>
-                    <h5 style="margin:0; color:white;" th:text="${course.title}">Tên khoá học</h5>
-                    <small style="color:#9ca3af;" th:text="'Giảng viên: ' + ${course.instructorName}">Giảng viên</small>
+                    <h5 th:text="${course.title}">Tên khoá học</h5>
+                    <small th:text="'Giảng viên: ' + ${course.instructorName}">Giảng viên</small>
                 </div>
-                <a th:href="@{/course/{id}(id=${course.courseId})}"
-                   style="display:inline-flex; align-items:center; gap:8px; color:#9ca3af; text-decoration:none; font-size:0.85rem; white-space:nowrap; padding:8px 14px; border:1px solid #374151; border-radius:8px; transition:all 0.2s;"
-                   onmouseover="this.style.color='white'; this.style.borderColor='#6366f1';"
-                   onmouseout="this.style.color='#9ca3af'; this.style.borderColor='#374151';">
-                    <i class="bi bi-arrow-left"></i> Xem trang khoá học
+                <a th:href="@{/course/{id}(id=${course.courseId})}" class="btn-back-course">
+                    <i class="bi bi-arrow-left"></i> Về trang khoá học
                 </a>
             </div>
 
@@ -128,46 +172,53 @@
 
             <!-- Tab Tổng quan -->
             <div class="tab-body active-tab" id="tab-overview">
-                <h6 style="color:white; font-weight:700; margin-bottom:16px;">Nội dung bài học</h6>
-                <div id="overviewContent" style="color:#9ca3af; font-size:0.9rem;">
+                <div class="tab-title">Nội dung bài học</div>
+                <div id="overviewContent" style="color:var(--text-muted); font-size:1.05rem; line-height: 1.6;">
                     Chọn một bài học để xem nội dung chi tiết.
                 </div>
             </div>
 
             <!-- Tab Hỏi & Đáp -->
             <div class="tab-body" id="tab-qa">
-                <h6 style="color:white; font-weight:700; margin-bottom:16px;">Hỏi &amp; Đáp</h6>
-                <div class="mb-3">
-                    <textarea id="qaInput" class="form-control" rows="3"
-                              placeholder="Đặt câu hỏi cho bài học này..."
-                              style="background:#1f2937; border-color:#374151; color:white; resize:none;"></textarea>
-                    <button class="btn btn-primary btn-sm mt-2" onclick="submitComment()">
-                        <i class="bi bi-send me-1"></i>Gửi câu hỏi
-                    </button>
+                <div class="tab-title">Hỏi &amp; Đáp cùng giảng viên và học viên</div>
+                <div class="qa-input-wrapper">
+                    <textarea id="qaInput" class="form-control qa-textarea" rows="3"
+                              placeholder="Bạn đang thắc mắc điều gì trong bài học này?"></textarea>
+                    <div class="text-end mt-3">
+                        <button class="btn btn-primary btn-qa-send" onclick="submitComment()">
+                            <i class="bi bi-send-fill me-2"></i>Gửi câu hỏi
+                        </button>
+                    </div>
                 </div>
                 <div id="commentList">
-                    <p style="color:#6b7280; font-size:0.85rem;">Chọn bài học để xem câu hỏi.</p>
+                    <div style="text-align:center; padding: 40px; color: var(--text-muted);">
+                        <i class="bi bi-chat-dots" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <p class="mt-3 font-weight-bold">Chọn bài học để xem các câu hỏi.</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Tab Đánh giá -->
             <div class="tab-body" id="tab-review">
-                <h6 style="color:white; font-weight:700; margin-bottom:16px;">Đánh giá khoá học</h6>
-                <p style="color:#9ca3af; font-size:0.9rem; margin-bottom:16px;">Hãy chia sẻ cảm nhận của bạn!</p>
-                <div class="star-rating mb-3">
-                    <input type="radio" name="rating" id="s5" value="5"><label for="s5">★</label>
-                    <input type="radio" name="rating" id="s4" value="4"><label for="s4">★</label>
-                    <input type="radio" name="rating" id="s3" value="3"><label for="s3">★</label>
-                    <input type="radio" name="rating" id="s2" value="2"><label for="s2">★</label>
-                    <input type="radio" name="rating" id="s1" value="1"><label for="s1">★</label>
+                <div class="tab-title">Đánh giá khoá học</div>
+                <p style="color:var(--text-muted); font-size:1.05rem; margin-bottom:24px;">Hãy chia sẻ cảm nhận của bạn để giúp khoá học được tốt hơn!</p>
+                <div class="qa-input-wrapper">
+                    <div class="star-rating mb-4">
+                        <input type="radio" name="rating" id="s5" value="5"><label for="s5">★</label>
+                        <input type="radio" name="rating" id="s4" value="4"><label for="s4">★</label>
+                        <input type="radio" name="rating" id="s3" value="3"><label for="s3">★</label>
+                        <input type="radio" name="rating" id="s2" value="2"><label for="s2">★</label>
+                        <input type="radio" name="rating" id="s1" value="1"><label for="s1">★</label>
+                    </div>
+                    <textarea id="reviewText" class="form-control qa-textarea mb-3" rows="3"
+                              placeholder="Cảm nhận chi tiết của bạn về nội dung, chất lượng giảng dạy..."></textarea>
+                    <div class="text-end">
+                        <button class="btn btn-warning btn-qa-send text-white" onclick="submitFeedback()" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i class="bi bi-star-fill me-2"></i>Gửi đánh giá
+                        </button>
+                    </div>
+                    <div id="feedbackMsg" class="mt-3 text-end" style="font-size:0.95rem; font-weight: 600;"></div>
                 </div>
-                <textarea id="reviewText" class="form-control mb-2" rows="3"
-                          placeholder="Viết cảm nhận về khoá học..."
-                          style="background:#1f2937; border-color:#374151; color:white; resize:none;"></textarea>
-                <button class="btn btn-warning btn-sm" onclick="submitFeedback()">
-                    <i class="bi bi-star-fill me-1"></i>Gửi đánh giá
-                </button>
-                <div id="feedbackMsg" class="mt-2" style="font-size:0.85rem;"></div>
             </div>
 
         </div>
@@ -177,8 +228,8 @@
 
             <!-- Tiến độ -->
             <div class="sidebar-header">
-                <div style="font-size:0.85rem; color:#9ca3af;">Tiến độ khoá học</div>
-                <div style="font-size:1.1rem; font-weight:700; color:white;">
+                <div style="font-size:0.9rem; color:var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Tiến độ khoá học</div>
+                <div style="font-size:1.4rem; font-weight:800; color:var(--primary-dark); margin-top: 4px;">
                     <span th:text="${course.progressPercent}">0</span>% hoàn thành
                 </div>
                 <div class="progress-bar-wrap">
@@ -192,12 +243,12 @@
                 <div class="section-header"
                      th:id="'sec-hdr-' + ${si.index}"
                      th:onclick="'toggleSection(' + ${si.index} + ')'">
-                    <span>
+                    <div class="section-title-wrap">
                         <span th:text="${section.title}">Chương</span>
-                        <small style="font-weight:400; color:#9ca3af; display:block; margin-top:2px;"
+                        <small style="font-weight:500; color:var(--text-muted); font-size: 0.8rem; display: block; margin-top: 4px;"
                                th:text="${section.completedCount} + '/' + ${section.totalCount} + ' bài đã học'"></small>
-                    </span>
-                    <i class="bi bi-chevron-down" th:id="'sec-ico-' + ${si.index}"></i>
+                    </div>
+                    <i class="bi bi-chevron-down" th:id="'sec-ico-' + ${si.index}" style="font-size: 1.2rem;"></i>
                 </div>
 
                 <div th:id="'sec-body-' + ${si.index}">
@@ -210,16 +261,16 @@
                          th:data-locked="${lesson.locked}"
                          onclick="handleLessonClick(this)">
                         <div class="lesson-check">
-                            <i th:if="${lesson.completed}" class="bi bi-check-circle-fill text-success"></i>
-                            <i th:if="${!lesson.completed and !lesson.locked}" class="bi bi-circle" style="color:#6b7280;"></i>
-                            <i th:if="${lesson.locked}" class="bi bi-lock-fill" style="color:#4b5563;"></i>
+                            <i th:if="${lesson.completed}" class="bi bi-check-circle-fill text-success" style="font-size: 1.4rem;"></i>
+                            <i th:if="${!lesson.completed and !lesson.locked}" class="bi bi-circle" style="color:var(--border-color); font-size: 1.4rem;"></i>
+                            <i th:if="${lesson.locked}" class="bi bi-lock-fill" style="color:var(--text-muted);"></i>
                         </div>
                         <div class="lesson-info">
                             <div class="lesson-title-text" th:text="${lesson.title}">Bài học</div>
                             <div class="lesson-meta">
-                                <span th:if="${lesson.lessonType == 'VIDEO'}" class="lesson-type-badge badge-video">Video</span>
-                                <span th:if="${lesson.lessonType == 'QUIZ'}" class="lesson-type-badge badge-quiz">Quiz</span>
-                                <span th:if="${lesson.lessonType == 'ARTICLE'}" class="lesson-type-badge badge-article">Bài đọc</span>
+                                <span th:if="${lesson.lessonType == 'VIDEO'}" class="lesson-type-badge badge-video"><i class="bi bi-play-btn-fill"></i> Video</span>
+                                <span th:if="${lesson.lessonType == 'QUIZ'}" class="lesson-type-badge badge-quiz"><i class="bi bi-patch-question-fill"></i> Quiz</span>
+                                <span th:if="${lesson.lessonType == 'ARTICLE'}" class="lesson-type-badge badge-article"><i class="bi bi-file-text-fill"></i> Bài đọc</span>
                                 <span th:if="${lesson.durationSeconds != null}"
                                       th:text="${lesson.durationSeconds / 60} + ' phút'"></span>
                             </div>
@@ -241,10 +292,12 @@
 
         const COURSE_ID = /*[[${course.courseId}]]*/ 0;
         const firstLessonId = /*[[${course.firstUnlockedLessonId}]]*/ null;
+
         let currentLessonId = null;
         let shownTimestamps = new Set();
+        let activeVideoQuizzes = [];
+        let currentlyShowingQuiz = null;
 
-        // Tự động mở bài học đầu tiên
         window.addEventListener('DOMContentLoaded', function () {
             if (firstLessonId) {
                 var el = document.getElementById('lesson-item-' + firstLessonId);
@@ -266,10 +319,10 @@
             var ico = document.getElementById('sec-ico-' + idx);
             if (body.style.display === 'none') {
                 body.style.display = 'block';
-                ico.className = 'bi bi-chevron-down';
+                ico.style.transform = 'rotate(0deg)';
             } else {
                 body.style.display = 'none';
-                ico.className = 'bi bi-chevron-right';
+                ico.style.transform = 'rotate(-90deg)';
             }
         }
 
@@ -297,7 +350,7 @@
             loadComments(lessonId);
         }
 
-        // ===== LOAD VIDEO (kèm Timestamp Quiz) =====
+        // ===== LOAD VIDEO =====
         function loadVideoLesson(lessonId) {
             fetch('/api/learn/lesson/' + lessonId)
                 .then(function(r) { return r.json(); })
@@ -305,63 +358,63 @@
                     var area = document.getElementById('lessonContentArea');
                     if (data.videoUrl) {
                         area.innerHTML =
-                            '<div class="video-container" id="videoWrapper" style="position:relative;">' +
-                            '<video id="mainVideo" controls controlsList="nodownload" ' +
-                            'style="position:absolute;top:0;left:0;width:100%;height:100%;">' +
+                            '<div class="video-container" id="videoWrapper">' +
+                            '<video id="mainVideo" controls controlsList="nodownload">' +
                             '<source src="' + data.videoUrl + '" type="video/mp4">' +
                             '</video>' +
                             '</div>';
 
                         var video = document.getElementById('mainVideo');
-
-                        // Đánh dấu hoàn thành khi xem hết video
                         video.addEventListener('ended', function() { markComplete(lessonId); });
 
-                        // Reset timestamp đã hiện khi đổi bài
                         shownTimestamps = new Set();
+                        activeVideoQuizzes = [];
+                        currentlyShowingQuiz = null;
 
-                        // Fetch câu hỏi có gắn timestamp trong video
                         fetch('/api/learn/lesson/' + lessonId + '/video-quizzes')
                             .then(function(r) { return r.json(); })
                             .then(function(quizzes) {
                                 if (quizzes && quizzes.length > 0) {
                                     setupVideoTimestampQuizzes(video, quizzes);
                                 }
-                            })
-                            .catch(function() { /* Không có quiz timestamp thì bỏ qua */ });
+                            }).catch(function() {});
                     } else {
                         area.innerHTML =
                             '<div class="video-container">' +
                             '<div class="no-video">' +
-                            '<i class="bi bi-camera-video-off" style="font-size:3rem"></i>' +
-                            '<span>Video chưa có sẵn</span>' +
+                            '<i class="bi bi-camera-video-off" style="font-size:3.5rem"></i>' +
+                            '<span style="font-weight:600; font-size:1.1rem; margin-top:8px;">Video chưa có sẵn</span>' +
                             '</div>' +
                             '</div>';
                     }
-                    document.getElementById('overviewContent').innerText = data.title || '';
+                    document.getElementById('overviewContent').innerHTML = '<h4>' + (data.title || '') + '</h4><br/>' + (data.articleContent ? data.articleContent : 'Chưa có nội dung mô tả.');
                 })
                 .catch(function() {
                     document.getElementById('lessonContentArea').innerHTML =
-                        '<div style="padding:40px;color:#ef4444;text-align:center;">Không thể tải bài học.</div>';
+                        '<div style="padding:40px;color:#ef4444;text-align:center;font-weight:700;">Không thể tải bài học.</div>';
                 });
         }
 
         // ===== VIDEO TIMESTAMP QUIZ =====
         function setupVideoTimestampQuizzes(video, quizzes) {
-            // Sắp xếp theo timestamp tăng dần
-            quizzes.sort(function(a, b) { return a.videoTimestampSeconds - b.videoTimestampSeconds; });
+            activeVideoQuizzes = quizzes.sort(function(a, b) { return a.videoTimestampSeconds - b.videoTimestampSeconds; });
 
             video.addEventListener('timeupdate', function() {
+                if (currentlyShowingQuiz) return;
+
                 var currentSecond = Math.floor(video.currentTime);
-                for (var i = 0; i < quizzes.length; i++) {
-                    var quiz = quizzes[i];
-                    var ts = quiz.videoTimestampSeconds;
-                    if (ts !== null && currentSecond >= ts && !shownTimestamps.has(quiz.questionId)) {
-                        shownTimestamps.add(quiz.questionId);
-                        video.pause();
-                        showVideoQuizPopup(quiz);
-                        break;
-                    }
+                var quizzesToShow = activeVideoQuizzes.filter(function(q) {
+                    return q.videoTimestampSeconds !== null &&
+                        currentSecond >= q.videoTimestampSeconds &&
+                        !shownTimestamps.has(q.questionId);
+                });
+
+                if (quizzesToShow.length > 0) {
+                    var quiz = quizzesToShow[0];
+                    shownTimestamps.add(quiz.questionId);
+                    currentlyShowingQuiz = quiz;
+                    video.pause();
+                    showVideoQuizPopup(quiz);
                 }
             });
         }
@@ -371,7 +424,6 @@
             if (!wrapper) return;
 
             var answersHtml = quiz.answers.map(function(a) {
-                // Gắn thêm biến a.isCorrect vào sự kiện onclick
                 return '<button class="vq-answer" onclick="checkVideoAnswer(this,' + a.answerId + ',' + quiz.questionId + ',' + a.isCorrect + ')">' +
                     '<span class="vq-icon">◯</span>' +
                     '<span>' + a.answerText + '</span>' +
@@ -383,13 +435,13 @@
             overlay.id = 'vq-overlay-' + quiz.questionId;
             overlay.innerHTML =
                 '<div class="video-quiz-popup">' +
-                '<div class="vq-badge"><i class="bi bi-lightning-fill me-1"></i>Câu hỏi kiểm tra nhanh</div>' +
+                '<div class="vq-badge"><i class="bi bi-lightning-charge-fill"></i> Câu hỏi kiểm tra</div>' +
                 '<div class="vq-question">' + quiz.questionText + '</div>' +
                 '<div id="vq-answers-' + quiz.questionId + '">' + answersHtml + '</div>' +
                 '<div class="vq-result" id="vq-result-' + quiz.questionId + '"></div>' +
                 '<button class="vq-resume-btn" id="vq-resume-' + quiz.questionId + '" ' +
                 'onclick="resumeVideoAfterQuiz(' + quiz.questionId + ')">' +
-                '<i class="bi bi-play-fill me-1"></i>Tiếp tục xem video' +
+                '<i class="bi bi-play-fill"></i> Tiếp tục' +
                 '</button>' +
                 '</div>';
 
@@ -401,49 +453,62 @@
             var resultDiv = document.getElementById('vq-result-' + questionId);
             var resumeBtn = document.getElementById('vq-resume-' + questionId);
 
-            // Reset tất cả các nút (xóa class đã chọn cũ)
             answersDiv.querySelectorAll('.vq-answer').forEach(function(b) {
-                b.style.borderColor = '#374151';
-                b.style.background = 'transparent';
+                b.style.borderColor = 'var(--border-color)';
+                b.style.background = 'var(--bg-card)';
                 b.querySelector('.vq-icon').innerText = '◯';
             });
 
             if (isCorrect) {
-                // NẾU CHỌN ĐÚNG: Khóa tất cả nút, hiện màu xanh, và HIỆN nút Tiếp tục
                 answersDiv.querySelectorAll('.vq-answer').forEach(function(b) { b.disabled = true; });
-
                 btn.querySelector('.vq-icon').innerText = '✓';
-                btn.style.borderColor = '#22c55e'; // Màu xanh lá
-                btn.style.background = 'rgba(34,197,94,0.2)';
+                btn.style.borderColor = 'var(--success)';
+                btn.style.background = '#d1fae5';
 
-                resultDiv.innerText = 'Chính xác! Nhấn nút bên dưới để tiếp tục xem video.';
-                resultDiv.style.background = 'rgba(34,197,94,0.15)';
-                resultDiv.style.borderColor = '#22c55e';
-                resultDiv.style.color = '#22c55e';
+                resultDiv.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Chính xác! Nhấn nút bên dưới để tiếp tục.';
+                resultDiv.style.background = '#d1fae5';
+                resultDiv.style.borderColor = 'var(--success)';
+                resultDiv.style.color = '#065f46';
                 resultDiv.style.display = 'block';
-
-                resumeBtn.style.display = 'block'; // HIỆN nút đi tiếp
+                resumeBtn.style.display = 'block';
             } else {
-                // NẾU CHỌN SAI: Hiện màu đỏ, báo lỗi, và ẨN nút Tiếp tục (bắt chọn lại)
                 btn.querySelector('.vq-icon').innerText = '✕';
-                btn.style.borderColor = '#ef4444'; // Màu đỏ
-                btn.style.background = 'rgba(239,68,68,0.2)';
+                btn.style.borderColor = 'var(--danger)';
+                btn.style.background = '#fee2e2';
 
-                resultDiv.innerText = 'Sai rồi! Bạn phải chọn đáp án đúng thì mới được xem tiếp.';
-                resultDiv.style.background = 'rgba(239,68,68,0.15)';
-                resultDiv.style.borderColor = '#ef4444';
-                resultDiv.style.color = '#ef4444';
+                resultDiv.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-1"></i> Sai rồi! Bạn phải chọn đáp án đúng thì mới được đi tiếp.';
+                resultDiv.style.background = '#fee2e2';
+                resultDiv.style.borderColor = 'var(--danger)';
+                resultDiv.style.color = '#991b1b';
                 resultDiv.style.display = 'block';
-
-                resumeBtn.style.display = 'none'; // ẨN nút đi tiếp
+                resumeBtn.style.display = 'none';
             }
         }
 
         function resumeVideoAfterQuiz(questionId) {
             var overlay = document.getElementById('vq-overlay-' + questionId);
             if (overlay) overlay.remove();
+
+            currentlyShowingQuiz = null;
+
             var video = document.getElementById('mainVideo');
-            if (video) video.play();
+            if (video) {
+                var currentSecond = Math.floor(video.currentTime);
+                var nextQuizzes = activeVideoQuizzes.filter(function(q) {
+                    return q.videoTimestampSeconds !== null &&
+                        currentSecond >= q.videoTimestampSeconds &&
+                        !shownTimestamps.has(q.questionId);
+                });
+
+                if (nextQuizzes.length > 0) {
+                    var nextQuiz = nextQuizzes[0];
+                    shownTimestamps.add(nextQuiz.questionId);
+                    currentlyShowingQuiz = nextQuiz;
+                    showVideoQuizPopup(nextQuiz);
+                } else {
+                    video.play();
+                }
+            }
         }
 
         // ===== LOAD ARTICLE =====
@@ -452,12 +517,14 @@
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     document.getElementById('lessonContentArea').innerHTML =
-                        '<div style="padding:32px; color:white; background:#111;">' +
-                        '<h4>' + (data.title || '') + '</h4>' +
-                        '<div style="line-height:1.8;color:#d1d5db;margin-top:16px;">' + (data.articleContent || 'Nội dung bài học...') + '</div>' +
-                        '<button class="btn btn-success mt-4" onclick="markComplete(' + lessonId + ')">' +
-                        '<i class="bi bi-check-lg me-1"></i>Đánh dấu đã đọc xong' +
+                        '<div style="padding:40px; color:var(--text-main); background:var(--bg-card); min-height: 100%; border-bottom: 1px solid var(--border-color);">' +
+                        '<h3 style="font-weight: 800; color: var(--primary-dark); margin-bottom: 24px;">' + (data.title || '') + '</h3>' +
+                        '<div style="line-height:1.8; color:var(--text-main); font-size: 1.05rem;">' + (data.articleContent || 'Nội dung bài học...') + '</div>' +
+                        '<div class="mt-5 text-center">' +
+                        '<button class="btn btn-success btn-lg" style="border-radius: 12px; font-weight: 700; padding: 14px 32px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);" onclick="markComplete(' + lessonId + ')">' +
+                        '<i class="bi bi-check-circle-fill me-2"></i>Hoàn thành bài học' +
                         '</button>' +
+                        '</div>' +
                         '</div>';
                 });
         }
@@ -474,73 +541,149 @@
                     if (el) {
                         el.classList.add('completed');
                         var check = el.querySelector('.lesson-check');
-                        if (check) check.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
+                        if (check) check.innerHTML = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.4rem;"></i>';
                     }
-                    setTimeout(function() { location.reload(); }, 1000);
+                    setTimeout(function() { location.reload(); }, 800);
                 });
         }
 
         // ===== Q&A =====
+        let allComments = [];     // Lưu toàn bộ comment
+        let shownCount = 3;       // Số lượng hiển thị ban đầu
+        const LOAD_MORE_STEP = 5; // Mỗi lần xem thêm tải thêm bao nhiêu
+
         function loadComments(lessonId) {
             fetch('/api/learn/comments/' + lessonId)
                 .then(function(r) { return r.json(); })
                 .then(function(comments) {
-                    var list = document.getElementById('commentList');
-                    if (!comments || comments.length === 0) {
-                        list.innerHTML = '<p style="color:#6b7280;font-size:0.85rem;">Chưa có câu hỏi nào. Hãy là người đầu tiên!</p>';
-                        return;
-                    }
-                    var html = '';
-                    comments.forEach(function(c) {
-                        var repliesHtml = '';
-                        if (c.replies && c.replies.length > 0) {
-                            repliesHtml = '<div class="reply-list">';
-                            c.replies.forEach(function(r) {
-                                repliesHtml +=
-                                    '<div style="margin-bottom:10px;">' +
-                                    '<div class="comment-user">' + r.userName + '</div>' +
-                                    '<div class="comment-text">' + r.content + '</div>' +
-                                    '<span class="comment-time">' + formatDate(r.createdAt) + '</span>' +
-                                    '</div>';
-                            });
-                            repliesHtml += '</div>';
-                        }
-                        html +=
-                            '<div class="comment-card">' +
-                            '<div class="comment-user">' + c.userName + '</div>' +
-                            '<div class="comment-text">' + c.content + '</div>' +
-                            '<div class="d-flex align-items-center gap-3 mt-2">' +
-                            '<span class="comment-time">' + formatDate(c.createdAt) + '</span>' +
-                            '<button class="reply-btn" onclick="toggleReplyBox(' + c.commentId + ')">Trả lời</button>' +
+                    allComments = comments || [];
+                    shownCount = 3; // Reset lại mỗi khi đổi bài học
+                    renderComments();
+                });
+        }
+
+        function renderComments() {
+            var list = document.getElementById('commentList');
+
+            if (allComments.length === 0) {
+                list.innerHTML =
+                    '<div style="text-align:center; padding: 40px; color: var(--text-muted);">' +
+                    '<i class="bi bi-chat-dots" style="font-size: 3rem; opacity: 0.3;"></i>' +
+                    '<p class="mt-3">Chưa có thảo luận nào. Hãy là người đầu tiên!</p>' +
+                    '</div>';
+                return;
+            }
+
+            // Lấy đúng số lượng cần hiển thị
+            var visibleComments = allComments.slice(0, shownCount);
+            var remaining = allComments.length - shownCount;
+
+            var html = '';
+            visibleComments.forEach(function(c) {
+                var repliesHtml = '';
+                if (c.replies && c.replies.length > 0) {
+                    repliesHtml = '<div class="reply-list">';
+                    c.replies.forEach(function(r) {
+                        repliesHtml +=
+                            '<div style="margin-bottom:16px;">' +
+                            '<div class="comment-user">' + r.userName +
+                            '<span class="comment-time ms-2" style="font-weight:400;">' + formatDate(r.createdAt) + '</span>' +
                             '</div>' +
-                            '<div id="reply-box-' + c.commentId + '" style="display:none;margin-top:10px;">' +
-                            '<input type="text" class="form-control form-control-sm" ' +
-                            'style="background:#111;color:white;border-color:#374151;" ' +
-                            'placeholder="Nhập trả lời..." id="reply-input-' + c.commentId + '">' +
-                            '<button class="btn btn-sm btn-outline-primary mt-1" onclick="submitReply(' + c.commentId + ')">Gửi</button>' +
-                            '</div>' +
-                            repliesHtml +
+                            '<div class="comment-text" style="margin-top:4px;">' + r.content + '</div>' +
                             '</div>';
                     });
-                    list.innerHTML = html;
-                });
+                    repliesHtml += '</div>';
+                }
+
+                html +=
+                    '<div class="comment-card">' +
+                    '<div class="d-flex justify-content-between align-items-center">' +
+                    '<div class="comment-user">' + c.userName + '</div>' +
+                    '<span class="comment-time">' + formatDate(c.createdAt) + '</span>' +
+                    '</div>' +
+                    '<div class="comment-text">' + c.content + '</div>' +
+                    '<div class="mt-3">' +
+                    '<button class="reply-btn" onclick="toggleReplyBox(' + c.commentId + ')">' +
+                    '<i class="bi bi-reply-fill"></i> Trả lời' +
+                    '</button>' +
+                    '</div>' +
+                    '<div id="reply-box-' + c.commentId + '" style="display:none; margin-top:16px; background: var(--bg-main); padding: 16px; border-radius: 12px;">' +
+                    '<input type="text" class="form-control qa-textarea mb-2" placeholder="Nhập câu trả lời của bạn..." id="reply-input-' + c.commentId + '">' +
+                    '<div class="text-end">' +
+                    '<button class="btn btn-sm btn-qa-send text-white" onclick="submitReply(' + c.commentId + ')">Gửi trả lời</button>' +
+                    '</div>' +
+                    '</div>' +
+                    repliesHtml +
+                    '</div>';
+            });
+
+            // Nút "Xem thêm" nếu vẫn còn comment chưa hiển thị
+            if (remaining > 0) {
+                var loadMore = Math.min(remaining, LOAD_MORE_STEP);
+                html +=
+                    '<div style="text-align:center; margin-top: 8px;">' +
+                    '<button onclick="loadMoreComments()" ' +
+                    'style="display:inline-flex; align-items:center; gap:8px; background:white; border:2px solid var(--primary-light); color:var(--primary); font-weight:700; padding:10px 28px; border-radius:12px; cursor:pointer; transition:all 0.3s; font-size:0.95rem;"' +
+                    'onmouseover="this.style.background=\'var(--primary-light)\'"' +
+                    'onmouseout="this.style.background=\'white\'">' +
+                    '<i class="bi bi-chevron-down"></i>' +
+                    'Xem thêm ' + loadMore + ' câu hỏi (' + remaining + ' còn lại)' +
+                    '</button>' +
+                    '</div>';
+            } else if (allComments.length > 3) {
+                // Đã xem hết — hiện nút thu gọn
+                html +=
+                    '<div style="text-align:center; margin-top: 8px;">' +
+                    '<button onclick="collapseComments()" ' +
+                    'style="display:inline-flex; align-items:center; gap:8px; background:white; border:2px solid var(--border-color); color:var(--text-muted); font-weight:700; padding:10px 28px; border-radius:12px; cursor:pointer; transition:all 0.3s; font-size:0.95rem;"' +
+                    'onmouseover="this.style.background=\'var(--bg-main)\'"' +
+                    'onmouseout="this.style.background=\'white\'">' +
+                    '<i class="bi bi-chevron-up"></i>' +
+                    'Thu gọn' +
+                    '</button>' +
+                    '</div>';
+            }
+
+            list.innerHTML = html;
+        }
+
+        function loadMoreComments() {
+            shownCount += LOAD_MORE_STEP;
+            renderComments();
+            // Cuộn nhẹ xuống để user thấy comment mới
+            var list = document.getElementById('commentList');
+            list.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+
+        function collapseComments() {
+            shownCount = 3;
+            renderComments();
+            document.getElementById('commentList').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function toggleReplyBox(commentId) {
             var box = document.getElementById('reply-box-' + commentId);
-            if (box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
+            if (box) {
+                if (box.style.display === 'none') {
+                    box.style.display = 'block';
+                    document.getElementById('reply-input-' + commentId).focus();
+                } else {
+                    box.style.display = 'none';
+                }
+            }
         }
 
         function submitComment() {
             var content = document.getElementById('qaInput').value.trim();
-            if (!content) { alert('Vui lòng nhập câu hỏi!'); return; }
-            if (!currentLessonId) { alert('Vui lòng chọn bài học trước!'); return; }
+            if (!content) { toastr.warning('Vui lòng nhập câu hỏi!'); return; }
+            if (!currentLessonId) { toastr.warning('Vui lòng chọn bài học trước!'); return; }
             fetch('/api/learn/comments/' + currentLessonId, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', [CSRF_HEADER]: CSRF_TOKEN },
                 body: JSON.stringify({ content: content })
             }).then(function() {
                 document.getElementById('qaInput').value = '';
+                toastr.success('Đã gửi câu hỏi');
                 loadComments(currentLessonId);
             });
         }
@@ -555,6 +698,7 @@
                 body: JSON.stringify({ content: content, parentCommentId: parentId })
             }).then(function() {
                 input.value = '';
+                toastr.success('Đã gửi trả lời');
                 loadComments(currentLessonId);
             });
         }
@@ -562,7 +706,7 @@
         // ===== ĐÁNH GIÁ =====
         function submitFeedback() {
             var ratingEl = document.querySelector('input[name="rating"]:checked');
-            if (!ratingEl) { alert('Vui lòng chọn số sao!'); return; }
+            if (!ratingEl) { toastr.warning('Vui lòng chọn số sao!'); return; }
             var rating = parseInt(ratingEl.value);
             var comment = document.getElementById('reviewText').value;
             fetch('/api/learn/' + COURSE_ID + '/feedback', {
@@ -571,7 +715,8 @@
                 body: JSON.stringify({ rating: rating, comment: comment })
             }).then(function() {
                 document.getElementById('feedbackMsg').innerHTML =
-                    '<span style="color:#22c55e;"><i class="bi bi-check-circle me-1"></i>Đánh giá đã được gửi thành công!</span>';
+                    '<span style="color:var(--success);"><i class="bi bi-check-circle-fill me-1"></i> Cảm ơn bạn! Đánh giá đã được gửi thành công.</span>';
+                toastr.success('Đã gửi đánh giá');
             });
         }
 
