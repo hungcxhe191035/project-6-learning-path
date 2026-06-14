@@ -62,4 +62,44 @@ public class EmailService {
             emailNotificationRepository.save(emailNotification);
         }
     }
+
+    @Transactional
+    public void sendApplicationResultEmail(String toEmail, String fullName, boolean approved, String reviewNote) {
+        String subject = "Kết quả duyệt đơn ứng tuyển Giảng viên - My Learning Path";
+        String content = "Xin chào " + fullName + ",\n\n"
+                + (approved 
+                    ? "Hồ sơ ứng tuyển giảng viên của bạn đã được duyệt thành công! Tài khoản của bạn đã được nâng cấp thành Giảng viên.\n\nChúc bạn có những bài giảng tuyệt vời trên hệ thống!" 
+                    : "Hồ sơ ứng tuyển giảng viên của bạn đã bị từ chối.\n"
+                      + "Lý do: " + (reviewNote != null ? reviewNote : "Không có lý do chi tiết") + "\n\n"
+                      + "Bạn có thể điều chỉnh lại thông tin và nộp lại đơn ứng tuyển.")
+                + "\n\nTrân trọng!";
+
+        User user = userRepository.findByEmail(toEmail).orElse(null);
+
+        EmailNotification emailNotification = EmailNotification.builder()
+                .user(user)
+                .recipientEmail(toEmail)
+                .subject(subject)
+                .content(content)
+                .status(EEmailStatus.PENDING)
+                .build();
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject(subject);
+            message.setText(content);
+            mailSender.send(message);
+
+            emailNotification.setStatus(EEmailStatus.SENT);
+            emailNotification.setSentAt(LocalDateTime.now());
+        } catch (Exception e) {
+            emailNotification.setStatus(EEmailStatus.FAILED);
+            emailNotification.setErrorMessage(e.getMessage());
+            emailNotification.setSentAt(LocalDateTime.now());
+        } finally {
+            emailNotificationRepository.save(emailNotification);
+        }
+    }
 }

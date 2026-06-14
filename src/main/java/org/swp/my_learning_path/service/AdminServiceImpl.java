@@ -13,6 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.swp.my_learning_path.constant.ECourseStatus;
+import org.swp.my_learning_path.entity.Course;
+import org.swp.my_learning_path.repository.CourseRepository;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -22,6 +25,7 @@ public class AdminServiceImpl implements AdminService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CourseRepository courseRepository;
 
     @Override
     public Page<User> searchUsers(ERole role, EAccountStatus status, String search, Pageable pageable) {
@@ -78,6 +82,9 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     public void assignRole(Long userId, ERole role) {
         User user = getUserById(userId);
+        if (role == ERole.ADMIN) {
+            throw new RuntimeException("Không được phép gán vai trò Quản trị viên (ADMIN) để tránh leo thang đặc quyền.");
+        }
         user.setRole(role);
         userRepository.save(user);
     }
@@ -109,5 +116,40 @@ public class AdminServiceImpl implements AdminService {
             user.setStatus(EAccountStatus.ACTIVE);
         }
         userRepository.saveAll(users);
+    }
+
+    @Override
+    public Page<Course> searchCourses(ECourseStatus status, Boolean blocked, String search, Pageable pageable) {
+        String searchParam = (search == null || search.trim().isEmpty()) ? null : search.trim();
+        return courseRepository.searchCoursesAdmin(status, blocked, searchParam, pageable);
+    }
+
+    @Override
+    @Transactional
+    public void blockCourse(Long courseId, String reason) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học với ID: " + courseId));
+        course.setIsBlocked(true);
+        course.setBlockReason(reason);
+        courseRepository.save(course);
+    }
+
+    @Override
+    @Transactional
+    public void unblockCourse(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học với ID: " + courseId));
+        course.setIsBlocked(false);
+        course.setBlockReason(null);
+        courseRepository.save(course);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCourse(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học với ID: " + courseId));
+        course.setDeleteFlag(true);
+        courseRepository.save(course);
     }
 }

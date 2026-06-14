@@ -306,7 +306,9 @@
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="#" class="sidebar-link disabled" onclick="return false;">
+                <a th:href="@{/admin/courses}"
+                   class="sidebar-link"
+                   th:classappend="${activePage == 'courses' ? 'active' : ''}">
                     <i class="bi bi-journal-check"></i>
                     <span>Quản lý Khóa học</span>
                 </a>

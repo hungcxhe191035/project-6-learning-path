@@ -150,7 +150,11 @@ public class AdminController {
         model.addAttribute("userId", user.getUserId());
         model.addAttribute("userEmail", user.getEmail());
         model.addAttribute("userFullName", user.getFullName());
-        model.addAttribute("roles", ERole.values());
+        
+        List<ERole> assignableRoles = java.util.Arrays.stream(ERole.values())
+                .filter(r -> r != ERole.ADMIN)
+                .toList();
+        model.addAttribute("roles", assignableRoles);
         model.addAttribute("pageTitle", "Gán vai trò - " + user.getFullName());
         model.addAttribute("activePage", "users");
         model.addAttribute("pendingCount", applicationService.countPending());
@@ -165,12 +169,16 @@ public class AdminController {
             Model model,
             RedirectAttributes redirectAttributes) {
 
+        List<ERole> assignableRoles = java.util.Arrays.stream(ERole.values())
+                .filter(r -> r != ERole.ADMIN)
+                .toList();
+
         if (bindingResult.hasErrors()) {
             User user = adminService.getUserById(id);
             model.addAttribute("userId", id);
             model.addAttribute("userEmail", user.getEmail());
             model.addAttribute("userFullName", user.getFullName());
-            model.addAttribute("roles", ERole.values());
+            model.addAttribute("roles", assignableRoles);
             model.addAttribute("pageTitle", "Gán vai trò");
             model.addAttribute("activePage", "users");
             model.addAttribute("pendingCount", applicationService.countPending());
@@ -189,7 +197,7 @@ public class AdminController {
             model.addAttribute("userId", id);
             model.addAttribute("userEmail", user.getEmail());
             model.addAttribute("userFullName", user.getFullName());
-            model.addAttribute("roles", ERole.values());
+            model.addAttribute("roles", assignableRoles);
             model.addAttribute("pageTitle", "Gán vai trò");
             model.addAttribute("activePage", "users");
             model.addAttribute("pendingCount", applicationService.countPending());
@@ -319,13 +327,21 @@ public class AdminController {
     }
 
     // =============================================
-    // QUẢN LÝ TAG
+    // QUẢN LÝ TAG (Phân trang & Xóa mềm)
     // =============================================
     @GetMapping("/tags")
-    public String listTags(Model model) {
-        List<Tag> tags = tagService.getAllTags();
-        model.addAttribute("tags", tags);
-        model.addAttribute("totalTags", tags.size());
+    public String listTags(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            Model model) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Tag> tagPage = tagService.getTagsPaged(pageable);
+
+        model.addAttribute("tags", tagPage.getContent());
+        model.addAttribute("tagPage", tagPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", tagPage.getTotalPages());
+        model.addAttribute("totalTags", tagPage.getTotalElements());
         model.addAttribute("tagForm", new TagRequest());
         model.addAttribute("editTag", null);
         model.addAttribute("pageTitle", "Quản lý Tag");
@@ -338,12 +354,18 @@ public class AdminController {
     public String createTag(
             @Valid @ModelAttribute("tagForm") TagRequest request,
             BindingResult bindingResult,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
             RedirectAttributes redirectAttributes,
             Model model) {
         if (bindingResult.hasErrors()) {
-            List<Tag> tags = tagService.getAllTags();
-            model.addAttribute("tags", tags);
-            model.addAttribute("totalTags", tags.size());
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Tag> tagPage = tagService.getTagsPaged(pageable);
+            model.addAttribute("tags", tagPage.getContent());
+            model.addAttribute("tagPage", tagPage);
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", tagPage.getTotalPages());
+            model.addAttribute("totalTags", tagPage.getTotalElements());
             model.addAttribute("editTag", null);
             model.addAttribute("pageTitle", "Quản lý Tag");
             model.addAttribute("activePage", "tags");
@@ -357,21 +379,29 @@ public class AdminController {
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
-        return "redirect:/admin/tags";
+        return "redirect:/admin/tags?page=" + page;
     }
 
     @GetMapping("/tags/{id}/edit")
-    public String editTagForm(@PathVariable Long id, Model model) {
+    public String editTagForm(
+            @PathVariable Long id,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            Model model) {
         Tag tag = tagService.getTagById(id);
-        List<Tag> tags = tagService.getAllTags();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Tag> tagPage = tagService.getTagsPaged(pageable);
         TagRequest form = TagRequest.builder()
                 .tagName(tag.getTagName())
                 .description(tag.getDescription())
                 .build();
         model.addAttribute("tagForm", form);
         model.addAttribute("editTag", tag);
-        model.addAttribute("tags", tags);
-        model.addAttribute("totalTags", tags.size());
+        model.addAttribute("tags", tagPage.getContent());
+        model.addAttribute("tagPage", tagPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", tagPage.getTotalPages());
+        model.addAttribute("totalTags", tagPage.getTotalElements());
         model.addAttribute("pageTitle", "Sửa Tag");
         model.addAttribute("activePage", "tags");
         model.addAttribute("pendingCount", applicationService.countPending());
@@ -383,12 +413,14 @@ public class AdminController {
             @PathVariable Long id,
             @Valid @ModelAttribute("tagForm") TagRequest request,
             BindingResult bindingResult,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
             RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     bindingResult.getFieldError() != null ?
                             bindingResult.getFieldError().getDefaultMessage() : "Thông tin không hợp lệ");
-            return "redirect:/admin/tags";
+            return "redirect:/admin/tags?page=" + page;
         }
         try {
             tagService.updateTag(id, request);
@@ -397,11 +429,14 @@ public class AdminController {
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
-        return "redirect:/admin/tags";
+        return "redirect:/admin/tags?page=" + page;
     }
 
     @PostMapping("/tags/{id}/delete")
-    public String deleteTag(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deleteTag(
+            @PathVariable Long id,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            RedirectAttributes redirectAttributes) {
         try {
             Tag tag = tagService.getTagById(id);
             String name = tag.getTagName();
@@ -411,6 +446,6 @@ public class AdminController {
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
-        return "redirect:/admin/tags";
+        return "redirect:/admin/tags?page=" + page;
     }
 }

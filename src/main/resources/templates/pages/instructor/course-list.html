@@ -47,6 +47,15 @@
     </div>
 
     <div class="container mb-5" style="min-height: 50vh;">
+        <!-- Cảnh báo khóa học bị khóa -->
+        <div th:if="${hasBlockedCourses}" class="alert alert-danger border-0 shadow-sm rounded-3 d-flex align-items-center mb-4 p-3" role="alert">
+            <i class="bi bi-exclamation-octagon-fill fs-3 me-3 text-danger"></i>
+            <div>
+                <h5 class="alert-heading fw-bold mb-1">Cảnh báo: Khóa học bị khóa!</h5>
+                <p class="mb-0 text-dark opacity-75">Một số khóa học của bạn đang bị khóa do vi phạm chính sách hoặc bản quyền. Vui lòng kiểm tra lý do cụ thể trong danh sách dưới đây, chỉnh sửa lại nội dung và nhấn <strong>Xuất bản</strong> lại để tự động mở khóa.</p>
+            </div>
+        </div>
+
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="fw-bold text-dark mb-0">Khóa học của tôi</h3>
             <!-- ĐÃ SỬA: Biến thành thẻ <a> để nhảy sang trang Wizard -->
@@ -72,12 +81,18 @@
                     <tr th:each="course : ${courses}" class="course-row border-bottom">
                         <td class="ps-4 py-4 fw-bold" th:text="'#' + ${course.courseId}">#1</td>
                         <td>
-                                <span th:if="${course.currentPublishedVersion == null}" class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary border border-secondary px-3 py-2">
-                                    <i class="bi bi-journal-text me-1"></i> Bản Nháp
-                                </span>
-                            <span th:if="${course.currentPublishedVersion != null}" class="badge rounded-pill bg-success bg-opacity-10 text-success border border-success px-3 py-2">
-                                    <i class="bi bi-check-circle me-1"></i> Đã Xuất Bản
-                                </span>
+                            <span th:if="${course.isBlocked}" class="badge rounded-pill bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2">
+                                <i class="bi bi-x-circle me-1"></i> Bị Khóa
+                            </span>
+                            <span th:if="${!course.isBlocked and course.currentPublishedVersion == null}" class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary border border-secondary px-3 py-2">
+                                <i class="bi bi-journal-text me-1"></i> Bản Nháp
+                            </span>
+                            <span th:if="${!course.isBlocked and course.currentPublishedVersion != null}" class="badge rounded-pill bg-success bg-opacity-10 text-success border border-success px-3 py-2">
+                                <i class="bi bi-check-circle me-1"></i> Đã Xuất Bản
+                            </span>
+                            <div th:if="${course.isBlocked}" class="text-danger small mt-2 fw-medium" style="max-width: 300px; white-space: normal;">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> Lý do: <span th:text="${course.blockReason}">Nội dung vi phạm</span>
+                            </div>
                         </td>
                         <td class="text-muted" th:text="${#temporals.format(course.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
                         <td class="text-end pe-4">

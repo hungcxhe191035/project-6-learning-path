@@ -23,6 +23,7 @@ import org.swp.my_learning_path.repository.CourseRepository;
 import org.swp.my_learning_path.repository.CourseSectionRepository;
 import org.swp.my_learning_path.repository.LessonRepository;
 import org.swp.my_learning_path.repository.EnrollmentRepository;
+import org.swp.my_learning_path.repository.CourseVersionRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +34,7 @@ public class CourseServiceImpl implements CourseService {
     private final LessonRepository lessonRepository;
     private final CourseFeedbackRepository courseFeedbackRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final CourseVersionRepository courseVersionRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -73,6 +75,25 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khoá học!"));
 
         CourseVersion version = course.getCurrentPublishedVersion();
+        if (version == null) {
+            version = courseVersionRepository.findFirstByCourse_CourseIdOrderByCreatedAtDesc(courseId)
+                    .orElse(null);
+        }
+
+        if (version == null) {
+            return CourseDetailDTO.builder()
+                    .courseId(course.getCourseId())
+                    .title("Khóa học chưa có tiêu đề")
+                    .averageRating(course.getAverageRating())
+                    .totalReviews(course.getTotalReviews())
+                    .totalStudents(course.getTotalStudents())
+                    .instructorName(course.getInstructor().getFullName())
+                    .sections(new ArrayList<>())
+                    .feedbacks(new ArrayList<>())
+                    .isBlocked(course.getIsBlocked())
+                    .blockReason(course.getBlockReason())
+                    .build();
+        }
 
         // 2. Lấy URL ảnh thumbnail
         String thumbnailUrl = null;
@@ -141,6 +162,8 @@ public class CourseServiceImpl implements CourseService {
                 .courseVersionId(version.getCourseVersionId())
                 .sections(sectionDTOs)
                 .feedbacks(feedbackDTOs)
+                .isBlocked(course.getIsBlocked())
+                .blockReason(course.getBlockReason())
                 .build();
     }
 

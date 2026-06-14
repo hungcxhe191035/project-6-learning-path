@@ -31,6 +31,8 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final FileStorageService fileStorageService;
+    private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -149,13 +151,25 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
         application.setStatus(request.getDecision());
         application.setReviewNote(request.getReviewNote());
 
-        if (request.getDecision() == EApplicationStatus.APPROVED) {
-            User user = application.getUser();
+        User user = application.getUser();
+        boolean isApproved = request.getDecision() == EApplicationStatus.APPROVED;
+
+        if (isApproved) {
             user.setRole(ERole.INSTRUCTOR);
             userRepository.save(user);
         }
 
         applicationRepository.save(application);
+
+        // 1. Gửi thông báo hệ thống (Notification)
+        String title = "Kết quả duyệt đơn đăng ký Giảng viên";
+        String content = isApproved 
+                ? "Chúc mừng! Đơn đăng ký giảng viên của bạn đã được duyệt thành công. Bạn hiện đã là Giảng viên."
+                : "Đơn đăng ký giảng viên của bạn đã bị từ chối. Lý do: " + request.getReviewNote();
+        notificationService.sendNotification(user, title, content);
+
+        // 2. Gửi email thông báo
+        emailService.sendApplicationResultEmail(user.getEmail(), user.getFullName(), isApproved, request.getReviewNote());
     }
 
     @Override
