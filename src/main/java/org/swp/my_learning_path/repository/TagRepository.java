@@ -1,6 +1,8 @@
 package org.swp.my_learning_path.repository;
 
 import org.swp.my_learning_path.entity.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +16,10 @@ import java.util.Optional;
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
     List<Tag> findAllByOrderByTagNameAsc();
+
+    List<Tag> findByDeleteFlagFalseOrderByTagNameAsc();
+
+    Page<Tag> findByDeleteFlagFalse(Pageable pageable);
 
     Optional<Tag> findByTagName(String tagName);
 
