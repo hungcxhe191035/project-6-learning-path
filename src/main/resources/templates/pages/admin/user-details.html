@@ -69,7 +69,7 @@
                     <!-- Action Buttons -->
                     <div class="mt-4 pt-2 d-flex flex-column gap-2">
                         <!-- Assign Role Button -->
-                        <a th:href="@{/admin/users/{id}/assign-role(id=${user.userId})}" class="btn btn-outline-dark w-100 rounded-0 py-3 fw-bold">
+                        <a th:href="@{/admin/users/{id}/assign-role(id=${user.userId})}" class="btn btn-edit w-100 py-3 fw-bold" style="display: flex; align-items: center; justify-content: center; height: auto; border: 1px solid #cbd5e1 !important; border-radius: 8px !important;">
                             <i class="bi bi-shield-lock-fill me-2"></i>Gán vai trò
                         </a>
 
@@ -77,8 +77,9 @@
                         <form th:action="@{/admin/users/{id}/toggle-status(id=${user.userId})}" method="post" class="w-100 m-0"
                               th:if="${#authentication.name != user.email}">
                             <button type="submit"
-                                    th:class="${user.status?.name() == 'ACTIVE' ? 'btn btn-danger w-100 rounded-0 py-3 fw-bold' : 'btn btn-success w-100 rounded-0 py-3 fw-bold'}"
-                                    th:text="${user.status?.name() == 'ACTIVE' ? 'Khóa tài khoản này' : 'Kích hoạt tài khoản này'}">
+                                    th:class="${user.status?.name() == 'ACTIVE' ? 'btn btn-admin-danger w-100 py-3 fw-bold' : 'btn btn-admin-success w-100 py-3 fw-bold'}"
+                                    th:text="${user.status?.name() == 'ACTIVE' ? 'Khóa tài khoản này' : 'Kích hoạt tài khoản này'}"
+                                    style="border-radius: 8px !important; font-size: 15px; height: 50px;">
                                 Khóa tài khoản
                             </button>
                         </form>

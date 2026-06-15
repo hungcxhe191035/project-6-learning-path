@@ -8,20 +8,12 @@
 <head>
     <title th:text="${pageTitle}">Chi tiết Khóa học</title>
     <style>
-        .detail-card { border: 1px solid #d1d7dc; border-radius: 0; background: #fff; }
-        .detail-header { background: #fff; border-bottom: 1px solid #d1d7dc; padding: 16px 24px; font-weight: 700; color: #1c1d1f; }
-        .info-block { padding: 16px 0; border-bottom: 1px solid #f0f0f0; }
-        .info-block:last-child { border-bottom: none; }
-        .info-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #6a6f73; margin-bottom: 6px; }
-        .info-value { font-size: 14px; color: #1c1d1f; white-space: pre-wrap; line-height: 1.6; }
-        .info-value.inline { white-space: normal; font-weight: 600; }
-        .course-hero-img { width: 100%; height: auto; max-height: 240px; object-fit: cover; border: 1px solid #d1d7dc; }
+        .course-hero-img { width: 100%; height: auto; max-height: 240px; object-fit: cover; border: 1px solid #cbd5e1; border-radius: 8px; }
     </style>
 </head>
 <body>
 <div layout:fragment="content">
-    <!-- Back button -->
-    <a th:href="@{/admin/courses}" class="btn btn-outline-secondary rounded-0 mb-4 d-inline-flex align-items-center gap-2">
+    <a th:href="@{/admin/courses}" class="btn btn-edit mb-4 d-inline-flex align-items-center gap-2" style="border: 1px solid #cbd5e1 !important; border-radius: 8px !important; padding: 8px 16px !important; font-size: 13px !important; height: auto !important;">
         <i class="bi bi-arrow-left"></i> Quay lại danh sách
     </a>
 

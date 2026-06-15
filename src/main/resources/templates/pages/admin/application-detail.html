@@ -8,67 +8,107 @@
 <head>
     <title th:text="${pageTitle}">Chi tiết Đơn</title>
     <style>
-        .detail-card { border: 1px solid #d1d7dc; border-radius: 0; background: #fff; }
-        .detail-header { background: #fff; border-bottom: 1px solid #d1d7dc; padding: 16px 24px; font-weight: 700; color: #1c1d1f; }
-        .info-block { padding: 16px 0; border-bottom: 1px solid #f0f0f0; }
-        .info-block:last-child { border-bottom: none; }
-        .info-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #6a6f73; margin-bottom: 6px; }
-        .info-value { font-size: 14px; color: #1c1d1f; white-space: pre-wrap; line-height: 1.6; }
-        .info-value.inline { white-space: normal; font-weight: 600; }
-
-        .badge-pending  { background-color: #fff3cd; color: #856404; font-weight: 700; padding: 6px 16px; border-radius: 50px; font-size: 13px; display: inline-block; }
-        .badge-approved { background-color: #d1e7dd; color: #0f5132; font-weight: 700; padding: 6px 16px; border-radius: 50px; font-size: 13px; display: inline-block; }
-        .badge-rejected { background-color: #f8d7da; color: #842029; font-weight: 700; padding: 6px 16px; border-radius: 50px; font-size: 13px; display: inline-block; }
-
         .review-form-card {
-            border: 2px solid #1c1d1f;
-            border-radius: 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
             background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.03);
+            overflow: hidden;
         }
         .review-form-header {
-            background: #1c1d1f; color: #fff;
-            padding: 14px 24px; font-weight: 700; font-size: 15px;
+            background: #f8fafc;
+            color: #0f172a;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 18px 24px;
+            font-weight: 700;
+            font-size: 15px;
         }
         .decision-option {
-            border: 2px solid #d1d7dc; border-radius: 0; padding: 16px 20px;
-            cursor: pointer; transition: all 0.2s; margin-bottom: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
         }
-        .decision-option:hover { border-color: #6a6f73; }
-        .decision-option.selected-approve { border-color: #198754; background: #f1f9f4; }
-        .decision-option.selected-reject  { border-color: #dc3545; background: #fff5f5; }
-        .decision-option input[type=radio] { cursor: pointer; }
-
+        .decision-option:hover {
+            border-color: #94a3b8;
+            background-color: #f8fafc;
+        }
+        .decision-option.selected-approve {
+            border-color: #10b981;
+            background: #ecfdf5;
+            color: #047857;
+        }
+        .decision-option.selected-reject  {
+            border-color: #ef4444;
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+        .decision-option input[type=radio] {
+            cursor: pointer;
+            accent-color: #7c3aed;
+        }
         .btn-approve {
-            background: #1f6b3e; color: #fff; font-weight: 700; border: none; border-radius: 0;
-            padding: 12px 28px; font-size: 14px; transition: background 0.2s;
+            background: #10b981;
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 28px;
+            font-size: 14px;
+            transition: all 0.2s ease;
         }
-        .btn-approve:hover { background: #164f2d; color: #fff; }
+        .btn-approve:hover {
+            background: #059669;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
         .btn-reject-action {
-            background: #b32424; color: #fff; font-weight: 700; border: none; border-radius: 0;
-            padding: 12px 28px; font-size: 14px; transition: background 0.2s;
+            background: #ef4444;
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 28px;
+            font-size: 14px;
+            transition: all 0.2s ease;
         }
-        .btn-reject-action:hover { background: #8c1d1d; color: #fff; }
+        .btn-reject-action:hover {
+            background: #dc2626;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+        }
         .note-textarea {
-            border: 1px solid #d1d7dc; border-radius: 0;
-            padding: 12px 14px; font-size: 14px;
-            transition: border-color 0.2s, outline 0.1s;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 14px;
+            transition: all 0.15s ease;
         }
-        .note-textarea:focus { box-shadow: none; border-color: #1c1d1f; outline: 2px solid #a435f0; }
-
+        .note-textarea:focus {
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15) !important;
+            border-color: #7c3aed !important;
+            outline: none !important;
+        }
         .already-reviewed-box {
-            border: 1px solid #d1d7dc; border-radius: 0;
-            background: #f7f9fa; padding: 20px 24px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+            padding: 20px 24px;
+            color: #475569;
         }
         .reject-note-box {
-            background: #fff3f3; border: 1px solid #f5c2c7;
-            border-left: 4px solid #dc3545; padding: 16px 20px;
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-left: 4px solid #ef4444;
+            border-radius: 8px;
+            padding: 16px 20px;
+            color: #b91c1c;
         }
     </style>
 </head>
 <body>
 <div layout:fragment="content">
-    <!-- Back button -->
-    <a th:href="@{/admin/applications}" class="btn btn-outline-secondary rounded-0 mb-4 d-inline-flex align-items-center gap-2">
+    <a th:href="@{/admin/applications}" class="btn btn-edit mb-4 d-inline-flex align-items-center gap-2" style="border: 1px solid #cbd5e1 !important; border-radius: 8px !important; padding: 8px 16px !important; font-size: 13px !important; height: auto !important;">
         <i class="bi bi-arrow-left"></i> Quay lại danh sách
     </a>
 

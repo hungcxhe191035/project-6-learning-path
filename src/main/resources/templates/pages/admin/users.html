@@ -7,58 +7,15 @@
 >
 <head>
     <title>Quản lý Người dùng</title>
-    <style>
-        .pagination .page-item.active .page-link {
-            background-color: #1c1d1f !important;
-            border-color: #1c1d1f !important;
-            color: #fff !important;
-        }
-        .pagination .page-link {
-            color: #1c1d1f;
-            border-color: #d1d7dc;
-            padding: 8px 14px;
-            font-weight: 500;
-        }
-        .pagination .page-link:hover {
-            background-color: #f7f9fa;
-            color: #1c1d1f;
-        }
-        .pagination .page-item.disabled .page-link {
-            color: #6a6f73;
-            background-color: #fff;
-            border-color: #d1d7dc;
-            opacity: 0.5;
-        }
-        .toast-alert {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            z-index: 9999;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            min-width: 320px;
-            animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            transition: all 0.3s ease;
-        }
-        @keyframes slideIn {
-            from {
-                transform: translateX(120%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-    </style>
 </head>
 <body>
 
 <div layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-1" style="color: #1c1d1f;">Quản lý Người dùng</h2>
+            <h2 class="fw-bold mb-1" style="color: #0f172a;">Quản lý Người dùng</h2>
         </div>
-        <a th:href="@{/admin/users/create}" class="btn btn-dark rounded-0 fw-bold py-3 px-4 d-flex align-items-center gap-2" style="background: #1c1d1f; font-size: 15px;">
+        <a th:href="@{/admin/users/create}" class="btn btn-create fw-bold py-2 px-4 d-flex align-items-center gap-2" style="font-size: 14px;">
             <i class="bi bi-person-plus-fill"></i> Thêm người dùng
         </a>
     </div>
@@ -76,15 +33,15 @@
             <form th:action="@{/admin/users}" method="get" class="row g-3 align-items-end">
                 <!-- Search Text -->
                 <div class="col-md-4">
-                    <label for="search" class="form-label fw-bold">Tìm kiếm người dùng</label>
+                    <label for="search" class="form-label fw-bold" style="color: #334155; font-size: 14px;">Tìm kiếm người dùng</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0 rounded-0"><i class="bi bi-search"></i></span>
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
                         <input
                                 type="text"
                                 id="search"
                                 name="search"
                                 th:value="${search}"
-                                class="form-control border-start-0 rounded-0"
+                                class="form-control border-start-0"
                                 placeholder="Nhập họ tên hoặc email..."
                         >
                     </div>
@@ -92,8 +49,8 @@
 
                 <!-- Role Filter -->
                 <div class="col-md-3">
-                    <label for="role" class="form-label fw-bold">Lọc theo vai trò</label>
-                    <select id="role" name="role" class="form-select rounded-0">
+                    <label for="role" class="form-label fw-bold" style="color: #334155; font-size: 14px;">Lọc theo vai trò</label>
+                    <select id="role" name="role" class="form-select">
                         <option value="ALL" th:selected="${selectedRole == 'ALL'}">-- Tất cả vai trò --</option>
                         <option
                                 th:each="r : ${roles}"
@@ -107,8 +64,8 @@
 
                 <!-- Status Filter -->
                 <div class="col-md-3">
-                    <label for="status" class="form-label fw-bold">Lọc theo trạng thái</label>
-                    <select id="status" name="status" class="form-select rounded-0">
+                    <label for="status" class="form-label fw-bold" style="color: #334155; font-size: 14px;">Lọc theo trạng thái</label>
+                    <select id="status" name="status" class="form-select">
                         <option value="ALL" th:selected="${selectedStatus == 'ALL'}">-- Tất cả trạng thái --</option>
                         <option
                                 th:each="s : ${statuses}"
@@ -122,10 +79,10 @@
 
                 <!-- Buttons -->
                 <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-dark rounded-0 w-100 fw-bold py-2" style="background: #1c1d1f;">
+                    <button type="submit" class="btn btn-create w-100 fw-bold py-2" style="background: #7c3aed;">
                         Tìm kiếm
                     </button>
-                    <a th:href="@{/admin/users}" class="btn btn-outline-secondary rounded-0 py-2" title="Xóa bộ lọc">
+                    <a th:href="@{/admin/users}" class="btn btn-outline-secondary py-2" title="Xóa bộ lọc" style="display: flex; align-items: center; justify-content: center; width: 44px; padding: 0 !important;">
                         <i class="bi bi-arrow-counterclockwise"></i>
                     </a>
                 </div>
@@ -134,12 +91,12 @@
     </div>
 
     <!-- Bulk Action Bar -->
-    <div id="bulkActionBar" class="card admin-card mb-4" style="display: none; border: 1px solid #1c1d1f; border-left: 5px solid #1c1d1f; background-color: #fff;">
+    <div id="bulkActionBar" class="card admin-card mb-4" style="display: none; border: 1px solid #e2e8f0; border-left: 5px solid #7c3aed; background-color: #fff;">
         <div class="card-body py-3 px-4 d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-3">
-                <i class="bi bi-check-all fs-4" style="color: #1c1d1f;"></i>
+                <i class="bi bi-check-all fs-4" style="color: #7c3aed;"></i>
                 <div>
-                    <span class="fw-bold" style="color: #1c1d1f; font-size: 15px;">Đang chọn <span id="selectedCount">0</span> tài khoản</span>
+                    <span class="fw-bold" style="color: #0f172a; font-size: 15px;">Đang chọn <span id="selectedCount">0</span> tài khoản</span>
                 </div>
             </div>
             <div class="d-flex gap-2">

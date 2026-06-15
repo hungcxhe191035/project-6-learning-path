@@ -7,56 +7,13 @@
 >
 <head>
     <title>Quản lý Khóa học</title>
-    <style>
-        .pagination .page-item.active .page-link {
-            background-color: #1c1d1f !important;
-            border-color: #1c1d1f !important;
-            color: #fff !important;
-        }
-        .pagination .page-link {
-            color: #1c1d1f;
-            border-color: #d1d7dc;
-            padding: 8px 14px;
-            font-weight: 500;
-        }
-        .pagination .page-link:hover {
-            background-color: #f7f9fa;
-            color: #1c1d1f;
-        }
-        .pagination .page-item.disabled .page-link {
-            color: #6a6f73;
-            background-color: #fff;
-            border-color: #d1d7dc;
-            opacity: 0.5;
-        }
-        .toast-alert {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            z-index: 9999;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            min-width: 320px;
-            animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            transition: all 0.3s ease;
-        }
-        @keyframes slideIn {
-            from {
-                transform: translateX(120%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-    </style>
 </head>
 <body>
 
 <div layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-1" style="color: #1c1d1f;">Quản lý Khóa học</h2>
+            <h2 class="fw-bold mb-1" style="color: #0f172a;">Quản lý Khóa học</h2>
             <p class="text-muted mb-0" style="font-size: 14px;">Quản lý, kiểm duyệt, khóa hoặc gỡ bỏ các khóa học trên hệ thống.</p>
         </div>
     </div>
@@ -79,15 +36,15 @@
             <form th:action="@{/admin/courses}" method="get" class="row g-3 align-items-end">
                 <!-- Search Text -->
                 <div class="col-md-5">
-                    <label for="search" class="form-label fw-bold">Tìm kiếm khóa học</label>
+                    <label for="search" class="form-label fw-bold" style="color: #334155; font-size: 14px;">Tìm kiếm khóa học</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0 rounded-0"><i class="bi bi-search"></i></span>
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
                         <input
                                 type="text"
                                 id="search"
                                 name="search"
                                 th:value="${search}"
-                                class="form-control border-start-0 rounded-0"
+                                class="form-control border-start-0"
                                 placeholder="Nhập tiêu đề hoặc tên giảng viên..."
                         >
                     </div>
@@ -95,8 +52,8 @@
 
                 <!-- Block Filter -->
                 <div class="col-md-4">
-                    <label for="blocked" class="form-label fw-bold">Lọc theo trạng thái kiểm duyệt</label>
-                    <select id="blocked" name="blocked" class="form-select rounded-0">
+                    <label for="blocked" class="form-label fw-bold" style="color: #334155; font-size: 14px;">Lọc theo trạng thái kiểm duyệt</label>
+                    <select id="blocked" name="blocked" class="form-select">
                         <option value="" th:selected="${selectedBlocked == null}">-- Tất cả trạng thái khóa --</option>
                         <option value="true" th:selected="${selectedBlocked == true}">Bị khóa</option>
                         <option value="false" th:selected="${selectedBlocked == false}">Hoạt động bình thường</option>
@@ -105,10 +62,10 @@
 
                 <!-- Buttons -->
                 <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-dark rounded-0 w-100 fw-bold py-2" style="background: #1c1d1f;">
+                    <button type="submit" class="btn btn-create w-100 fw-bold py-2" style="background: #7c3aed;">
                         Tìm kiếm
                     </button>
-                    <a th:href="@{/admin/courses}" class="btn btn-outline-secondary rounded-0 py-2" title="Xóa bộ lọc">
+                    <a th:href="@{/admin/courses}" class="btn btn-outline-secondary py-2" title="Xóa bộ lọc" style="display: flex; align-items: center; justify-content: center; width: 44px; padding: 0 !important;">
                         <i class="bi bi-arrow-counterclockwise"></i>
                     </a>
                 </div>
