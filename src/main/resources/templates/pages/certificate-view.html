@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}">
+
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Poppins:wght@300;400;500&display=swap"
+          rel="stylesheet">
+    <style>
+
+        body main{
+            background:#eceff4;
+            padding:40px;
+            font-family:Poppins,sans-serif;
+        }
+
+        .certificate{
+
+            max-width:1300px;
+            margin:auto;
+
+            background:white;
+
+            padding:80px;
+
+            border:20px solid #d4af37;
+
+            box-shadow:
+            0 10px 40px rgba(0,0,0,.15);
+
+            position:relative;
+        }
+
+        .title{
+
+            text-align:center;
+
+            font-size:58px;
+
+            font-family:Cinzel,serif;
+
+            color:#c79a00;
+
+            letter-spacing:3px;
+        }
+
+        .subtitle{
+
+            text-align:center;
+
+            margin-top:20px;
+
+            color:#666;
+
+            font-size:22px;
+        }
+
+        .student-name{
+
+            text-align:center;
+
+            margin-top:40px;
+
+            font-size:58px;
+
+            font-weight:600;
+
+            color:#1e293b;
+        }
+
+        .course-title{
+
+            text-align:center;
+
+            margin-top:35px;
+
+            font-size:40px;
+
+            font-weight:600;
+
+            color:#2563eb;
+        }
+
+        .description{
+
+            text-align:center;
+
+            margin-top:30px;
+
+            font-size:22px;
+        }
+
+        .bottom{
+
+            display:flex;
+
+            justify-content:space-between;
+
+            margin-top:100px;
+        }
+
+        .signature{
+            text-align:center;
+        }
+
+        .line{
+            width:220px;
+            border-top:2px solid #333;
+            margin-bottom:10px;
+        }
+
+        .verify{
+
+            margin-top:50px;
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+        }
+
+        .badge{
+
+            width:120px;
+            height:120px;
+
+            border-radius:50%;
+
+            border:6px solid gold;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            font-weight:bold;
+
+            color:gold;
+        }
+
+        .corner{
+
+            position:absolute;
+
+            top:0;
+            right:0;
+
+            width:220px;
+            height:220px;
+
+            background:#d4af37;
+
+            clip-path: polygon(100% 0, 0 0, 100% 100%);
+        }
+
+        footer{
+            margin-top: 0px !important;
+        }
+
+    </style>
+
+</head>
+
+<body>
+<main layout:fragment="content">
+    <div class="certificate">
+
+        <div class="corner"></div>
+
+        <div style="text-align:center">
+            <img th:src="@{/image/logo.png}" style="height: 80px; width: auto;">
+        </div>
+
+        <div class="title">
+            CERTIFICATE OF COMPLETION
+        </div>
+
+        <div class="subtitle">
+            This certificate is proudly presented to
+        </div>
+
+        <div class="student-name"
+             th:text="${certificate.enrollment.student.fullName}">
+        </div>
+
+        <div class="description">
+            for successfully completing
+        </div>
+
+        <div class="course-title"
+             th:text="${certificate.enrollment.course.currentPublishedVersion.title}">
+        </div>
+
+        <div class="description">
+
+            Issued on
+
+            <strong
+                    th:text="${#temporals.format(
+              certificate.createdAt,
+              'dd MMMM yyyy')}">
+            </strong>
+
+        </div>
+
+        <div class="bottom">
+
+            <div class="signature">
+
+                <div class="line"></div>
+
+                Instructor
+
+            </div>
+
+            <div class="signature">
+
+                <div class="line"></div>
+
+                Academy Director
+
+            </div>
+
+        </div>
+
+        <div class="verify">
+
+            <div>
+
+                Certificate No:
+
+                <strong
+                        th:text="${certificate.certificateCode}">
+                </strong>
+
+            </div>
+
+            <div class="badge">
+                VERIFIED
+            </div>
+
+        </div>
+
+    </div>
+
+</main> <!-- Đóng thẻ main ở đây -->
+
+</body>
+</html>
