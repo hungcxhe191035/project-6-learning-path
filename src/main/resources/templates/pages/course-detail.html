@@ -91,6 +91,19 @@
             box-shadow: 0 8px 20px rgba(16,185,129,0.4);
             color: white;
         }
+        .btn-certificate {
+            background: linear-gradient(135deg, #c79a00, #be9e36);
+            color: white; border: none; border-radius: 10px;
+            font-weight: 700; font-size: 1rem;
+            padding: 14px; width: 100%;
+            transition: all 0.3s ease;
+        }
+        .btn-certificate:hover {
+            background: linear-gradient(135deg, #c79a00, #be9e36);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(199, 154, 0, 0.4);
+            color: white;
+        }
         .btn-add-cart {
             background: white;
             color: #4c1d95;
@@ -446,6 +459,13 @@
                                     <a th:href="@{/learn/{id}(id=${course.courseId})}"
                                        class="btn btn-enrolled d-block text-center text-decoration-none">
                                         <i class="bi bi-play-circle-fill me-2"></i>Vào học ngay
+                                    </a>
+                                </div>
+                                <div class="mt-2" th:if="${certificate != null}">
+                                    <!-- Đã đăng ký → Vào học ngay (xanh lá) -->
+                                    <a th:href="@{/certificates/{id}(id=${certificate.certificateId})}"
+                                       class="btn btn-certificate d-block text-center text-decoration-none">
+                                        <i class="bi bi-award-fill me-2"></i>Xem chứng chỉ
                                     </a>
                                 </div>
                             </div>
