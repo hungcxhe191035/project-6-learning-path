@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/admin-layout}"
+>
+<head>
+    <title>Hệ thống Quản trị - Dashboard</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .kpi-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.03);
+            transition: all 0.2s ease;
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03), 0 10px 20px rgba(0,0,0,0.04);
+        }
+        .kpi-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .kpi-blue { background-color: #eff6ff; color: #3b82f6; }
+        .kpi-green { background-color: #ecfdf5; color: #10b981; }
+        .kpi-purple { background-color: #f5f3ff; color: #8b5cf6; }
+        .kpi-orange { background-color: #fff7ed; color: #f97316; }
+
+        .pending-alert-card {
+            background-color: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            transition: border-color 0.2s ease;
+        }
+        .pending-alert-card:hover {
+            border-color: #94a3b8;
+        }
+        .pending-icon-wrapper {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f1f5f9;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .chart-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .period-btn {
+            border: 1px solid #cbd5e1;
+            background-color: #fff;
+            color: #475569;
+            font-weight: 500;
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .period-btn:hover {
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .period-btn.active {
+            background-color: #7c3aed;
+            color: #fff;
+            border-color: #7c3aed;
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);
+        }
+        .table-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <!-- Header Page Actions -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1" style="font-size: 26px;">Dashboard Tổng quan</h2>
+            <p class="text-muted small mb-0">Theo dõi doanh thu, số lượng người dùng và phê duyệt các hoạt động hệ thống.</p>
+        </div>
+        <!-- Time Filters -->
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <a th:href="@{/admin/dashboard(period='today')}" 
+               class="period-btn" 
+               th:classappend="${selectedPeriod == 'today' ? 'active' : ''}">Hôm nay</a>
+            <a th:href="@{/admin/dashboard(period='7days')}" 
+               class="period-btn" 
+               th:classappend="${selectedPeriod == '7days' ? 'active' : ''}">7 ngày qua</a>
+            <a th:href="@{/admin/dashboard(period='30days')}" 
+               class="period-btn" 
+               th:classappend="${selectedPeriod == '30days' ? 'active' : ''}">30 ngày qua</a>
+            <a th:href="@{/admin/dashboard(period='thisyear')}" 
+               class="period-btn" 
+               th:classappend="${selectedPeriod == 'thisyear' ? 'active' : ''}">Năm nay</a>
+            <a th:href="@{/admin/dashboard(period='all')}" 
+               class="period-btn" 
+               th:classappend="${selectedPeriod == 'all' ? 'active' : ''}">Tất cả</a>
+        </div>
+    </div>
+
+    <!-- Warning / Alert Actions banner for Pending Items -->
+    <div class="row g-3 mb-4" th:if="${dashboard.pendingInstructorsCount > 0 or dashboard.pendingCoursesCount > 0}">
+        <div class="col-md-6" th:if="${dashboard.pendingInstructorsCount > 0}">
+            <div class="pending-alert-card">
+                <div class="pending-icon-wrapper text-primary">
+                    <i class="bi bi-person-fill-exclamation"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="fw-bold mb-0 text-dark" style="font-size: 14px;">Giảng viên chờ duyệt</h6>
+                    <p class="text-muted small mb-0">Có <span class="fw-semibold text-primary" th:text="${dashboard.pendingInstructorsCount}">0</span> đơn đăng ký giảng viên mới đang chờ xem xét.</p>
+                </div>
+                <a th:href="@{/admin/applications(status='PENDING')}" class="btn btn-sm btn-admin-action">Duyệt ngay</a>
+            </div>
+        </div>
+        <div class="col-md-6" th:if="${dashboard.pendingCoursesCount > 0}">
+            <div class="pending-alert-card">
+                <div class="pending-icon-wrapper text-warning">
+                    <i class="bi bi-journal-check"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="fw-bold mb-0 text-dark" style="font-size: 14px;">Khóa học chờ duyệt</h6>
+                    <p class="text-muted small mb-0">Có <span class="fw-semibold text-warning" th:text="${dashboard.pendingCoursesCount}">0</span> khóa học mới/bản cập nhật đang chờ phê duyệt.</p>
+                </div>
+                <a th:href="@{/admin/courses(status='PENDING_APPROVAL')}" class="btn btn-sm btn-admin-action">Xem xét</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs Metric Cards -->
+    <div class="row g-3 mb-4">
+        <!-- KPI 1: Revenue -->
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card d-flex align-items-center gap-3">
+                <div class="kpi-icon-wrapper kpi-green">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Tổng Doanh thu</span>
+                    <h4 class="fw-bold mb-0 text-dark" style="font-size: 20px;" 
+                        th:text="${#numbers.formatDecimal(dashboard.totalRevenue, 0, 'COMMA', 0, 'POINT') + 'đ'}">0đ</h4>
+                </div>
+            </div>
+        </div>
+        <!-- KPI 2: Students -->
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card d-flex align-items-center gap-3">
+                <div class="kpi-icon-wrapper kpi-blue">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Học viên</span>
+                    <h4 class="fw-bold mb-0 text-dark" style="font-size: 20px;" th:text="${dashboard.totalStudents}">0</h4>
+                </div>
+            </div>
+        </div>
+        <!-- KPI 3: Instructors -->
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card d-flex align-items-center gap-3">
+                <div class="kpi-icon-wrapper kpi-purple">
+                    <i class="bi bi-person-badge-fill"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Giảng viên</span>
+                    <h4 class="fw-bold mb-0 text-dark" style="font-size: 20px;" th:text="${dashboard.totalInstructors}">0</h4>
+                </div>
+            </div>
+        </div>
+        <!-- KPI 4: Courses -->
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card d-flex align-items-center gap-3">
+                <div class="kpi-icon-wrapper kpi-orange">
+                    <i class="bi bi-journal-bookmark-fill"></i>
+                </div>
+                <div>
+                    <span class="text-muted small d-block">Tổng Khóa học</span>
+                    <h4 class="fw-bold mb-0 text-dark" style="font-size: 20px;" th:text="${dashboard.totalCourses}">0</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row g-4 mb-4">
+        <!-- Revenue Bar/Line Chart -->
+        <div class="col-lg-8">
+            <div class="chart-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold text-dark mb-0">Xu hướng Doanh thu</h6>
+                    <span class="text-muted small">Thời gian: <th:block th:text="${selectedPeriod == 'today' ? 'Hôm nay' : (selectedPeriod == '7days' ? '7 ngày qua' : (selectedPeriod == '30days' ? '30 ngày qua' : (selectedPeriod == 'thisyear' ? 'Năm nay' : 'Tất cả')))}"/></span>
+                </div>
+                <div style="height: 320px; position: relative;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- Category Doughnut Chart -->
+        <div class="col-lg-4">
+            <div class="chart-card">
+                <h6 class="fw-bold text-dark mb-3">Học viên theo Danh mục (Tag)</h6>
+                <div style="height: 320px; position: relative; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="categoryChart"></canvas>
+                    <div th:if="${#lists.isEmpty(dashboard.categoryChartData)}" class="text-muted small">Chưa có dữ liệu học viên đăng ký</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Tables Grid -->
+    <div class="row g-4 mb-4">
+        <!-- Top Best Selling Courses -->
+        <div class="col-lg-6">
+            <div class="admin-card">
+                <div class="admin-card-header d-flex justify-content-between align-items-center">
+                    <span>Top 5 Khóa học Bán chạy</span>
+                    <i class="bi bi-star-fill text-warning"></i>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                        <tr>
+                            <th>Khóa học</th>
+                            <th>Giảng viên</th>
+                            <th>Giá</th>
+                            <th>Lượt bán</th>
+                            <th>Đánh giá</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="course : ${dashboard.topCourses}">
+                            <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                <span class="fw-semibold text-dark" th:text="${course.title}">Tiêu đề</span>
+                            </td>
+                            <td th:text="${course.instructorName}">Giảng viên</td>
+                            <td th:text="${#numbers.formatDecimal(course.price, 0, 'COMMA', 0, 'POINT') + 'đ'}">0đ</td>
+                            <td>
+                                <span class="badge rounded-pill bg-light text-dark px-2.5 py-1 border" th:text="${course.salesCount + ' lượt'}">0</span>
+                            </td>
+                            <td class="text-warning">
+                                <i class="bi bi-star-fill"></i>
+                                <span th:text="${course.averageRating}">5.0</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(dashboard.topCourses)}">
+                            <td colspan="5" class="text-center py-4 text-muted small">Không có dữ liệu trong khoảng thời gian này.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Instructors -->
+        <div class="col-lg-6">
+            <div class="admin-card">
+                <div class="admin-card-header d-flex justify-content-between align-items-center">
+                    <span>Top 5 Giảng viên Tiêu biểu</span>
+                    <i class="bi bi-award-fill text-primary"></i>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                        <tr>
+                            <th>Họ và Tên</th>
+                            <th>Email</th>
+                            <th class="text-center">Số khóa học</th>
+                            <th>Doanh thu</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="ins : ${dashboard.topInstructors}">
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="table-avatar" th:text="${#strings.substring(ins.fullName, 0, 1).toUpperCase()}">G</div>
+                                    <span class="fw-semibold text-dark" th:text="${ins.fullName}">Giảng viên</span>
+                                </div>
+                            </td>
+                            <td th:text="${ins.email}">email@test.com</td>
+                            <td class="text-center" th:text="${ins.courseCount}">0</td>
+                            <td class="fw-bold text-success" th:text="${#numbers.formatDecimal(ins.revenue, 0, 'COMMA', 0, 'POINT') + 'đ'}">0đ</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(dashboard.topInstructors)}">
+                            <td colspan="4" class="text-center py-4 text-muted small">Không có dữ liệu trong khoảng thời gian này.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders & Pending Lists -->
+    <div class="row g-4">
+        <!-- Recent Orders List -->
+        <div class="col-lg-8">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    Lịch sử Giao dịch Mới nhất
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Học viên</th>
+                            <th>Ngày mua</th>
+                            <th>Tổng thanh toán</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="order : ${dashboard.recentOrders}">
+                            <td class="fw-semibold text-dark" th:text="${'#ORD-' + order.orderId}">#ORD-1</td>
+                            <td th:text="${order.user.fullName}">Học viên</td>
+                            <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">21/06/2026</td>
+                            <td class="fw-semibold" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + 'đ'}">0đ</td>
+                            <td>
+                                <span th:if="${order.paymentStatus.name() == 'SUCCESS'}" class="badge-approved">Thành công</span>
+                                <span th:if="${order.paymentStatus.name() == 'PENDING'}" class="badge-pending">Đang xử lý</span>
+                                <span th:if="${order.paymentStatus.name() == 'FAILED'}" class="badge-inactive">Thất bại</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(dashboard.recentOrders)}">
+                            <td colspan="5" class="text-center py-4 text-muted small">Chưa có giao dịch nào được ghi nhận.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Items Shortcut Column -->
+        <div class="col-lg-4">
+            <!-- Pending Instructor Application Card -->
+            <div class="admin-card mb-4">
+                <div class="admin-card-header">
+                    Duyệt Giảng Viên Gần đây
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item p-3 d-flex justify-content-between align-items-center" th:each="app : ${dashboard.pendingInstructors}">
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark" style="font-size: 13px;" th:text="${app.user.fullName}">Tên</h6>
+                            <span class="text-muted small" th:text="${#temporals.format(app.createdAt, 'dd/MM/yyyy')}">21/06/2026</span>
+                        </div>
+                        <a th:href="@{/admin/applications/{id}(id=${app.applicationId})}" class="btn btn-sm btn-admin-action" style="padding: 4px 8px; font-size: 12px; height: auto;">Xem đơn</a>
+                    </li>
+                    <li class="list-group-item p-3 text-center text-muted small" th:if="${#lists.isEmpty(dashboard.pendingInstructors)}">
+                        Không có đơn nào cần duyệt.
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Pending Course Version Card -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    Duyệt Khóa Học Gần đây
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item p-3 d-flex justify-content-between align-items-center" th:each="cv : ${dashboard.pendingCourses}">
+                        <div style="max-width: 70%;">
+                            <h6 class="fw-bold mb-0 text-dark text-truncate" style="font-size: 13px;" th:text="${cv.title}">Tên Khóa Học</h6>
+                            <span class="text-muted small" th:text="${'Tác giả: ' + cv.course.instructor.fullName}">Giảng viên</span>
+                        </div>
+                        <a th:href="@{/admin/courses/{id}(id=${cv.course.courseId})}" class="btn btn-sm btn-admin-action" style="padding: 4px 8px; font-size: 12px; height: auto;">Xem xét</a>
+                    </li>
+                    <li class="list-group-item p-3 text-center text-muted small" th:if="${#lists.isEmpty(dashboard.pendingCourses)}">
+                        Không có khóa học nào chờ duyệt.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts for Chart.js Integration -->
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Thymeleaf variable injection for charts
+            /*[+
+            const revenueLabels = [[${dashboard.revenueChartData.![label]}]];
+            const revenueValues = [[${dashboard.revenueChartData.![value]}]];
+            const categoryLabels = [[${dashboard.categoryChartData.![label]}]];
+            const categoryValues = [[${dashboard.categoryChartData.![value]}]];
+            +]*/
+
+            // ==========================================
+            // REVENUE CHART CONFIGURATION
+            // ==========================================
+            const revCtx = document.getElementById('revenueChart').getContext('2d');
+            
+            // Create gradient
+            const revGradient = revCtx.createLinearGradient(0, 0, 0, 300);
+            revGradient.addColorStop(0, 'rgba(124, 58, 237, 0.25)'); // Violet 600
+            revGradient.addColorStop(1, 'rgba(124, 58, 237, 0.0)');
+
+            new Chart(revCtx, {
+                type: 'line',
+                data: {
+                    labels: revenueLabels,
+                    datasets: [{
+                        label: 'Doanh thu (đ)',
+                        data: revenueValues,
+                        borderColor: '#7c3aed',
+                        borderWidth: 3,
+                        backgroundColor: revGradient,
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#7c3aed',
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#7c3aed',
+                        pointHoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleColor: '#fff',
+                            bodyColor: '#e2e8f0',
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('vi-VN').format(context.parsed.y) + 'đ';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: {
+                                borderDash: [5, 5],
+                                color: '#e2e8f0'
+                            },
+                            ticks: {
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 11
+                                },
+                                color: '#64748b',
+                                callback: function(value) {
+                                    if (value >= 1000000) {
+                                        return (value / 1000000) + 'Mđ';
+                                    } else if (value >= 1000) {
+                                        return (value / 1000) + 'Kđ';
+                                    }
+                                    return value + 'đ';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 11
+                                },
+                                color: '#64748b'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // ==========================================
+            // CATEGORY PIE/DOUGHNUT CHART CONFIGURATION
+            // ==========================================
+            if (categoryLabels && categoryLabels.length > 0) {
+                const catCtx = document.getElementById('categoryChart').getContext('2d');
+                new Chart(catCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: categoryLabels,
+                        datasets: [{
+                            data: categoryValues,
+                            backgroundColor: [
+                                '#7c3aed', // Violet
+                                '#10b981', // Emerald
+                                '#3b82f6', // Blue
+                                '#f59e0b', // Amber
+                                '#ec4899', // Pink
+                                '#14b8a6', // Teal
+                                '#8b5cf6', // Purple
+                                '#f97316'  // Orange
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 12,
+                                    padding: 14,
+                                    font: {
+                                        family: "'Inter', sans-serif",
+                                        size: 11
+                                    },
+                                    color: '#475569'
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#0f172a',
+                                padding: 12,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const val = context.raw;
+                                        const pct = ((val / total) * 100).toFixed(1);
+                                        return ` ${context.label}: ${val} học viên (${pct}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+        });
+    </script>
+</th:block>
+</body>
+</html>

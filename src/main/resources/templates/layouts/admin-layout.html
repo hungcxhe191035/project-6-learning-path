@@ -36,10 +36,13 @@
             background-color: #f8fafc;
             color: #0f172a;
             -webkit-font-smoothing: antialiased;
+            height: 100vh;
+            overflow: hidden;
         }
         .admin-container {
             display: flex;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
         }
         .sidebar {
             width: 260px;
@@ -51,6 +54,7 @@
             border-right: 1px solid #1e293b;
             box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
             z-index: 10;
+            overflow-y: auto;
         }
         .sidebar-header {
             padding: 32px 20px;
@@ -538,6 +542,14 @@
         </div>
         <ul class="sidebar-menu">
             <li class="sidebar-item">
+                <a th:href="@{/admin}"
+                   class="sidebar-link"
+                   th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
                 <a th:href="@{/admin/users}"
                    class="sidebar-link"
                    th:classappend="${activePage == 'users' ? 'active' : ''}">
@@ -590,9 +602,9 @@
     </aside>
 
     <!-- Main Content Area -->
-    <div class="main-content-wrapper d-flex flex-column flex-grow-1" style="min-height: 100vh; overflow-y: auto;">
+    <div class="main-content-wrapper d-flex flex-column flex-grow-1" style="height: 100vh; overflow: hidden;">
         <!-- Topbar Header -->
-        <header class="topbar d-flex justify-content-between align-items-center px-4 py-3 bg-white border-bottom" style="height: 70px;">
+        <header class="topbar d-flex justify-content-between align-items-center px-4 py-3 bg-white border-bottom" style="height: 70px; flex-shrink: 0;">
             <div class="d-flex align-items-center gap-2">
                 <span class="text-muted small fw-medium">Hệ thống Quản trị</span>
                 <i class="bi bi-chevron-right text-muted" style="font-size: 10px;"></i>
@@ -613,12 +625,14 @@
             </div>
         </header>
         
-        <!-- Content Viewport -->
-        <main class="main-content flex-grow-1 p-4 p-md-5" style="max-width: 1400px; width: 100%; margin: 0 auto; animation: fadeIn 0.4s ease-out;">
-            <div layout:fragment="content">
-                <!-- Render page content here -->
-            </div>
-        </main>
+        <!-- Scrollable Content Viewport -->
+        <div class="main-content-scrollable flex-grow-1" style="overflow-y: auto; width: 100%;">
+            <main class="main-content p-4 p-md-5" style="max-width: 1650px; width: 100%; margin: 0 auto; animation: fadeIn 0.4s ease-out;">
+                <div layout:fragment="content">
+                    <!-- Render page content here -->
+                </div>
+            </main>
+        </div>
     </div>
 </div>
 
@@ -642,5 +656,6 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<th:block layout:fragment="script"></th:block>
 </body>
 </html>

@@ -13,4 +13,10 @@ public interface CourseVersionRepository extends JpaRepository<CourseVersion, Lo
 
     java.util.Optional<CourseVersion>
     findByCourse_CourseIdAndStatus(Long courseId, org.swp.my_learning_path.constant.ECourseStatus status);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(cv) FROM CourseVersion cv WHERE cv.status = :status AND cv.course.deleteFlag = false")
+    long countByStatusAndCourseDeleteFlagFalse(@org.springframework.data.repository.query.Param("status") org.swp.my_learning_path.constant.ECourseStatus status);
+
+    @org.springframework.data.jpa.repository.Query("SELECT cv FROM CourseVersion cv WHERE cv.status = :status AND cv.course.deleteFlag = false ORDER BY cv.createdAt DESC")
+    java.util.List<CourseVersion> findLatestPendingCourseVersions(@org.springframework.data.repository.query.Param("status") org.swp.my_learning_path.constant.ECourseStatus status, org.springframework.data.domain.Pageable pageable);
 }

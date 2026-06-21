@@ -14,4 +14,11 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     List<Enrollment> findByStudent_UserId(Long studentId);
 
     Optional<Enrollment> findByStudent_UserIdAndCourse_CourseId(Long studentId, Long courseId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT t.tagName, COUNT(e) FROM Enrollment e " +
+           "JOIN e.course c " +
+           "JOIN c.currentPublishedVersion cv " +
+           "JOIN cv.tags t " +
+           "GROUP BY t.tagName")
+    List<Object[]> countEnrollmentsByTag();
 }

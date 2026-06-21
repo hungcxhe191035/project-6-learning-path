@@ -18,4 +18,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // Tính tổng doanh thu toàn hệ thống cho Admin
     @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.paymentStatus = :status")
     BigDecimal sumTotalRevenue(ETransactionStatus status);
+
+    List<Order> findByPaymentStatusAndCreatedAtBetweenOrderByCreatedAtAsc(
+            ETransactionStatus status, java.time.LocalDateTime start, java.time.LocalDateTime end
+    );
+
+    List<Order> findTop10ByOrderByCreatedAtDesc();
 }
