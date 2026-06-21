@@ -20,6 +20,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
+    long countByRoleAndDeleteFlagFalse(ERole role);
+
     @Query("SELECT u FROM User u WHERE u.userId = :id AND u.deleteFlag = false")
     Optional<User> findByIdAndNotDeleted(@Param("id") Long id);
 

@@ -28,6 +28,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
 import java.util.List;
 
+import org.swp.my_learning_path.dto.response.AdminDashboardDTO;
+import org.swp.my_learning_path.service.AdminDashboardService;
+
 @Controller
 @RequestMapping("/admin")
 @RequiredArgsConstructor
@@ -36,6 +39,23 @@ public class AdminController {
     private final AdminService adminService;
     private final TagService tagService;
     private final InstructorApplicationService applicationService;
+    private final AdminDashboardService dashboardService;
+
+    // =============================================
+    // ADMIN DASHBOARD TỔNG QUAN
+    // =============================================
+    @GetMapping({"", "/", "/dashboard"})
+    public String dashboard(
+            @RequestParam(value = "period", defaultValue = "30days") String period,
+            Model model) {
+        AdminDashboardDTO dto = dashboardService.getDashboardData(period);
+        model.addAttribute("dashboard", dto);
+        model.addAttribute("selectedPeriod", period);
+        model.addAttribute("pageTitle", "Hệ thống Quản trị - Dashboard");
+        model.addAttribute("activePage", "dashboard");
+        model.addAttribute("pendingCount", applicationService.countPending());
+        return "pages/admin/dashboard";
+    }
 
     // =============================================
     // DANH SÁCH NGƯỜI DÙNG (Search + Filter + Page)

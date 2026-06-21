@@ -31,4 +31,28 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
            "ORDER BY o.createdAt DESC")
     List<OrderItem> findSuccessfulSalesByInstructor(@Param("instructorId") Long instructorId, 
                                                     @Param("status") ETransactionStatus status);
+
+    @Query("SELECT oi.course, COUNT(oi) as salesCount FROM OrderItem oi " +
+           "WHERE oi.order.paymentStatus = :status " +
+           "AND oi.order.createdAt BETWEEN :start AND :end " +
+           "GROUP BY oi.course " +
+           "ORDER BY salesCount DESC")
+    List<Object[]> findTopSellingCoursesInPeriod(
+            @Param("status") ETransactionStatus status,
+            @Param("start") java.time.LocalDateTime start,
+            @Param("end") java.time.LocalDateTime end,
+            org.springframework.data.domain.Pageable pageable
+    );
+
+    @Query("SELECT oi.course.instructor, SUM(oi.price) as totalRev FROM OrderItem oi " +
+           "WHERE oi.order.paymentStatus = :status " +
+           "AND oi.order.createdAt BETWEEN :start AND :end " +
+           "GROUP BY oi.course.instructor " +
+           "ORDER BY totalRev DESC")
+    List<Object[]> findTopInstructorsInPeriod(
+            @Param("status") ETransactionStatus status,
+            @Param("start") java.time.LocalDateTime start,
+            @Param("end") java.time.LocalDateTime end,
+            org.springframework.data.domain.Pageable pageable
+    );
 }
