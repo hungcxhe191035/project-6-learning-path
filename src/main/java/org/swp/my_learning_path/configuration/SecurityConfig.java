@@ -48,6 +48,8 @@ public class SecurityConfig {
                                 "/",
                                 "/home",
                                 "/courses",
+                                "/course/**",        // Trang chi tiết khoá học — xem được khi chưa login
+                                "/search",           // Tìm kiếm — xem được khi chưa login
                                 "/login",
                                 "/forgot-password",
                                 "/register",
@@ -66,6 +68,12 @@ public class SecurityConfig {
                         // USER routes: các trang học tập, profile
                         .requestMatchers("/user/**")
                         .hasAnyRole("STUDENT", "INSTRUCTOR")
+                        // Trang học — học viên đã đăng ký mới được vào
+                        .requestMatchers("/learn/**")
+                        .hasAnyRole("STUDENT", "INSTRUCTOR")
+                        // Đăng ký khoá học miễn phí — phải đăng nhập
+                        .requestMatchers("/api/enroll/**")
+                        .authenticated()
                         // Tất cả request khác cần đăng nhập
                         .anyRequest()
                         .authenticated()

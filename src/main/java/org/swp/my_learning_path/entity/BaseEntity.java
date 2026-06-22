@@ -29,7 +29,7 @@ public class BaseEntity {
     @CreatedBy
     @Column(updatable = false, columnDefinition = "nvarchar(255)")
     String createdBy;
-
+ 
     @LastModifiedDate
     @Column(insertable = false)
     LocalDateTime updatedAt;

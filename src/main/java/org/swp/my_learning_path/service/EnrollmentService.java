@@ -10,4 +10,7 @@ public interface EnrollmentService {
 
     // Kiểm tra học viên đã đăng ký khoá học chưa
     boolean isEnrolled(Long studentId, Long courseId);
+
+    // Đăng ký khoá học miễn phí (price = 0) trực tiếp, không qua thanh toán
+    void enrollFree(Long studentId, Long courseId);
 }

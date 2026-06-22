@@ -1,7 +1,10 @@
 package org.swp.my_learning_path.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -62,6 +65,57 @@ public class CourseServiceImpl implements CourseService {
         return courses.stream()
                 .map(course -> chuyenDoiSangDTO(course, studentId))
                 .toList();
+    }
+
+    @Override
+    public List<CourseCardDTO> searchCourses(String keyword, Long studentId, String sort, String priceRange) {
+        // 1. Lấy danh sách từ DB
+        List<Course> courses;
+        if (keyword == null || keyword.trim().isEmpty()) {
+            courses = courseRepository
+                    .findByDeleteFlagFalseAndCurrentPublishedVersion_StatusOrderByCreatedAtDesc(
+                            ECourseStatus.APPROVED);
+        } else {
+            courses = courseRepository.searchByKeyword(keyword.trim(), ECourseStatus.APPROVED);
+        }
+
+        // 2. Chuyển sang DTO
+        List<CourseCardDTO> dtos = courses.stream()
+                .map(course -> chuyenDoiSangDTO(course, studentId))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        // 3. Lọc theo khoảng giá
+        if (priceRange != null && !priceRange.isBlank()) {
+            dtos = dtos.stream().filter(c -> {
+                BigDecimal price = c.getPrice();
+                if (price == null) return false;
+                return switch (priceRange) {
+                    case "free"     -> price.compareTo(BigDecimal.ZERO) == 0;
+                    case "under200" -> price.compareTo(new BigDecimal("200000")) < 0
+                                      && price.compareTo(BigDecimal.ZERO) > 0;
+                    case "200to500" -> price.compareTo(new BigDecimal("200000")) >= 0
+                                      && price.compareTo(new BigDecimal("500000")) <= 0;
+                    case "above500" -> price.compareTo(new BigDecimal("500000")) > 0;
+                    default         -> true;
+                };
+            }).collect(Collectors.toCollection(ArrayList::new));
+        }
+
+        // 4. Sắp xếp
+        if (sort != null && !sort.isBlank()) {
+            Comparator<CourseCardDTO> comparator = switch (sort) {
+                case "price_asc"  -> Comparator.comparing(CourseCardDTO::getPrice,
+                                        Comparator.nullsLast(Comparator.naturalOrder()));
+                case "price_desc" -> Comparator.comparing(CourseCardDTO::getPrice,
+                                        Comparator.nullsLast(Comparator.reverseOrder()));
+                case "rating"     -> Comparator.comparing(CourseCardDTO::getAverageRating,
+                                        Comparator.nullsLast(Comparator.reverseOrder()));
+                default           -> null; // newest — giữ nguyên thứ tự từ DB
+            };
+            if (comparator != null) dtos.sort(comparator);
+        }
+
+        return dtos;
     }
 
     @Override
@@ -129,6 +183,7 @@ public class CourseServiceImpl implements CourseService {
         // 6. Trả về CourseDetailDTO
         return CourseDetailDTO.builder()
                 .courseId(course.getCourseId())
+                .instructorId(course.getInstructor() != null ? course.getInstructor().getUserId() : null)
                 .title(version.getTitle())
                 .subtitle(version.getSubtitle())
                 .description(version.getDescription())

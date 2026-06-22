@@ -12,6 +12,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseDetailDTO {
     Long courseId;
+    Long instructorId;   // ID giảng viên — dùng để kiểm tra ownership
     String title;
     String subtitle;
     String description;
