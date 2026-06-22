@@ -95,7 +95,6 @@ public class AdminServiceImpl implements AdminService {
         if (userIds == null || userIds.isEmpty()) return;
         List<User> users = userRepository.findAllById(userIds);
         for (User user : users) {
-            // Bỏ qua tài khoản đã soft-delete và bảo vệ admin không tự khóa mình
             if (user.isDeleteFlag() || user.getEmail().equalsIgnoreCase(adminEmail)) {
                 continue;
             }

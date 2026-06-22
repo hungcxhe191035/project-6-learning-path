@@ -347,7 +347,7 @@ public class AdminController {
     }
 
     // =============================================
-    // QUẢN LÝ TAG (Phân trang & Xóa mềm)
+    // QUẢN LÝ TAG
     // =============================================
     @GetMapping("/tags")
     public String listTags(

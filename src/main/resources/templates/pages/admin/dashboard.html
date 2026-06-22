@@ -111,7 +111,6 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
             <h2 class="fw-bold text-dark mb-1" style="font-size: 26px;">Dashboard Tổng quan</h2>
-            <p class="text-muted small mb-0">Theo dõi doanh thu, số lượng người dùng và phê duyệt các hoạt động hệ thống.</p>
         </div>
         <!-- Time Filters -->
         <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -380,25 +379,6 @@
                     </li>
                     <li class="list-group-item p-3 text-center text-muted small" th:if="${#lists.isEmpty(dashboard.pendingInstructors)}">
                         Không có đơn nào cần duyệt.
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Pending Course Version Card -->
-            <div class="admin-card">
-                <div class="admin-card-header">
-                    Duyệt Khóa Học Gần đây
-                </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item p-3 d-flex justify-content-between align-items-center" th:each="cv : ${dashboard.pendingCourses}">
-                        <div style="max-width: 70%;">
-                            <h6 class="fw-bold mb-0 text-dark text-truncate" style="font-size: 13px;" th:text="${cv.title}">Tên Khóa Học</h6>
-                            <span class="text-muted small" th:text="${'Tác giả: ' + cv.course.instructor.fullName}">Giảng viên</span>
-                        </div>
-                        <a th:href="@{/admin/courses/{id}(id=${cv.course.courseId})}" class="btn btn-sm btn-admin-action" style="padding: 4px 8px; font-size: 12px; height: auto;">Xem xét</a>
-                    </li>
-                    <li class="list-group-item p-3 text-center text-muted small" th:if="${#lists.isEmpty(dashboard.pendingCourses)}">
-                        Không có khóa học nào chờ duyệt.
                     </li>
                 </ul>
             </div>
