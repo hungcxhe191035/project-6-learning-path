@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
-    @org.springframework.data.jpa.repository.Query("SELECT c FROM Course c WHERE c.deleteFlag = false AND c.isBlocked = false AND c.currentPublishedVersion.status = :status ORDER BY c.createdAt DESC")
+    @org.springframework.data.jpa.repository.Query("SELECT c FROM Course c WHERE c.deleteFlag = false AND (c.isBlocked = false OR c.isBlocked IS NULL) AND c.currentPublishedVersion.status = :status ORDER BY c.createdAt DESC")
     List<Course> findByDeleteFlagFalseAndCurrentPublishedVersion_StatusOrderByCreatedAtDesc(
             @org.springframework.data.repository.query.Param("status") ECourseStatus status
     );
