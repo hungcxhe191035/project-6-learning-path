@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/admin-layout}"
+>
+<head>
+    <title>Quản lý Khóa học</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #0f172a;">Quản lý Khóa học</h2>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    <div th:if="${successMessage != null}" class="alert alert-success alert-dismissible fade show rounded-0 mb-4 toast-alert" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}">Thao tác thực hiện thành công!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage != null}" class="alert alert-danger alert-dismissible fade show rounded-0 mb-4 toast-alert" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}">Có lỗi xảy ra!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Filter/Search Card -->
+    <div class="card admin-card mb-4">
+        <div class="card-body p-4">
+            <form th:action="@{/admin/courses}" method="get" class="row g-3 align-items-end">
+                <!-- Search Text -->
+                <div class="col-md-5">
+                    <label for="search" class="form-label fw-bold" style="color: #334155; font-size: 14px;">Tìm kiếm khóa học</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                        <input
+                                type="text"
+                                id="search"
+                                name="search"
+                                th:value="${search}"
+                                class="form-control border-start-0"
+                                placeholder="Nhập tiêu đề hoặc tên giảng viên..."
+                        >
+                    </div>
+                </div>
+
+                <!-- Block Filter -->
+                <div class="col-md-4">
+                    <label for="blocked" class="form-label fw-bold" style="color: #334155; font-size: 14px;">Lọc theo trạng thái kiểm duyệt</label>
+                    <select id="blocked" name="blocked" class="form-select">
+                        <option value="" th:selected="${selectedBlocked == null}">-- Tất cả trạng thái khóa --</option>
+                        <option value="true" th:selected="${selectedBlocked == true}">Bị khóa</option>
+                        <option value="false" th:selected="${selectedBlocked == false}">Hoạt động bình thường</option>
+                    </select>
+                </div>
+
+                <!-- Buttons -->
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-create w-100 fw-bold py-2" style="background: #7c3aed;">
+                        Tìm kiếm
+                    </button>
+                    <a th:href="@{/admin/courses}" class="btn btn-outline-secondary py-2" title="Xóa bộ lọc" style="display: flex; align-items: center; justify-content: center; width: 44px; padding: 0 !important;">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card admin-card">
+        <div class="admin-card-header">
+            Danh sách khóa học (Tổng số: <span th:text="${totalElements}">0</span>)
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="font-size: 14px;">
+                <thead class="table-light">
+                <tr>
+                    <th class="ps-4 py-3" style="width: 80px;">ID</th>
+                    <th class="py-3">Tiêu đề khóa học</th>
+                    <th class="py-3">Giảng viên</th>
+                    <th class="py-3">Đánh giá trung bình</th>
+                    <th class="py-3">Học viên tham gia</th>
+                    <th class="py-3">Trạng thái khóa</th>
+                    <th class="py-3 pe-4 text-end" style="width: 280px;">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="course : ${courses}">
+                    <td class="ps-4 fw-semibold" th:text="${course.courseId}">1</td>
+                    <td>
+                        <div class="fw-bold text-dark" 
+                             th:text="${course.currentPublishedVersion != null ? course.currentPublishedVersion.title : 'Khóa học nháp #' + course.courseId}">
+                             Tiêu đề khóa học
+                        </div>
+                        <div class="text-muted small mt-1" th:if="${course.currentPublishedVersion != null}">
+                            Giá: <span class="fw-semibold text-dark" th:text="${#numbers.formatDecimal(course.currentPublishedVersion.price, 0, 'COMMA', 0, 'POINT') + 'đ'}">0đ</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-medium text-dark" th:text="${course.instructor.fullName}">Nguyễn Văn A</span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="fw-bold text-warning" th:text="${course.averageRating}">0.0</span>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <span class="text-muted small" th:text="'(' + ${course.totalReviews} + ' đánh giá)'">(0)</span>
+                        </div>
+                    </td>
+                    <td class="fw-medium" th:text="${course.totalStudents + ' học viên'}">0 học viên</td>
+                    <td>
+                        <span th:if="${course.isBlocked}" class="badge-inactive" th:title="${course.blockReason}">
+                            <i class="bi bi-lock-fill me-1"></i>Bị khóa
+                        </span>
+                        <span th:if="${!course.isBlocked}" class="badge-active">
+                            <i class="bi bi-check-circle-fill me-1"></i>Hoạt động
+                        </span>
+                        
+                        <!-- Block Reason Display inside table cell -->
+                        <div th:if="${course.isBlocked}" class="text-danger small mt-1" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" th:title="${course.blockReason}">
+                            Lý do: <span th:text="${course.blockReason}">...</span>
+                        </div>
+                    </td>
+                    <td class="pe-4 text-end">
+                        <div class="d-inline-flex gap-2">
+                            <!-- View Detail (Read-only curriculum) -->
+                            <a th:href="@{/admin/courses/{id}(id=${course.courseId})}" class="btn-admin-action" title="Xem chi tiết nội dung">
+                                <i class="bi bi-eye"></i> Chi tiết
+                            </a>
+
+                            <!-- Unblock / Block Action -->
+                            <form th:if="${course.isBlocked}" th:action="@{/admin/courses/{id}/unblock(id=${course.courseId})}" method="post" class="m-0"
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn MỞ KHÓA khóa học này?');">
+                                <input type="hidden" name="page" th:value="${currentPage}"/>
+                                <button type="submit" class="btn-admin-success-outline" title="Mở khóa khóa học">
+                                    <i class="bi bi-unlock-fill"></i> Mở khóa
+                                </button>
+                            </form>
+
+                            <button th:if="${!course.isBlocked}" type="button" class="btn-admin-danger-outline" 
+                                    th:onclick="'openBlockModal(' + ${course.courseId} + ')'" title="Khóa khóa học này">
+                                <i class="bi bi-lock-fill"></i> Khóa
+                            </button>
+
+                            <!-- Delete (Soft delete) -->
+                            <form th:action="@{/admin/courses/{id}/delete(id=${course.courseId})}" method="post" class="m-0"
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn XÓA MỀM khóa học này? Khóa học sẽ bị ẩn khỏi mọi học viên.');">
+                                <input type="hidden" name="page" th:value="${currentPage}"/>
+                                <button type="submit" class="btn-admin-danger" title="Xóa mềm khóa học">
+                                    <i class="bi bi-trash"></i> Xóa
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${courses.isEmpty()}">
+                    <td colspan="8" class="text-center py-5 text-muted">
+                        <i class="bi bi-journal-x fs-1 d-block mb-3"></i>
+                        Không tìm thấy khóa học nào phù hợp với bộ lọc hiện tại.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Footer -->
+        <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center py-3 px-4" th:if="${totalPages > 1}">
+            <div class="text-muted" style="font-size: 14px;">
+                Hiển thị trang <span class="fw-bold" th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span> (Tổng <span th:text="${totalElements}">0</span> kết quả)
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0 pagination-sm rounded-0">
+                    <!-- First Page -->
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link rounded-0 text-dark border-secondary" 
+                           th:href="@{/admin/courses(search=${search}, status=${selectedStatus}, blocked=${selectedBlocked}, page=0)}">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <!-- Previous Page -->
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link text-dark border-secondary" 
+                           th:href="@{/admin/courses(search=${search}, status=${selectedStatus}, blocked=${selectedBlocked}, page=${currentPage - 1})}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <!-- Page Numbers -->
+                    <li class="page-item" 
+                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                        th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                        th:classappend="${currentPage == i} ? 'active'">
+                        <a class="page-link border-secondary" 
+                           th:classappend="${currentPage == i} ? 'bg-dark border-dark text-white' : 'text-dark'"
+                           th:href="@{/admin/courses(search=${search}, status=${selectedStatus}, blocked=${selectedBlocked}, page=${i})}" 
+                           th:text="${i + 1}">1</a>
+                    </li>
+                    <!-- Next Page -->
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link text-dark border-secondary" 
+                           th:href="@{/admin/courses(search=${search}, status=${selectedStatus}, blocked=${selectedBlocked}, page=${currentPage + 1})}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <!-- Last Page -->
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link rounded-0 text-dark border-secondary" 
+                           th:href="@{/admin/courses(search=${search}, status=${selectedStatus}, blocked=${selectedBlocked}, page=${totalPages - 1})}">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Modal Khóa Khóa Học -->
+    <div class="modal fade" id="blockCourseModal" tabindex="-1" aria-labelledby="blockCourseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-0 border-0 shadow-lg">
+                <form id="blockCourseForm" method="post">
+                    <!-- CSRF Token -->
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
+                    <input type="hidden" name="page" th:value="${currentPage}"/>
+                    
+                    <div class="modal-header bg-danger text-white rounded-0">
+                        <h5 class="modal-title fw-bold" id="blockCourseModalLabel">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>Khóa khóa học
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="text-secondary mb-3">Vui lòng nhập lý do khóa khóa học này. Giảng viên sở hữu sẽ thấy lý do này trên màn hình của họ và có thể sửa đổi nội dung trước khi xuất bản lại.</p>
+                        <div class="mb-3">
+                            <label for="blockReasonInput" class="form-label fw-bold">Lý do khóa <span class="text-danger">*</span></label>
+                            <textarea class="form-control rounded-0" id="blockReasonInput" name="reason" rows="4" placeholder="Ví dụ: Nội dung rác, bản quyền, thông tin sai lệch..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light rounded-0">
+                        <button type="button" class="btn btn-secondary rounded-0 fw-bold px-4" data-bs-dismiss="modal">Hủy bỏ</button>
+                        <button type="submit" class="btn btn-danger rounded-0 fw-bold px-4">Khóa khóa học</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            // Tự động ẩn success/error alert sau 4 giây
+            const alerts = document.querySelectorAll('.toast-alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-20px)';
+                    setTimeout(() => alert.remove(), 300);
+                }, 4000);
+            });
+        });
+
+        function openBlockModal(courseId) {
+            const form = document.getElementById('blockCourseForm');
+            form.action = `/admin/courses/${courseId}/block`;
+            const blockModal = new bootstrap.Modal(document.getElementById('blockCourseModal'));
+            blockModal.show();
+        }
+    </script>
+</div>
+
+</body>
+</html>

@@ -8,38 +8,73 @@
 <head>
     <title>Duyệt Đơn Giảng Viên</title>
     <style>
-        .pagination .page-item.active .page-link {
-            background-color: #1c1d1f !important;
-            border-color: #1c1d1f !important;
-            color: #fff !important;
-        }
-        .pagination .page-link { color: #1c1d1f; border-color: #d1d7dc; padding: 8px 14px; font-weight: 500; }
-        .pagination .page-link:hover { background-color: #f7f9fa; color: #1c1d1f; }
-        .pagination .page-item.disabled .page-link { color: #6a6f73; opacity: 0.5; }
-
-        .badge-pending  { background-color: #fff3cd; color: #856404; font-weight: 600; padding: 5px 12px; border-radius: 50px; font-size: 12px; }
-        .badge-approved { background-color: #d1e7dd; color: #0f5132; font-weight: 600; padding: 5px 12px; border-radius: 50px; font-size: 12px; }
-        .badge-rejected { background-color: #f8d7da; color: #842029; font-weight: 600; padding: 5px 12px; border-radius: 50px; font-size: 12px; }
-
-        .toast-alert {
-            position: fixed; top: 24px; right: 24px; z-index: 9999;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 320px;
-            animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        @keyframes slideIn {
-            from { transform: translateX(120%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
         .filter-tab {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 18px; border: 2px solid #d1d7dc;
-            font-weight: 700; font-size: 13px; color: #6a6f73;
-            background: #fff; text-decoration: none; cursor: pointer;
-            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #475569;
+            background: #fff;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .filter-tab:hover { border-color: #1c1d1f; color: #1c1d1f; }
-        .filter-tab.active { border-color: #1c1d1f; background: #1c1d1f; color: #fff; }
-        .filter-tab.active-pending { border-color: #ffc107; background: #fff3cd; color: #856404; }
+        .filter-tab:hover {
+            border-color: #7c3aed;
+            color: #7c3aed;
+        }
+        .filter-tab.active {
+            border-color: #7c3aed;
+            background: #7c3aed;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2);
+        }
+        .filter-tab-pending {
+            border-color: #fcd34d;
+            color: #b45309;
+        }
+        .filter-tab-pending:hover {
+            border-color: #f59e0b;
+            color: #b45309;
+        }
+        .filter-tab-pending.active-pending {
+            border-color: #f59e0b;
+            background: #fef3c7;
+            color: #b45309;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.15);
+        }
+        .filter-tab-approved {
+            border-color: #a7f3d0;
+            color: #047857;
+        }
+        .filter-tab-approved:hover {
+            border-color: #10b981;
+            color: #047857;
+        }
+        .filter-tab-approved.active {
+            border-color: #10b981;
+            background: #10b981;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+        }
+        .filter-tab-rejected {
+            border-color: #fca5a5;
+            color: #b91c1c;
+        }
+        .filter-tab-rejected:hover {
+            border-color: #ef4444;
+            color: #b91c1c;
+        }
+        .filter-tab-rejected.active {
+            border-color: #ef4444;
+            background: #ef4444;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -47,10 +82,10 @@
 <div layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-1" style="color: #1c1d1f;">Duyệt Đơn Giảng Viên</h2>
+            <h2 class="fw-bold mb-1" style="color: #0f172a;">Duyệt Đơn Giảng Viên</h2>
             <p class="text-muted mb-0" style="font-size: 14px;">
                 Xét duyệt các đơn xin trở thành giảng viên từ học viên.
-                <span th:if="${pendingCount > 0}" class="fw-bold" style="color: #a435f0;">
+                <span th:if="${pendingCount > 0}" class="fw-bold" style="color: #7c3aed;">
                     (<span th:text="${pendingCount}"></span> đơn đang chờ)
                 </span>
             </p>
@@ -77,19 +112,16 @@
             <span class="badge bg-secondary rounded-pill" th:text="${totalElements}">0</span>
         </a>
         <a th:href="@{/admin/applications(status='PENDING')}"
-           th:class="${selectedStatus == 'PENDING'} ? 'filter-tab active-pending' : 'filter-tab'"
-           style="border-color: #ffc107; color: #856404;">
+           th:class="${selectedStatus == 'PENDING'} ? 'filter-tab filter-tab-pending active-pending' : 'filter-tab filter-tab-pending'">
             <i class="bi bi-hourglass-split"></i> Chờ duyệt
-            <span class="badge rounded-pill" style="background: #ffc107; color: #1c1d1f;" th:text="${pendingCount}">0</span>
+            <span class="badge rounded-pill" style="background: #f59e0b; color: #fff;" th:text="${pendingCount}">0</span>
         </a>
         <a th:href="@{/admin/applications(status='APPROVED')}"
-           th:class="${selectedStatus == 'APPROVED'} ? 'filter-tab active' : 'filter-tab'"
-           style="border-color: #198754; color: #0f5132;">
+           th:class="${selectedStatus == 'APPROVED'} ? 'filter-tab filter-tab-approved active' : 'filter-tab filter-tab-approved'">
             <i class="bi bi-patch-check-fill"></i> Đã duyệt
         </a>
         <a th:href="@{/admin/applications(status='REJECTED')}"
-           th:class="${selectedStatus == 'REJECTED'} ? 'filter-tab active' : 'filter-tab'"
-           style="border-color: #dc3545; color: #842029;">
+           th:class="${selectedStatus == 'REJECTED'} ? 'filter-tab filter-tab-rejected active' : 'filter-tab filter-tab-rejected'">
             <i class="bi bi-x-circle-fill"></i> Đã từ chối
         </a>
     </div>

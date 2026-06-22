@@ -42,7 +42,10 @@ public class InstructorUIController {
         Long mockInstructorId = ((org.swp.my_learning_path.security.CustomUserDetails) auth.getPrincipal()).getUser().getUserId();
 
         List<Course> courses = courseRepository.findByInstructor_UserIdAndDeleteFlagFalseOrderByCreatedAtDesc(mockInstructorId);
+        boolean hasBlockedCourses = courses.stream().anyMatch(c -> Boolean.TRUE.equals(c.getIsBlocked()));
+        
         model.addAttribute("courses", courses);
+        model.addAttribute("hasBlockedCourses", hasBlockedCourses);
         return "pages/instructor/course-list";
     }
 

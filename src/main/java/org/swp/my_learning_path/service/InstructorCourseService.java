@@ -108,8 +108,10 @@ public class InstructorCourseService {
         version.setStatus(ECourseStatus.APPROVED);
         courseVersionRepository.save(version);
         
-        // Gắn bản version này làm bản chính thức cho khóa học
+        // Gắn bản version này làm bản chính thức cho khóa học, đồng thời gỡ trạng thái khóa
         course.setCurrentPublishedVersion(version);
+        course.setIsBlocked(false);
+        course.setBlockReason(null);
         courseRepository.save(course);
     }
 

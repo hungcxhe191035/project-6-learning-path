@@ -42,4 +42,15 @@ public class Course extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_published_version_id")
     CourseVersion currentPublishedVersion;
+
+    @Builder.Default
+    @Column(name = "is_blocked")
+    Boolean isBlocked = false;
+
+    @Column(name = "block_reason", columnDefinition = "NVARCHAR(MAX)")
+    String blockReason;
+
+    public Boolean getIsBlocked() {
+        return isBlocked != null && isBlocked;
+    }
 }

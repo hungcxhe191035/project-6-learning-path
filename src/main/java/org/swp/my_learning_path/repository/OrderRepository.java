@@ -30,5 +30,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
            "ORDER BY MONTH(o.createdAt)")
     List<Object[]> getMonthlyRevenueForAdmin(@Param("status") ETransactionStatus status,
                                               @Param("year") int year);
+
+    List<Order> findByPaymentStatusAndCreatedAtBetweenOrderByCreatedAtAsc(
+            ETransactionStatus status, java.time.LocalDateTime start, java.time.LocalDateTime end
+    );
+
+    List<Order> findTop10ByOrderByCreatedAtDesc();
 }
 

@@ -118,8 +118,13 @@
             display: none; border: 1px solid var(--border-color); border-radius: var(--radius-md);
             padding: 16px; background: var(--bg-card); align-items: center; gap: 16px;
             box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
         }
         .file-preview-card.show { display: flex; }
+        .file-preview-card.upload-success {
+            border-color: #198754 !important;
+            background-color: #f1f9f4 !important;
+        }
         .file-icon-badge {
             width: 48px; height: 48px; border-radius: var(--radius-md);
             background: #FEE2E2; color: #DC2626; display: flex;
@@ -237,15 +242,21 @@
                                 <h6 class="fw-bold mb-1">Nhấn để tải lên hoặc kéo thả file vào đây</h6>
                                 <p class="text-muted small mb-0">Hỗ trợ định dạng PDF, DOCX (Tối đa 10MB)</p>
                             </div>
-                            <input type="file" id="cvFile" name="cvFile" accept=".pdf,.doc,.docx" style="display: none;" onchange="handleCvSelect(this)">
+                            <input type="file" id="cvFile" name="cvFile" accept=".pdf" style="display: none;" onchange="handleCvSelect(this)">
 
                             <div class="file-preview-card mt-3" id="cvFilePreview"
-                                 th:classappend="${existingCvName != null} ? 'show' : ''">
+                                 th:classappend="${existingCvName != null} ? 'show upload-success' : ''">
                                 <div class="file-icon-badge"><i class="bi bi-file-earmark-pdf-fill"></i></div>
                                 <div class="flex-grow-1">
-                                    <div class="fw-semibold text-dark" id="cvFileName" style="font-size: 0.95rem;"
-                                         th:text="${existingCvName != null ? existingCvName : 'document.pdf'}">document.pdf</div>
-                                    <div class="text-muted" id="cvFileSize" style="font-size: 0.8rem;"
+                                    <div class="d-flex align-items-center flex-wrap gap-2">
+                                        <div class="fw-semibold text-dark" id="cvFileName" style="font-size: 0.95rem;"
+                                             th:text="${existingCvName != null ? existingCvName : 'document.pdf'}">document.pdf</div>
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success py-1 px-2" id="uploadStatusBadge"
+                                              th:style="${existingCvName != null} ? 'display: inline-block; font-size: 0.75rem;' : 'display: none; font-size: 0.75rem;'">
+                                            <i class="bi bi-check-circle-fill me-1"></i><span th:text="${existingCvName != null ? 'Đã lưu' : 'Tải lên thành công'}">Tải lên thành công</span>
+                                        </span>
+                                    </div>
+                                    <div class="text-muted mt-1" id="cvFileSize" style="font-size: 0.8rem;"
                                          th:text="${existingCvName != null ? 'Đã lưu trên hệ thống' : '0 KB'}">0 KB</div>
                                     <div class="progress mt-2" style="height: 4px;" id="uploadProgress">
                                         <div class="progress-bar bg-success" role="progressbar" style="width: 100%;"></div>
@@ -502,7 +513,7 @@
         if (!file) return;
 
         // Validation
-        const allowedExtensions = ['.pdf', '.doc', '.docx'];
+        const allowedExtensions = ['.pdf'];
         const fileName = file.name.toLowerCase();
         const isValidExt = allowedExtensions.some(ext => fileName.endsWith(ext));
 
@@ -536,8 +547,17 @@
         document.getElementById('cvFileName').textContent = file.name;
         document.getElementById('cvFileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
 
-        document.getElementById('cvFilePreview').classList.add('show');
+        const previewCard = document.getElementById('cvFilePreview');
+        previewCard.classList.add('show');
+        previewCard.classList.add('upload-success');
         document.getElementById('cvDropZone').style.display = 'none';
+
+        // Show status badge
+        const badge = document.getElementById('uploadStatusBadge');
+        if (badge) {
+            badge.style.display = 'inline-block';
+            badge.querySelector('span').textContent = 'Tải lên thành công';
+        }
 
         // Ẩn lỗi nếu có
         const cvError = document.getElementById('cvError');
@@ -548,7 +568,24 @@
         // Mô phỏng animation upload
         const progressBar = document.querySelector('#uploadProgress .progress-bar');
         progressBar.style.width = '0%';
-        setTimeout(() => progressBar.style.width = '100%', 100);
+        progressBar.classList.remove('bg-success');
+        progressBar.classList.add('progress-bar-animated');
+        progressBar.classList.add('progress-bar-striped');
+        progressBar.classList.add('bg-primary');
+
+        let width = 0;
+        const interval = setInterval(() => {
+            if (width >= 100) {
+                clearInterval(interval);
+                progressBar.classList.remove('progress-bar-animated');
+                progressBar.classList.remove('progress-bar-striped');
+                progressBar.classList.remove('bg-primary');
+                progressBar.classList.add('bg-success');
+            } else {
+                width += 10;
+                progressBar.style.width = width + '%';
+            }
+        }, 50);
     }
 
     function clearCvFile() {
@@ -563,6 +600,7 @@
         }
         if (preview) {
             preview.classList.remove('show');
+            preview.classList.remove('upload-success');
         }
         if (dropZone) {
             dropZone.style.display = 'block';
@@ -571,6 +609,10 @@
         const cvError = document.getElementById('cvError');
         if (cvError) {
             cvError.style.display = 'none';
+        }
+        const badge = document.getElementById('uploadStatusBadge');
+        if (badge) {
+            badge.style.display = 'none';
         }
     }
 </script>

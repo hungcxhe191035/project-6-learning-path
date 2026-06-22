@@ -2,7 +2,9 @@ package org.swp.my_learning_path.controller;
 
 import org.swp.my_learning_path.dto.response.CourseCardDTO;
 import org.swp.my_learning_path.dto.response.CourseDetailDTO;
+import org.swp.my_learning_path.entity.Certificate;
 import org.swp.my_learning_path.security.CustomUserDetails;
+import org.swp.my_learning_path.service.CertificateService;
 import org.swp.my_learning_path.service.CourseService;
 import org.swp.my_learning_path.service.EnrollmentService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class CourseController {
 
     private final CourseService courseService;
     private final EnrollmentService enrollmentService;
+    private final CertificateService certificateService;
 
     @GetMapping("/course/{id}")
     public String courseDetail(@PathVariable Long id, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -34,6 +37,7 @@ public class CourseController {
 
         boolean enrolled = false;
         boolean isOwner  = false;
+        Certificate certificate = null;
 
         if (userDetails != null) {
             Long currentUserId = userDetails.getUser().getUserId();
@@ -41,9 +45,11 @@ public class CourseController {
             // Giảng viên sở hữu khoá học → ẩn nút đăng ký, hiện nút quản lý
             isOwner  = course.getInstructorId() != null
                     && course.getInstructorId().equals(currentUserId);
+            certificate = certificateService.findCertificate(currentUserId, id);
         }
         model.addAttribute("enrolled", enrolled);
         model.addAttribute("isOwner",  isOwner);
+        model.addAttribute("certificate", certificate);
         return "pages/course-detail";
     }
 

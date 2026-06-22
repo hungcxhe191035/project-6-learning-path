@@ -25,4 +25,6 @@ public class CourseDetailDTO {
     Long courseVersionId;
     List<SectionDTO> sections;   // danh sách phần học
     List<FeedbackDTO> feedbacks; // danh sách đánh giá
+    Boolean isBlocked;
+    String blockReason;
 }

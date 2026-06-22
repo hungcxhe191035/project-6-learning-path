@@ -55,16 +55,18 @@ public class SecurityConfig {
                                 "/register",
                                 "/css/**",
                                 "/js/**",
-                                "/image/**",
-                                "/api/instructor/**",
-                                "/api/s3/**"
+                                "/image/**"
                         ).permitAll()
                         // ADMIN only
                         .requestMatchers("/admin/**")
                         .hasRole("ADMIN")
                         // INSTRUCTOR routes: chỉ STUDENT mới cần nộp đơn, INSTRUCTOR xem trạng thái
-                        .requestMatchers("/instructor/**")
-                        .hasAnyRole("STUDENT", "INSTRUCTOR")
+                        .requestMatchers("/instructor/courses/**").hasRole("INSTRUCTOR")
+                        .requestMatchers("/instructor/apply").hasRole("STUDENT")
+                        .requestMatchers("/instructor/apply/status").hasAnyRole("STUDENT", "INSTRUCTOR")
+                        // API Security: Khóa bảo mật API soạn khóa học và S3
+                        .requestMatchers("/api/instructor/**").hasRole("INSTRUCTOR")
+                        .requestMatchers("/api/s3/**").hasAnyRole("INSTRUCTOR", "ADMIN")
                         // USER routes: các trang học tập, profile
                         .requestMatchers("/user/**")
                         .hasAnyRole("STUDENT", "INSTRUCTOR")

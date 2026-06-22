@@ -85,6 +85,19 @@
             padding: 14px; width: 100%;
             transition: all 0.3s ease;
         }
+        .btn-certificate {
+            background: linear-gradient(135deg, #c79a00, #be9e36);
+            color: white; border: none; border-radius: 10px;
+            font-weight: 700; font-size: 1rem;
+            padding: 14px; width: 100%;
+            transition: all 0.3s ease;
+        }
+        .btn-certificate:hover {
+            background: linear-gradient(135deg, #c79a00, #be9e36);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(199, 154, 0, 0.4);
+            color: white;
+        }
         .btn-enrolled:hover {
             background: linear-gradient(135deg, #047857, #10b981);
             transform: translateY(-2px);
@@ -482,6 +495,11 @@
                                         <i class="bi bi-play-circle-fill me-2"></i>Vào học ngay
                                     </a>
                                 </div>
+                                <div class="mt-2" th:if="${certificate != null}">
+                                    <a th:href="@{/certificates/{id}(id=)}" class="btn btn-certificate d-block text-center text-decoration-none">
+                                        <i class="bi bi-award-fill me-2"></i>Xem chá»©ng chá»‰
+                                    </a>
+                                </div>
                             </div>
 
                             <!-- Khoá học bao gồm -->
@@ -597,4 +615,4 @@
 </th:block>
 
 </body>
-</html>
+</html>

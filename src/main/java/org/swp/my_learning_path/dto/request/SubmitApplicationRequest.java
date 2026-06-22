@@ -30,7 +30,6 @@ public class SubmitApplicationRequest {
     @Size(max = 2000, message = "Lý do không được vượt quá 2000 ký tự")
     String motivation;
 
-    // Optional – có thể để trống
     @Size(max = 500, message = "LinkedIn URL không được vượt quá 500 ký tự")
     String linkedinUrl;
 

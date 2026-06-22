@@ -8,35 +8,15 @@
 <head>
     <title>Quản lý Tag</title>
     <style>
-        .toast-alert {
-            position: fixed; top: 24px; right: 24px; z-index: 9999;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 320px;
-            animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        .edit-mode-banner {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 12px 18px;
+            font-size: 13px;
+            color: #b45309;
+            font-weight: 500;
         }
-        @keyframes slideIn {
-            from { transform: translateX(120%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        .tag-pill {
-            display: inline-flex; align-items: center; gap: 6px;
-            background: #f5e6ff; border: 1px solid #c77dff;
-            color: #7b2d8b; font-weight: 600; font-size: 13px;
-            padding: 5px 14px; border-radius: 50px;
-        }
-        .form-card { border: 2px solid #1c1d1f; border-radius: 0; }
-        .form-card-header { background: #1c1d1f; color: #fff; padding: 14px 20px; font-weight: 700; }
-        .field-input {
-            border: 1px solid #1c1d1f; border-radius: 0;
-            padding: 10px 14px; font-size: 14px;
-        }
-        .field-input:focus { box-shadow: none; border-color: #1c1d1f; outline: 2px solid #a435f0; }
-        .btn-create { background: #a435f0; color: #fff; font-weight: 700; border-radius: 0; border: none; padding: 10px 24px; transition: background 0.2s; }
-        .btn-create:hover { background: #8710d8; color: #fff; }
-        .btn-edit   { background: #fff; color: #1c1d1f; border: 1px solid #1c1d1f; font-weight: 600; border-radius: 0; padding: 5px 12px; font-size: 13px; }
-        .btn-edit:hover { background: #1c1d1f; color: #fff; }
-        .btn-del    { background: #fff; color: #b32424; border: 1px solid #b32424; font-weight: 600; border-radius: 0; padding: 5px 12px; font-size: 13px; }
-        .btn-del:hover { background: #b32424; color: #fff; }
-        .edit-mode-banner { background: #fff3cd; border: 1px solid #ffc107; border-radius: 0; padding: 10px 16px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -56,7 +36,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-1" style="color: #1c1d1f;">Quản lý Tag</h2>
+            <h2 class="fw-bold mb-1" style="color: #0f172a;">Quản lý Tag</h2>
         </div>
     </div>
 
@@ -80,7 +60,7 @@
                 <div class="p-4">
                     <!-- Create Form -->
                     <form th:if="${editTag == null}"
-                          th:action="@{/admin/tags/create}" method="post"
+                          th:action="@{/admin/tags/create(page=${currentPage}, size=${tagPage.size})}" method="post"
                           th:object="${tagForm}">
 
                         <div class="mb-3">
@@ -109,7 +89,7 @@
 
                     <!-- Edit Form -->
                     <form th:if="${editTag != null}"
-                          th:action="@{/admin/tags/{id}/edit(id=${editTag.tagId})}" method="post"
+                          th:action="@{/admin/tags/{id}/edit(id=${editTag.tagId}, page=${currentPage}, size=${tagPage.size})}" method="post"
                           th:object="${tagForm}">
 
                         <div class="mb-3">
@@ -155,7 +135,7 @@
                         <tbody>
                         <tr th:each="tag, stat : ${tags}"
                             th:classappend="${editTag != null and editTag.tagId == tag.tagId} ? 'table-warning'">
-                            <td class="ps-4 text-muted" th:text="${stat.index + 1}">1</td>
+                            <td class="ps-4 text-muted" th:text="${stat.index + 1 + currentPage * tagPage.size}">1</td>
                             <td>
                                 <span class="tag-pill">
                                     <i class="bi bi-tag-fill" style="font-size: 11px;"></i>
@@ -169,11 +149,11 @@
                                 th:text="${tag.createdAt != null ? #temporals.format(tag.createdAt, 'dd/MM/yyyy') : '-'}">--</td>
                             <td class="pe-4 text-end">
                                 <div class="d-flex justify-content-end gap-1">
-                                    <a th:href="@{/admin/tags/{id}/edit(id=${tag.tagId})}"
+                                    <a th:href="@{/admin/tags/{id}/edit(id=${tag.tagId}, page=${currentPage}, size=${tagPage.size})}"
                                        class="btn btn-edit">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <form th:action="@{/admin/tags/{id}/delete(id=${tag.tagId})}" method="post"
+                                    <form th:action="@{/admin/tags/{id}/delete(id=${tag.tagId}, page=${currentPage})}" method="post"
                                           onsubmit="return confirm('Xóa tag \'' + /*[[${tag.tagName}]]*/ 'tag' + '\'? Hành động này không thể hoàn tác.')">
                                         <button type="submit" class="btn btn-del">
                                             <i class="bi bi-trash3"></i>
@@ -190,6 +170,50 @@
                         </tr>
                         </tbody>
                     </table>
+                </div>
+                <!-- Card Footer for Pagination -->
+                <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center py-3 px-4" th:if="${totalPages > 1}">
+                    <div class="text-muted" style="font-size: 13px;">
+                        Hiển thị trang <span class="fw-bold" th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span> (Tổng <span th:text="${totalTags}">0</span> kết quả)
+                    </div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm mb-0">
+                            <!-- First Page -->
+                            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                <a class="page-link rounded-0 text-dark border-secondary" th:href="@{/admin/tags(page=0, size=${tagPage.size})}">
+                                    <i class="bi bi-chevron-double-left"></i>
+                                </a>
+                            </li>
+                            <!-- Previous Page -->
+                            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                <a class="page-link text-dark border-secondary" th:href="@{/admin/tags(page=${currentPage - 1}, size=${tagPage.size})}">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                            <!-- Page Numbers -->
+                            <li class="page-item" 
+                                th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                                th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                                th:classappend="${currentPage == i} ? 'active'">
+                                <a class="page-link border-secondary" 
+                                   th:classappend="${currentPage == i} ? 'bg-dark border-dark text-white' : 'text-dark'"
+                                   th:href="@{/admin/tags(page=${i}, size=${tagPage.size})}" 
+                                   th:text="${i + 1}">1</a>
+                            </li>
+                            <!-- Next Page -->
+                            <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                                <a class="page-link text-dark border-secondary" th:href="@{/admin/tags(page=${currentPage + 1}, size=${tagPage.size})}">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                            <!-- Last Page -->
+                            <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                                <a class="page-link rounded-0 text-dark border-secondary" th:href="@{/admin/tags(page=${totalPages - 1}, size=${tagPage.size})}">
+                                    <i class="bi bi-chevron-double-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>

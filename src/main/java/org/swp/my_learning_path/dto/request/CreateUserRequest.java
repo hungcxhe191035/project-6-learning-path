@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -33,6 +34,7 @@ public class CreateUserRequest {
     @Size(min = 8, max = 100, message = "Mật khẩu phải có từ 8 đến 100 ký tự")
     String plainPassword;
 
+    @Pattern(regexp = "^(0|\\+84)(\\d{9})$", message = "Số điện thoại không đúng định dạng (phải gồm 10 chữ số, bắt đầu bằng 0 hoặc +84)")
     @Size(max = 20, message = "Số điện thoại không được vượt quá 20 ký tự")
     String phone;
 
