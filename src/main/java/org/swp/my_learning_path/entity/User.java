@@ -58,7 +58,7 @@ public class User extends BaseEntity {
     @Column(name = "bank_account_holder", columnDefinition = "NVARCHAR(255)")
     String bankAccountHolder;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "avatar_file_id")
     AppFile avatar;
 

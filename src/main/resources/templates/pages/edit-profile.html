@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <title>Hồ sơ & cài đặt</title>
     <style>
-        .udemy-tabs .nav-link {
+        .mlp-tabs .nav-link {
             color: #6a6f73;
             font-weight: 700;
             border: none;
@@ -14,7 +14,7 @@
             border-radius: 0;
             padding: 12px 16px;
         }
-        .udemy-tabs .nav-link.active {
+        .mlp-tabs .nav-link.active {
             color: #1c1d1f;
             border-bottom: 2px solid #1c1d1f;
             background-color: transparent;
@@ -24,17 +24,17 @@
             color: #1c1d1f;
             font-size: 14px;
         }
-        .udemy-input {
+        .mlp-input {
             border: 1px solid #1c1d1f;
             border-radius: 0;
             padding: 12px;
         }
-        .udemy-input:focus {
+        .mlp-input:focus {
             box-shadow: none;
             border-color: #1c1d1f;
             outline: 2px solid #a435f0;
         }
-        .udemy-btn-save {
+        .mlp-btn-save {
             background-color: #1c1d1f;
             color: white;
             font-weight: 700;
@@ -42,7 +42,7 @@
             padding: 12px 24px;
             border: 1px solid #1c1d1f;
         }
-        .udemy-btn-save:hover {
+        .mlp-btn-save:hover {
             background-color: #2d2f31;
             color: white;
         }
@@ -70,9 +70,9 @@
     <h1 class="fw-bold mb-4" style="font-size: 32px; color: #1c1d1f;">Hồ sơ & cài đặt</h1>
 
     <!-- Nav tabs -->
-    <ul class="nav nav-tabs udemy-tabs mb-4 border-bottom" role="tablist">
+    <ul class="nav nav-tabs mlp-tabs mb-4 border-bottom" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profile-pane" role="tab" aria-selected="true">Hồ sơ Udemy</a>
+            <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profile-pane" role="tab" aria-selected="true">Hồ sơ My Learning Path</a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="avatar-tab" data-bs-toggle="tab" href="#avatar-pane" role="tab" aria-selected="false">Ảnh hồ sơ</a>
@@ -84,7 +84,7 @@
 
     <!-- Tab panes -->
     <div class="tab-content">
-        <!-- TAB 1: HỒ SƠ UDEMY -->
+        <!-- TAB 1: HỒ SƠ MY LEARNING PATH -->
         <div class="tab-pane fade show active" id="profile-pane" role="tabpanel" aria-labelledby="profile-tab">
             
             <!-- Alert message -->
@@ -110,25 +110,25 @@
                             <!-- Trường Tên -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Tên</label>
-                                <input type="text" id="firstName" class="form-control udemy-input" placeholder="Tên" required>
+                                <input type="text" id="firstName" class="form-control mlp-input" placeholder="Tên" required>
                             </div>
                             <!-- Trường Họ -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Họ</label>
-                                <input type="text" id="lastName" class="form-control udemy-input" placeholder="Họ" required>
+                                <input type="text" id="lastName" class="form-control mlp-input" placeholder="Họ" required>
                             </div>
                         </div>
 
                         <!-- Số điện thoại -->
                         <div class="mb-3">
                             <label class="form-label">Số điện thoại</label>
-                            <input type="text" class="form-control udemy-input" th:field="*{phone}" placeholder="Số điện thoại">
+                            <input type="text" class="form-control mlp-input" th:field="*{phone}" placeholder="Số điện thoại">
                         </div>
 
                         <!-- Đầu đề -->
                         <div class="mb-3">
                             <label class="form-label">Đầu đề</label>
-                            <input type="text" class="form-control udemy-input" th:field="*{headline}" placeholder="Giảng viên tại Udemy" maxlength="60">
+                            <input type="text" class="form-control mlp-input" th:field="*{headline}" placeholder="Giảng viên tại My Learning Path" maxlength="60">
                             <div class="form-text text-end" style="font-size: 12px;">60</div>
                         </div>
 
@@ -139,14 +139,14 @@
                                 <button type="button" onclick="formatText('bold')"><i class="bi bi-type-bold"></i></button>
                                 <button type="button" onclick="formatText('italic')"><i class="bi bi-type-italic"></i></button>
                             </div>
-                            <textarea class="form-control udemy-input bio-textarea" th:field="*{bio}" rows="5" id="bioTextarea" placeholder="Tiểu sử của bạn..."></textarea>
+                            <textarea class="form-control mlp-input bio-textarea" th:field="*{bio}" rows="5" id="bioTextarea" placeholder="Tiểu sử của bạn..."></textarea>
                             <div class="form-text text-muted" style="font-size: 12px;">Để giúp học viên tìm hiểu thêm về bạn, tiểu sử của bạn phải phản ánh độ uy tín, sự thấu cảm, niềm đam mê và tính cách của bạn.</div>
                         </div>
 
                         <!-- Ngôn ngữ -->
                         <div class="mb-3">
                             <label class="form-label">Ngôn ngữ</label>
-                            <select class="form-select udemy-input">
+                            <select class="form-select mlp-input">
                                 <option value="vi" selected>Tiếng Việt</option>
                                 <option value="en">English</option>
                             </select>
@@ -158,7 +158,7 @@
                         <!-- Trang web -->
                         <div class="mb-3">
                             <label class="form-label">Trang web</label>
-                            <input type="url" class="form-control udemy-input" placeholder="URL" name="websiteUrl">
+                            <input type="url" class="form-control mlp-input" placeholder="URL" name="websiteUrl">
                         </div>
 
                         <!-- Facebook -->
@@ -166,7 +166,7 @@
                             <label class="form-label">Facebook</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted border-end-0 rounded-0" style="border: 1px solid #1c1d1f;">facebook.com/</span>
-                                <input type="text" class="form-control udemy-input border-start-0" th:field="*{facebookUrl}" placeholder="Tên người dùng">
+                                <input type="text" class="form-control mlp-input border-start-0" th:field="*{facebookUrl}" placeholder="Tên người dùng">
                             </div>
                         </div>
 
@@ -175,7 +175,7 @@
                             <label class="form-label">Instagram</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted border-end-0 rounded-0" style="border: 1px solid #1c1d1f;">instagram.com/</span>
-                                <input type="text" class="form-control udemy-input border-start-0" placeholder="Tên người dùng" name="instagramUser">
+                                <input type="text" class="form-control mlp-input border-start-0" placeholder="Tên người dùng" name="instagramUser">
                             </div>
                         </div>
 
@@ -184,7 +184,7 @@
                             <label class="form-label">LinkedIn</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted border-end-0 rounded-0" style="border: 1px solid #1c1d1f;">linkedin.com/</span>
-                                <input type="text" class="form-control udemy-input border-start-0" th:field="*{linkedinUrl}" placeholder="URL Hồ sơ công khai">
+                                <input type="text" class="form-control mlp-input border-start-0" th:field="*{linkedinUrl}" placeholder="URL Hồ sơ công khai">
                             </div>
                         </div>
 
@@ -193,7 +193,7 @@
                             <label class="form-label">TikTok</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted border-end-0 rounded-0" style="border: 1px solid #1c1d1f;">tiktok.com/</span>
-                                <input type="text" class="form-control udemy-input border-start-0" placeholder="@Tên người dùng" name="tiktokUser">
+                                <input type="text" class="form-control mlp-input border-start-0" placeholder="@Tên người dùng" name="tiktokUser">
                             </div>
                         </div>
 
@@ -202,7 +202,7 @@
                             <label class="form-label">X</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted border-end-0 rounded-0" style="border: 1px solid #1c1d1f;">x.com/</span>
-                                <input type="text" class="form-control udemy-input border-start-0" placeholder="Tên người dùng" name="xUser">
+                                <input type="text" class="form-control mlp-input border-start-0" placeholder="Tên người dùng" name="xUser">
                             </div>
                         </div>
 
@@ -211,7 +211,7 @@
                             <label class="form-label">YouTube</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted border-end-0 rounded-0" style="border: 1px solid #1c1d1f;">youtube.com/</span>
-                                <input type="text" class="form-control udemy-input border-start-0" th:field="*{youtubeUrl}" placeholder="Tên người dùng">
+                                <input type="text" class="form-control mlp-input border-start-0" th:field="*{youtubeUrl}" placeholder="Tên người dùng">
                             </div>
                         </div>
                     </div>
@@ -219,7 +219,7 @@
 
                 <!-- Nút Lưu -->
                 <div class="mt-4 border-top pt-3">
-                    <button type="submit" class="btn udemy-btn-save">Lưu</button>
+                    <button type="submit" class="btn mlp-btn-save">Lưu</button>
                     <a th:href="@{/profile}" class="btn btn-outline-dark rounded-0 px-4 py-2 ms-2">Xem hồ sơ</a>
                 </div>
             </form>
@@ -229,29 +229,40 @@
         <div class="tab-pane fade" id="avatar-pane" role="tabpanel" aria-labelledby="avatar-tab">
             <div class="card border rounded-0 p-4" style="max-width: 600px;">
                 <h5 class="fw-bold mb-3">Tải ảnh đại diện mới</h5>
-                <form th:action="@{/profile/edit}" th:object="${request}" method="post" enctype="multipart/form-data">
-                    <input type="hidden" th:field="*{fullName}">
-                    <input type="hidden" th:field="*{phone}">
-                    <input type="hidden" th:field="*{headline}">
-                    <input type="hidden" th:field="*{bio}">
-                    <input type="hidden" th:field="*{facebookUrl}">
-                    <input type="hidden" th:field="*{youtubeUrl}">
-                    <input type="hidden" th:field="*{linkedinUrl}">
-                    
-                    <div class="mb-3">
-                        <input type="file" name="avatarFile" class="form-control udemy-input" accept="image/*" required>
-                        <div class="form-text text-muted">Hỗ trợ các định dạng: JPG, JPEG, PNG, WEBP. Dung lượng nhỏ hơn 2MB.</div>
+
+                <!-- Hiện ảnh avatar hiện tại nếu có -->
+                <div class="mb-3 text-center">
+                    <div th:if="${user.avatar != null}"
+                         style="width:100px;height:100px;border-radius:50%;overflow:hidden;margin:0 auto 12px auto;border:3px solid #a435f0;">
+                        <img th:src="${user.avatar.fileUrl}" alt="Avatar hiện tại"
+                             style="width:100%;height:100%;object-fit:cover;">
                     </div>
-                    <button type="submit" class="btn udemy-btn-save">Tải ảnh lên</button>
+                    <div th:unless="${user.avatar != null}"
+                         style="width:100px;height:100px;border-radius:50%;background:#1c1d1f;color:white;
+                                display:flex;align-items:center;justify-content:center;font-size:40px;
+                                font-weight:700;margin:0 auto 12px auto;">
+                        <span th:text="${user.fullName != null and !user.fullName.isEmpty()
+                                         ? #strings.substring(user.fullName,0,1).toUpperCase() : 'U'}">U</span>
+                    </div>
+                    <p class="text-muted small">Ảnh đại diện hiện tại</p>
+                </div>
+
+                <!-- Form upload ảnh — gọi endpoint /profile/avatar riêng -->
+                <form th:action="@{/profile/avatar}" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input type="file" name="avatarFile" class="form-control mlp-input" accept="image/*" required>
+                        <div class="form-text text-muted">Hỗ trợ: JPG, JPEG, PNG, WEBP. Tối đa 2MB.</div>
+                    </div>
+                    <button type="submit" class="btn mlp-btn-save">Tải ảnh lên</button>
                 </form>
             </div>
         </div>
     </div>
-</div>
 
-<div layout:fragment="scripts">
+    <!-- JS Scripts đặt trong fragment content để không bị Thymeleaf Layout Dialect loại bỏ -->
     <script th:inline="javascript">
         document.addEventListener("DOMContentLoaded", function() {
+            // Tách họ và tên hiển thị lên form
             var fullName = [[${user.fullName}]];
             if (fullName) {
                 var parts = fullName.trim().split(" ");
@@ -266,12 +277,26 @@
                 }
             }
 
+            // Ghép họ và tên khi submit form
             var form = document.getElementById("profileForm");
-            form.addEventListener("submit", function(e) {
-                var first = document.getElementById("firstName").value.trim();
-                var last = document.getElementById("lastName").value.trim();
-                document.getElementById("hiddenFullName").value = last + " " + first;
-            });
+            if (form) {
+                form.addEventListener("submit", function(e) {
+                    var first = document.getElementById("firstName").value.trim();
+                    var last = document.getElementById("lastName").value.trim();
+                    document.getElementById("hiddenFullName").value = last + " " + first;
+                });
+            }
+
+            // Tự động chuyển tab theo Hash trong URL khi load trang (hỗ trợ cả gạch ngang và gạch dưới)
+            var hash = window.location.hash;
+            if (hash) {
+                var normalizedHash = hash.replace('_', '-'); // Chuyển #avatar_pane thành #avatar-pane
+                var tabEl = document.querySelector('a[href="' + normalizedHash + '"]');
+                if (tabEl) {
+                    var tab = new bootstrap.Tab(tabEl);
+                    tab.show();
+                }
+            }
         });
 
         function formatText(command) {

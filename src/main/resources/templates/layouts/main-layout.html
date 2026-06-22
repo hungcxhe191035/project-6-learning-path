@@ -53,7 +53,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
-
         toastr.options = {
             closeButton: true,
             progressBar: true,
@@ -62,7 +61,8 @@
             preventDuplicates: true,
             timeOut: "3000"
         };
-
     </script>
+    <!-- Slot để các trang con inject JS riêng -->
+    <th:block layout:fragment="scripts"></th:block>
 </body>
 </html>

@@ -1,5 +1,6 @@
 package org.swp.my_learning_path.service;
 
+import org.springframework.web.multipart.MultipartFile;
 import org.swp.my_learning_path.dto.request.ChangePasswordRequest;
 import org.swp.my_learning_path.dto.request.UpdateProfileRequest;
 import org.swp.my_learning_path.entity.User;
@@ -18,4 +19,11 @@ public interface UserService {
 
     // Đổi mật khẩu
     void changePassword(Long userId, ChangePasswordRequest request);
+
+    // [MỚI] Cập nhật ảnh đại diện: upload lên S3, lưu AppFile, gán vào User
+    void updateAvatar(Long userId, MultipartFile avatarFile);
+
+    // Đóng tài khoản
+    void closeAccount(Long userId);
 }
+

@@ -105,6 +105,35 @@ public class UserController {
     }
 
     // ==========================================
+    // 3.2 UPLOAD ẢNH ĐẠI DIỆN (AVATAR)
+    // ==========================================
+    @PostMapping("/avatar")
+    public String uploadAvatar(@AuthenticationPrincipal CustomUserDetails userDetails,
+                               @RequestParam("avatarFile") org.springframework.web.multipart.MultipartFile avatarFile,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            userService.updateAvatar(userDetails.getUser().getUserId(), avatarFile);
+
+            // Refresh SecurityContext để navbar hiện ảnh mới ngay lập tức
+            org.springframework.security.core.Authentication currentAuth =
+                    org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (currentAuth != null) {
+                User updatedUser = userService.getUserByEmail(userDetails.getUser().getEmail());
+                CustomUserDetails newDetails = new CustomUserDetails(updatedUser);
+                org.springframework.security.core.Authentication newAuth =
+                        new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                                newDetails, currentAuth.getCredentials(), newDetails.getAuthorities());
+                org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(newAuth);
+            }
+
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật ảnh đại diện thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi tải ảnh: " + e.getMessage());
+        }
+        return "redirect:/profile/edit";
+    }
+
+    // ==========================================
     // 3.5 CÀI ĐẶT TÀI KHOẢN (SETTINGS)
     // ==========================================
     @GetMapping("/settings")
@@ -112,6 +141,21 @@ public class UserController {
                                   Model model) {
         model.addAttribute("user", userDetails.getUser());
         return "pages/settings";
+    }
+
+    // Đóng tài khoản (vô hiệu hóa)
+    @PostMapping("/settings/close-account")
+    public String closeAccount(@AuthenticationPrincipal CustomUserDetails userDetails,
+                               jakarta.servlet.http.HttpServletRequest request,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            userService.closeAccount(userDetails.getUser().getUserId());
+            request.logout();
+            return "redirect:/login?closed=true";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Đã xảy ra lỗi khi đóng tài khoản: " + e.getMessage());
+            return "redirect:/profile/settings";
+        }
     }
 
     // ==========================================
