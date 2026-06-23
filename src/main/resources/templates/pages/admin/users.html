@@ -15,15 +15,22 @@
         <div>
             <h2 class="fw-bold mb-1" style="color: #0f172a;">Quản lý Người dùng</h2>
         </div>
-        <a th:href="@{/admin/users/create}" class="btn btn-create fw-bold py-2 px-4 d-flex align-items-center gap-2" style="font-size: 14px;">
+        <button type="button" class="btn btn-create fw-bold py-2 px-4 d-flex align-items-center gap-2" style="font-size: 14px;" data-bs-toggle="modal" data-bs-target="#createUserModal">
             <i class="bi bi-person-plus-fill"></i> Thêm người dùng
-        </a>
+        </button>
     </div>
 
     <!-- Alert Success -->
-    <div th:if="${successMessage != null or param.success != null}" class="alert alert-success alert-dismissible fade show rounded-0 mb-4 toast-alert" role="alert">
+    <div th:if="${successMessage != null or param.success != null}" class="alert alert-success alert-dismissible fade show mb-4 toast-alert" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i>
         <span th:text="${successMessage != null ? successMessage : 'Thao tác thực hiện thành công!'}">Thao tác thực hiện thành công!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Alert Error -->
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mb-4 toast-alert" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}">Có lỗi xảy ra!</span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
@@ -128,7 +135,7 @@
                     <th class="py-3">Số điện thoại</th>
                     <th class="py-3">Vai trò</th>
                     <th class="py-3">Trạng thái</th>
-                    <th class="py-3 pe-4 text-end" style="width: 220px;">Hành động</th>
+                    <th class="py-3 pe-4 text-end" style="width: 320px;">Hành động</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -150,9 +157,9 @@
                     <td th:text="${user.email}">user@email.com</td>
                     <td th:text="${user.phone ?: '-'}">0901234567</td>
                     <td>
-                        <span th:if="${user.role.name() == 'ADMIN'}" class="badge bg-danger rounded-0">ADMIN</span>
-                        <span th:if="${user.role.name() == 'INSTRUCTOR'}" class="badge bg-primary rounded-0">INSTRUCTOR</span>
-                        <span th:if="${user.role.name() == 'STUDENT'}" class="badge bg-success rounded-0">STUDENT</span>
+                        <span th:if="${user.role.name() == 'ADMIN'}" class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1">ADMIN</span>
+                        <span th:if="${user.role.name() == 'INSTRUCTOR'}" class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1">INSTRUCTOR</span>
+                        <span th:if="${user.role.name() == 'STUDENT'}" class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-2.5 py-1">STUDENT</span>
                     </td>
                     <td>
                         <span th:if="${user.status.name() == 'ACTIVE'}" class="badge-active">
@@ -170,9 +177,14 @@
                             </a>
 
                             <!-- Assign Role -->
-                            <a th:href="@{/admin/users/{id}/assign-role(id=${user.userId})}" class="btn-admin-action" title="Gán vai trò">
+                            <button th:if="${user.role.name() != 'ADMIN'}" type="button" class="btn-admin-action" title="Gán vai trò"
+                                    th:data-user-id="${user.userId}"
+                                    th:data-full-name="${user.fullName}"
+                                    th:data-email="${user.email}"
+                                    th:data-role="${user.role.name()}"
+                                    onclick="openAssignRoleModal(this.getAttribute('data-user-id'), this.getAttribute('data-full-name'), this.getAttribute('data-email'), this.getAttribute('data-role'))">
                                 <i class="bi bi-shield-lock-fill"></i> Gán Role
-                            </a>
+                            </button>
 
                             <!-- Lock/Unlock (Disabled if self) -->
                             <form th:action="@{/admin/users/{id}/toggle-status(id=${user.userId})}" method="post" class="m-0"
@@ -210,16 +222,16 @@
                 Hiển thị trang <span class="fw-bold" th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span> (Tổng <span th:text="${totalElements}">0</span> kết quả)
             </div>
             <nav aria-label="Page navigation">
-                <ul class="pagination mb-0 pagination-sm rounded-0">
+                <ul class="pagination mb-0 pagination-sm">
                     <!-- First Page -->
                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link rounded-0 text-dark border-secondary" th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=0)}">
+                        <a class="page-link" th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=0)}">
                             <i class="bi bi-chevron-double-left"></i>
                         </a>
                     </li>
                     <!-- Previous Page -->
                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link text-dark border-secondary" th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=${currentPage - 1})}">
+                        <a class="page-link" th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=${currentPage - 1})}">
                             <i class="bi bi-chevron-left"></i>
                         </a>
                     </li>
@@ -228,20 +240,19 @@
                         th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
                         th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
                         th:classappend="${currentPage == i} ? 'active'">
-                        <a class="page-link border-secondary" 
-                           th:classappend="${currentPage == i} ? 'bg-dark border-dark text-white' : 'text-dark'"
+                        <a class="page-link" 
                            th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=${i})}" 
                            th:text="${i + 1}">1</a>
                     </li>
                     <!-- Next Page -->
                     <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                        <a class="page-link text-dark border-secondary" th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=${currentPage + 1})}">
+                        <a class="page-link" th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=${currentPage + 1})}">
                             <i class="bi bi-chevron-right"></i>
                         </a>
                     </li>
                     <!-- Last Page -->
                     <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                        <a class="page-link rounded-0 text-dark border-secondary" th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=${totalPages - 1})}">
+                        <a class="page-link" th:href="@{/admin/users(search=${search}, role=${selectedRole}, status=${selectedStatus}, page=${totalPages - 1})}">
                             <i class="bi bi-chevron-double-right"></i>
                         </a>
                     </li>
@@ -307,48 +318,116 @@
         function submitBulkAction(actionUrl, actionName) {
             const checkedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
             if (checkedCheckboxes.length === 0) {
-                alert('Vui lòng chọn ít nhất một người dùng.');
+                showAlert('Vui lòng chọn ít nhất một người dùng.', 'Thông báo');
                 return;
             }
 
             let confirmMsg = '';
+            const isDanger = actionName !== 'Mở khóa';
             if (actionName === 'Mở khóa') {
                 confirmMsg = `Bạn có chắc chắn muốn MỞ KHÓA hàng loạt ${checkedCheckboxes.length} tài khoản đã chọn?`;
             } else {
                 confirmMsg = `Bạn có chắc chắn muốn KHÓA hàng loạt ${checkedCheckboxes.length} tài khoản đã chọn?`;
             }
 
-            if (!confirm(confirmMsg)) {
-                return;
-            }
+            showConfirm(confirmMsg, function() {
+                // Lấy CSRF token từ meta tag (inject bởi admin-layout)
+                const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
 
-            // Lấy CSRF token từ meta tag (inject bởi admin-layout)
-            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                const form = document.getElementById('bulkActionForm');
+                form.action = actionUrl;
+                form.innerHTML = ''; // clear previous inputs
 
-            const form = document.getElementById('bulkActionForm');
-            form.action = actionUrl;
-            form.innerHTML = ''; // clear previous inputs
+                // Append CSRF token nếu có
+                if (csrfToken) {
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_csrf';
+                    csrfInput.value = csrfToken;
+                    form.appendChild(csrfInput);
+                }
 
-            // Append CSRF token nếu có
-            if (csrfToken) {
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '_csrf';
-                csrfInput.value = csrfToken;
-                form.appendChild(csrfInput);
-            }
+                checkedCheckboxes.forEach(cb => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'userIds';
+                    input.value = cb.value;
+                    form.appendChild(input);
+                });
 
-            checkedCheckboxes.forEach(cb => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'userIds';
-                input.value = cb.value;
-                form.appendChild(input);
-            });
-
-            form.submit();
+                form.submit();
+            }, actionName, isDanger, actionName + ' tài khoản');
         }
     </script>
+    <!-- Create User Modal -->
+    <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true" style="z-index: 10050;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <form th:action="@{/admin/users/create}" method="post" id="createUserForm">
+                    <div class="modal-header border-0 pb-0 px-4 pt-4 bg-transparent">
+                        <h5 class="modal-title fw-bold text-dark d-flex align-items-center" id="createUserModalLabel">
+                            <i class="bi bi-person-plus-fill text-primary me-2"></i>Đăng ký tài khoản thành viên mới
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="modal-body px-4 py-3">
+                        <div class="row g-3">
+                            <!-- Họ và tên -->
+                            <div class="col-md-6">
+                                <label for="modalFullName" class="form-label text-muted small fw-semibold mb-1">Họ và tên <span class="text-danger">*</span></label>
+                                <input type="text" id="modalFullName" name="fullName" class="form-control" placeholder="Nhập họ và tên..." required style="border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; padding: 10px;">
+                            </div>
+                            
+                            <!-- Số điện thoại -->
+                            <div class="col-md-6">
+                                <label for="modalPhone" class="form-label text-muted small fw-semibold mb-1">Số điện thoại</label>
+                                <input type="text" id="modalPhone" name="phone" class="form-control" placeholder="Nhập số điện thoại..." style="border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; padding: 10px;">
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <label for="modalEmail" class="form-label text-muted small fw-semibold mb-1">Địa chỉ Email <span class="text-danger">*</span></label>
+                                <input type="email" id="modalEmail" name="email" class="form-control" placeholder="Nhập email..." required style="border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; padding: 10px;">
+                            </div>
+                            
+                            <!-- Mật khẩu -->
+                            <div class="col-md-6">
+                                <label for="modalPassword" class="form-label text-muted small fw-semibold mb-1">Mật khẩu <span class="text-danger">*</span></label>
+                                <input type="password" id="modalPassword" name="plainPassword" class="form-control" placeholder="Nhập mật khẩu (tối thiểu 8 ký tự)..." required style="border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; padding: 10px;">
+                            </div>
+                            
+                            <!-- Vai trò -->
+                            <div class="col-md-6">
+                                <label for="modalRole" class="form-label text-muted small fw-semibold mb-1">Vai trò thành viên <span class="text-danger">*</span></label>
+                                <select id="modalRole" name="role" class="form-select" required style="border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; padding: 10px;">
+                                    <option value="STUDENT">Học viên (STUDENT)</option>
+                                    <option value="INSTRUCTOR">Giảng viên (INSTRUCTOR)</option>
+                                    <option value="ADMIN">Quản trị viên (ADMIN)</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Trạng thái -->
+                            <div class="col-md-6">
+                                <label for="modalStatus" class="form-label text-muted small fw-semibold mb-1">Trạng thái tài khoản <span class="text-danger">*</span></label>
+                                <select id="modalStatus" name="status" class="form-select" required style="border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; padding: 10px;">
+                                    <option value="ACTIVE">Hoạt động (ACTIVE)</option>
+                                    <option value="INACTIVE">Khóa (INACTIVE)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer border-0 pt-0 px-4 pb-4 gap-2 d-flex justify-content-end bg-transparent">
+                        <button type="button" class="btn-admin-secondary m-0" data-bs-dismiss="modal">Hủy bỏ</button>
+                        <button type="submit" class="btn-admin-success m-0">
+                            <i class="bi bi-person-plus-fill me-1"></i>Thêm người dùng
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 </body>

@@ -18,12 +18,12 @@
     </div>
 
     <!-- Alert Messages -->
-    <div th:if="${successMessage != null}" class="alert alert-success alert-dismissible fade show rounded-0 mb-4 toast-alert" role="alert">
+    <div th:if="${successMessage != null}" class="alert alert-success alert-dismissible fade show mb-4 toast-alert" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i>
         <span th:text="${successMessage}">Thao tác thực hiện thành công!</span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div th:if="${errorMessage != null}" class="alert alert-danger alert-dismissible fade show rounded-0 mb-4 toast-alert" role="alert">
+    <div th:if="${errorMessage != null}" class="alert alert-danger alert-dismissible fade show mb-4 toast-alert" role="alert">
         <i class="bi bi-exclamation-triangle-fill me-2"></i>
         <span th:text="${errorMessage}">Có lỗi xảy ra!</span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -87,7 +87,7 @@
                     <th class="py-3">Đánh giá trung bình</th>
                     <th class="py-3">Học viên tham gia</th>
                     <th class="py-3">Trạng thái khóa</th>
-                    <th class="py-3 pe-4 text-end" style="width: 280px;">Hành động</th>
+                    <th class="py-3 pe-4 text-end" style="width: 320px;">Hành động</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -134,10 +134,9 @@
                             </a>
 
                             <!-- Unblock / Block Action -->
-                            <form th:if="${course.isBlocked}" th:action="@{/admin/courses/{id}/unblock(id=${course.courseId})}" method="post" class="m-0"
-                                  onsubmit="return confirm('Bạn có chắc chắn muốn MỞ KHÓA khóa học này?');">
+                            <form th:if="${course.isBlocked}" th:action="@{/admin/courses/{id}/unblock(id=${course.courseId})}" method="post" class="m-0">
                                 <input type="hidden" name="page" th:value="${currentPage}"/>
-                                <button type="submit" class="btn-admin-success-outline" title="Mở khóa khóa học">
+                                <button type="button" class="btn-admin-success-outline" title="Mở khóa khóa học" onclick="confirmUnblock(this)">
                                     <i class="bi bi-unlock-fill"></i> Mở khóa
                                 </button>
                             </form>
@@ -148,10 +147,9 @@
                             </button>
 
                             <!-- Delete (Soft delete) -->
-                            <form th:action="@{/admin/courses/{id}/delete(id=${course.courseId})}" method="post" class="m-0"
-                                  onsubmit="return confirm('Bạn có chắc chắn muốn XÓA MỀM khóa học này? Khóa học sẽ bị ẩn khỏi mọi học viên.');">
+                            <form th:action="@{/admin/courses/{id}/delete(id=${course.courseId})}" method="post" class="m-0">
                                 <input type="hidden" name="page" th:value="${currentPage}"/>
-                                <button type="submit" class="btn-admin-danger" title="Xóa mềm khóa học">
+                                <button type="button" class="btn-admin-danger" title="Xóa mềm khóa học" onclick="confirmDelete(this)">
                                     <i class="bi bi-trash"></i> Xóa
                                 </button>
                             </form>
@@ -174,17 +172,17 @@
                 Hiển thị trang <span class="fw-bold" th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span> (Tổng <span th:text="${totalElements}">0</span> kết quả)
             </div>
             <nav aria-label="Page navigation">
-                <ul class="pagination mb-0 pagination-sm rounded-0">
+                <ul class="pagination mb-0 pagination-sm">
                     <!-- First Page -->
                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link rounded-0 text-dark border-secondary" 
+                        <a class="page-link" 
                            th:href="@{/admin/courses(search=${search}, status=${selectedStatus}, blocked=${selectedBlocked}, page=0)}">
                             <i class="bi bi-chevron-double-left"></i>
                         </a>
                     </li>
                     <!-- Previous Page -->
                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link text-dark border-secondary" 
+                        <a class="page-link" 
                            th:href="@{/admin/courses(search=${search}, status=${selectedStatus}, blocked=${selectedBlocked}, page=${currentPage - 1})}">
                             <i class="bi bi-chevron-left"></i>
                         </a>
@@ -194,21 +192,20 @@
                         th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
                         th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
                         th:classappend="${currentPage == i} ? 'active'">
-                        <a class="page-link border-secondary" 
-                           th:classappend="${currentPage == i} ? 'bg-dark border-dark text-white' : 'text-dark'"
+                        <a class="page-link" 
                            th:href="@{/admin/courses(search=${search}, status=${selectedStatus}, blocked=${selectedBlocked}, page=${i})}" 
                            th:text="${i + 1}">1</a>
                     </li>
                     <!-- Next Page -->
                     <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                        <a class="page-link text-dark border-secondary" 
+                        <a class="page-link" 
                            th:href="@{/admin/courses(search=${search}, status=${selectedStatus}, blocked=${selectedBlocked}, page=${currentPage + 1})}">
                             <i class="bi bi-chevron-right"></i>
                         </a>
                     </li>
                     <!-- Last Page -->
                     <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                        <a class="page-link rounded-0 text-dark border-secondary" 
+                        <a class="page-link" 
                            th:href="@{/admin/courses(search=${search}, status=${selectedStatus}, blocked=${selectedBlocked}, page=${totalPages - 1})}">
                             <i class="bi bi-chevron-double-right"></i>
                         </a>
@@ -221,28 +218,28 @@
     <!-- Modal Khóa Khóa Học -->
     <div class="modal fade" id="blockCourseModal" tabindex="-1" aria-labelledby="blockCourseModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-0 border-0 shadow-lg">
+            <div class="modal-content">
                 <form id="blockCourseForm" method="post">
                     <!-- CSRF Token -->
                     <input type="hidden" name="_csrf" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
                     <input type="hidden" name="page" th:value="${currentPage}"/>
                     
-                    <div class="modal-header bg-danger text-white rounded-0">
-                        <h5 class="modal-title fw-bold" id="blockCourseModalLabel">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold text-danger" id="blockCourseModalLabel">
                             <i class="bi bi-exclamation-triangle-fill me-2"></i>Khóa khóa học
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
                         <p class="text-secondary mb-3">Vui lòng nhập lý do khóa khóa học này. Giảng viên sở hữu sẽ thấy lý do này trên màn hình của họ và có thể sửa đổi nội dung trước khi xuất bản lại.</p>
                         <div class="mb-3">
                             <label for="blockReasonInput" class="form-label fw-bold">Lý do khóa <span class="text-danger">*</span></label>
-                            <textarea class="form-control rounded-0" id="blockReasonInput" name="reason" rows="4" placeholder="Ví dụ: Nội dung rác, bản quyền, thông tin sai lệch..." required></textarea>
+                            <textarea class="form-control" id="blockReasonInput" name="reason" rows="4" placeholder="Ví dụ: Nội dung rác, bản quyền, thông tin sai lệch..." required></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer bg-light rounded-0">
-                        <button type="button" class="btn btn-secondary rounded-0 fw-bold px-4" data-bs-dismiss="modal">Hủy bỏ</button>
-                        <button type="submit" class="btn btn-danger rounded-0 fw-bold px-4">Khóa khóa học</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-admin-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                        <button type="submit" class="btn-admin-danger">Khóa khóa học</button>
                     </div>
                 </form>
             </div>
@@ -267,6 +264,20 @@
             form.action = `/admin/courses/${courseId}/block`;
             const blockModal = new bootstrap.Modal(document.getElementById('blockCourseModal'));
             blockModal.show();
+        }
+
+        function confirmUnblock(button) {
+            const form = button.closest('form');
+            showConfirm('Bạn có chắc chắn muốn MỞ KHÓA khóa học này?', function() {
+                form.submit();
+            }, 'Mở khóa', false, 'Mở khóa khóa học');
+        }
+
+        function confirmDelete(button) {
+            const form = button.closest('form');
+            showConfirm('Bạn có chắc chắn muốn XÓA MỀM khóa học này? Khóa học sẽ bị ẩn khỏi mọi học viên.', function() {
+                form.submit();
+            }, 'Xóa', true, 'Xóa khóa học');
         }
     </script>
 </div>

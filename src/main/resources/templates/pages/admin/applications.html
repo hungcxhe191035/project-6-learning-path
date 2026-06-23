@@ -7,75 +7,7 @@
 >
 <head>
     <title>Duyệt Đơn Giảng Viên</title>
-    <style>
-        .filter-tab {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 20px;
-            border: 1px solid #cbd5e1;
-            border-radius: 9999px;
-            font-weight: 600;
-            font-size: 13px;
-            color: #475569;
-            background: #fff;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .filter-tab:hover {
-            border-color: #7c3aed;
-            color: #7c3aed;
-        }
-        .filter-tab.active {
-            border-color: #7c3aed;
-            background: #7c3aed;
-            color: #fff;
-            box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2);
-        }
-        .filter-tab-pending {
-            border-color: #fcd34d;
-            color: #b45309;
-        }
-        .filter-tab-pending:hover {
-            border-color: #f59e0b;
-            color: #b45309;
-        }
-        .filter-tab-pending.active-pending {
-            border-color: #f59e0b;
-            background: #fef3c7;
-            color: #b45309;
-            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.15);
-        }
-        .filter-tab-approved {
-            border-color: #a7f3d0;
-            color: #047857;
-        }
-        .filter-tab-approved:hover {
-            border-color: #10b981;
-            color: #047857;
-        }
-        .filter-tab-approved.active {
-            border-color: #10b981;
-            background: #10b981;
-            color: #fff;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
-        }
-        .filter-tab-rejected {
-            border-color: #fca5a5;
-            color: #b91c1c;
-        }
-        .filter-tab-rejected:hover {
-            border-color: #ef4444;
-            color: #b91c1c;
-        }
-        .filter-tab-rejected.active {
-            border-color: #ef4444;
-            background: #ef4444;
-            color: #fff;
-            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
-        }
-    </style>
+
 </head>
 <body>
 
@@ -93,12 +25,12 @@
     </div>
 
     <!-- Success / Error Alert -->
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-0 mb-4 toast-alert" role="alert">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mb-4 toast-alert" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i>
         <span th:text="${successMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-0 mb-4 toast-alert" role="alert">
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mb-4 toast-alert" role="alert">
         <i class="bi bi-exclamation-circle-fill me-2"></i>
         <span th:text="${errorMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>

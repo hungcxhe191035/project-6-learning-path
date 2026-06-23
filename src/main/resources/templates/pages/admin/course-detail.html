@@ -7,13 +7,10 @@
 >
 <head>
     <title th:text="${pageTitle}">Chi tiết Khóa học</title>
-    <style>
-        .course-hero-img { width: 100%; height: auto; max-height: 240px; object-fit: cover; border: 1px solid #cbd5e1; border-radius: 8px; }
-    </style>
 </head>
 <body>
 <div layout:fragment="content">
-    <a th:href="@{/admin/courses}" class="btn btn-edit mb-4 d-inline-flex align-items-center gap-2" style="border: 1px solid #cbd5e1 !important; border-radius: 8px !important; padding: 8px 16px !important; font-size: 13px !important; height: auto !important;">
+    <a th:href="@{/admin/courses}" class="btn-admin-action mb-4">
         <i class="bi bi-arrow-left"></i> Quay lại danh sách
     </a>
 
@@ -75,22 +72,22 @@
                     <i class="bi bi-list-task me-2"></i>Nội dung giáo trình
                 </div>
                 <div class="p-4">
-                    <div class="accordion rounded-0" id="curriculumAccordion">
-                        <div class="accordion-item rounded-0 mb-3 border" th:each="section, sStat : ${course.sections}">
+                    <div class="accordion" id="curriculumAccordion">
+                        <div class="accordion-item rounded-3 mb-3 border overflow-hidden" th:each="section, sStat : ${course.sections}">
                             <h2 class="accordion-header" th:id="'heading' + ${section.sectionId}">
-                                <button class="accordion-button rounded-0 bg-light fw-bold text-dark" type="button" 
+                                <button class="accordion-button bg-light fw-bold text-dark" type="button" 
                                         data-bs-toggle="collapse" th:data-bs-target="'#collapse' + ${section.sectionId}" 
                                         aria-expanded="true" th:aria-controls="'collapse' + ${section.sectionId}">
                                     <div class="w-100 d-flex justify-content-between align-items-center pe-3">
                                         <span th:text="'Phần ' + ${sStat.index + 1} + ': ' + ${section.title}">Phần 1: Giới thiệu</span>
-                                        <span class="badge bg-secondary rounded-0 text-white font-monospace" th:text="${section.lessons.size()} + ' bài học'">5 bài học</span>
+                                        <span class="badge rounded-pill bg-secondary text-white font-monospace" th:text="${section.lessons.size()} + ' bài học'">5 bài học</span>
                                     </div>
                                 </button>
                             </h2>
                             <div th:id="'collapse' + ${section.sectionId}" class="accordion-collapse collapse show" 
                                  th:aria-labelledby="'heading' + ${section.sectionId}">
                                 <div class="accordion-body p-0">
-                                    <ul class="list-group list-group-flush rounded-0">
+                                    <ul class="list-group list-group-flush">
                                         <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4" 
                                             th:each="lesson, lStat : ${section.lessons}">
                                             <div class="d-flex align-items-center gap-3">
@@ -101,7 +98,7 @@
                                                 </span>
                                                 <div>
                                                     <span class="fw-semibold text-dark" th:text="${lStat.index + 1} + '. ' + ${lesson.title}">1. Bài học đầu tiên</span>
-                                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary ms-2 small rounded-0" 
+                                                    <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary border border-secondary ms-2 small" 
                                                           th:text="${lesson.lessonType}">VIDEO</span>
                                                 </div>
                                             </div>
@@ -152,7 +149,7 @@
                 </div>
                 <div class="p-4">
                     <!-- Current block status & reason -->
-                    <div th:if="${course.isBlocked}" class="alert alert-danger rounded-0 mb-3 small py-2 px-3 fw-medium">
+                    <div th:if="${course.isBlocked}" class="alert alert-danger rounded-3 mb-3 small py-2 px-3 fw-medium">
                         <i class="bi bi-exclamation-triangle-fill me-1"></i> Khóa học đang bị khóa.
                         <div class="mt-1 text-dark opacity-75">Lý do: <span th:text="${course.blockReason}">...</span></div>
                     </div>
@@ -162,14 +159,14 @@
                     <div class="d-grid gap-2">
                         <!-- Unblock button if already blocked -->
                         <form th:if="${course.isBlocked}" th:action="@{/admin/courses/{id}/unblock(id=${course.courseId})}" method="post" class="m-0"
-                              onsubmit="return confirm('Bạn có chắc chắn muốn MỞ KHÓA khóa học này?');">
-                            <button type="submit" class="btn btn-outline-success w-100 rounded-0 fw-bold py-2">
+                              id="unblockCourseForm">
+                            <button type="button" class="btn-admin-success w-100" onclick="submitUnblock()">
                                 <i class="bi bi-unlock-fill me-2"></i>Mở khóa khóa học
                             </button>
                         </form>
                         
                         <!-- Block modal trigger -->
-                        <button th:if="${!course.isBlocked}" type="button" class="btn btn-outline-danger w-100 rounded-0 fw-bold py-2" 
+                        <button th:if="${!course.isBlocked}" type="button" class="btn-admin-danger w-100" 
                                 th:onclick="'openBlockModal(' + ${course.courseId} + ')'">
                             <i class="bi bi-lock-fill me-2"></i>Khóa khóa học
                         </button>
@@ -182,25 +179,25 @@
     <!-- Modal Khóa Khóa Học -->
     <div class="modal fade" id="blockCourseModal" tabindex="-1" aria-labelledby="blockCourseModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-0 border-0 shadow-lg">
+            <div class="modal-content">
                 <form id="blockCourseForm" method="post">
                     <input type="hidden" name="_csrf" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
-                    <div class="modal-header bg-danger text-white rounded-0">
-                        <h5 class="modal-title fw-bold" id="blockCourseModalLabel">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold text-danger" id="blockCourseModalLabel">
                             <i class="bi bi-exclamation-triangle-fill me-2"></i>Khóa khóa học
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
                         <p class="text-secondary mb-3">Vui lòng nhập lý do khóa khóa học này. Giảng viên sẽ thấy lý do này trên bảng điều khiển của họ và có thể sửa đổi nội dung trước khi xuất bản lại.</p>
                         <div class="mb-3">
                             <label for="blockReasonInput" class="form-label fw-bold">Lý do khóa <span class="text-danger">*</span></label>
-                            <textarea class="form-control rounded-0" id="blockReasonInput" name="reason" rows="4" placeholder="Nhập lý do chi tiết (ví dụ: nội dung rác, vi phạm bản quyền...)" required></textarea>
+                            <textarea class="form-control" id="blockReasonInput" name="reason" rows="4" placeholder="Nhập lý do chi tiết (ví dụ: nội dung rác, vi phạm bản quyền...)" required></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer bg-light rounded-0">
-                        <button type="button" class="btn btn-secondary rounded-0 fw-bold px-4" data-bs-dismiss="modal">Hủy bỏ</button>
-                        <button type="submit" class="btn btn-danger rounded-0 fw-bold px-4">Khóa khóa học</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-admin-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                        <button type="submit" class="btn-admin-danger">Khóa khóa học</button>
                     </div>
                 </form>
             </div>
@@ -213,6 +210,12 @@
             form.action = `/admin/courses/${courseId}/block`;
             const blockModal = new bootstrap.Modal(document.getElementById('blockCourseModal'));
             blockModal.show();
+        }
+
+        function submitUnblock() {
+            showConfirm('Bạn có chắc chắn muốn MỞ KHÓA khóa học này?', function() {
+                document.getElementById('unblockCourseForm').submit();
+            }, 'Mở khóa', false, 'Mở khóa khóa học');
         }
     </script>
 </div>

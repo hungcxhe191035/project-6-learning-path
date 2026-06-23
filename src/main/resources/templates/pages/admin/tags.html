@@ -7,28 +7,18 @@
 >
 <head>
     <title>Quản lý Tag</title>
-    <style>
-        .edit-mode-banner {
-            background: #fef3c7;
-            border: 1px solid #fde68a;
-            border-radius: 8px;
-            padding: 12px 18px;
-            font-size: 13px;
-            color: #b45309;
-            font-weight: 500;
-        }
-    </style>
+
 </head>
 <body>
 <div layout:fragment="content">
 
     <!-- Toasts -->
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-0 mb-0 toast-alert" role="alert">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mb-0 toast-alert" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i>
         <span th:text="${successMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-0 mb-0 toast-alert" role="alert">
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mb-0 toast-alert" role="alert">
         <i class="bi bi-exclamation-circle-fill me-2"></i>
         <span th:text="${errorMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -108,7 +98,7 @@
                             <button type="submit" class="btn btn-create">
                                 <i class="bi bi-check-lg me-2"></i>Lưu thay đổi
                             </button>
-                            <a th:href="@{/admin/tags}" class="btn btn-outline-secondary rounded-0">Huỷ</a>
+                             <a th:href="@{/admin/tags}" class="btn-admin-secondary">Huỷ</a>
                         </div>
                     </form>
                 </div>
@@ -153,9 +143,8 @@
                                        class="btn btn-edit">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <form th:action="@{/admin/tags/{id}/delete(id=${tag.tagId}, page=${currentPage})}" method="post"
-                                          onsubmit="return confirm('Xóa tag \'' + /*[[${tag.tagName}]]*/ 'tag' + '\'? Hành động này không thể hoàn tác.')">
-                                        <button type="submit" class="btn btn-del">
+                                    <form th:action="@{/admin/tags/{id}/delete(id=${tag.tagId}, page=${currentPage})}" method="post">
+                                        <button type="button" class="btn btn-del" th:data-tag-name="${tag.tagName}" onclick="confirmDeleteTag(this)">
                                             <i class="bi bi-trash3"></i>
                                         </button>
                                     </form>
@@ -180,13 +169,13 @@
                         <ul class="pagination pagination-sm mb-0">
                             <!-- First Page -->
                             <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                <a class="page-link rounded-0 text-dark border-secondary" th:href="@{/admin/tags(page=0, size=${tagPage.size})}">
+                                <a class="page-link" th:href="@{/admin/tags(page=0, size=${tagPage.size})}">
                                     <i class="bi bi-chevron-double-left"></i>
                                 </a>
                             </li>
                             <!-- Previous Page -->
                             <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                <a class="page-link text-dark border-secondary" th:href="@{/admin/tags(page=${currentPage - 1}, size=${tagPage.size})}">
+                                <a class="page-link" th:href="@{/admin/tags(page=${currentPage - 1}, size=${tagPage.size})}">
                                     <i class="bi bi-chevron-left"></i>
                                 </a>
                             </li>
@@ -195,20 +184,19 @@
                                 th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
                                 th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
                                 th:classappend="${currentPage == i} ? 'active'">
-                                <a class="page-link border-secondary" 
-                                   th:classappend="${currentPage == i} ? 'bg-dark border-dark text-white' : 'text-dark'"
+                                <a class="page-link" 
                                    th:href="@{/admin/tags(page=${i}, size=${tagPage.size})}" 
                                    th:text="${i + 1}">1</a>
                             </li>
                             <!-- Next Page -->
                             <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                                <a class="page-link text-dark border-secondary" th:href="@{/admin/tags(page=${currentPage + 1}, size=${tagPage.size})}">
+                                <a class="page-link" th:href="@{/admin/tags(page=${currentPage + 1}, size=${tagPage.size})}">
                                     <i class="bi bi-chevron-right"></i>
                                 </a>
                             </li>
                             <!-- Last Page -->
                             <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                                <a class="page-link rounded-0 text-dark border-secondary" th:href="@{/admin/tags(page=${totalPages - 1}, size=${tagPage.size})}">
+                                <a class="page-link" th:href="@{/admin/tags(page=${totalPages - 1}, size=${tagPage.size})}">
                                     <i class="bi bi-chevron-double-right"></i>
                                 </a>
                             </li>
@@ -218,18 +206,25 @@
             </div>
         </div>
     </div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const toasts = document.querySelectorAll('.toast-alert');
-        toasts.forEach(t => {
-            setTimeout(() => {
-                t.style.opacity = '0'; t.style.transform = 'translateY(-20px)';
-                setTimeout(() => t.remove(), 300);
-            }, 4000);
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toasts = document.querySelectorAll('.toast-alert');
+            toasts.forEach(t => {
+                setTimeout(() => {
+                    t.style.opacity = '0'; t.style.transform = 'translateY(-20px)';
+                    setTimeout(() => t.remove(), 300);
+                }, 4000);
+            });
         });
-    });
-</script>
+
+        function confirmDeleteTag(button) {
+            const tagName = button.getAttribute('data-tag-name');
+            const form = button.closest('form');
+            showConfirm(`Xóa tag '${tagName}'? Hành động này không thể hoàn tác.`, function() {
+                form.submit();
+            }, 'Xóa tag', true, 'Xóa tag');
+        }
+    </script>
+</div>
 </body>
 </html>

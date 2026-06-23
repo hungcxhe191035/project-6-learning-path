@@ -11,8 +11,20 @@
 <body>
 
 <div layout:fragment="content">
+    <!-- Alert Success/Error -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mb-4 toast-alert" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}">Thành công!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mb-4 toast-alert" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}">Có lỗi xảy ra!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <!-- Back button -->
-    <a th:href="@{/admin/users}" class="btn btn-outline-secondary rounded-0 mb-4 d-inline-flex align-items-center gap-2">
+    <a th:href="@{/admin/users}" class="btn-admin-action mb-4">
         <i class="bi bi-arrow-left"></i> Quay lại danh sách
     </a>
 
@@ -32,9 +44,9 @@
                     <p class="text-muted mb-3" th:text="${user.email}">user@email.com</p>
 
                     <div class="mb-4">
-                        <span th:if="${user.role.name() == 'ADMIN'}" class="badge bg-danger rounded-0 px-3 py-2 fs-6">ADMIN</span>
-                        <span th:if="${user.role.name() == 'INSTRUCTOR'}" class="badge bg-primary rounded-0 px-3 py-2 fs-6">INSTRUCTOR</span>
-                        <span th:if="${user.role.name() == 'STUDENT'}" class="badge bg-success rounded-0 px-3 py-2 fs-6">STUDENT</span>
+                        <span th:if="${user.role.name() == 'ADMIN'}" class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 fs-6">ADMIN</span>
+                        <span th:if="${user.role.name() == 'INSTRUCTOR'}" class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fs-6">INSTRUCTOR</span>
+                        <span th:if="${user.role.name() == 'STUDENT'}" class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6">STUDENT</span>
                     </div>
 
                     <hr class="my-4" style="border-color: #d1d7dc;">
@@ -69,23 +81,30 @@
                     <!-- Action Buttons -->
                     <div class="mt-4 pt-2 d-flex flex-column gap-2">
                         <!-- Assign Role Button -->
-                        <a th:href="@{/admin/users/{id}/assign-role(id=${user.userId})}" class="btn btn-edit w-100 py-3 fw-bold" style="display: flex; align-items: center; justify-content: center; height: auto; border: 1px solid #cbd5e1 !important; border-radius: 8px !important;">
+                        <button th:if="${user.role.name() != 'ADMIN'}" type="button" class="btn btn-edit w-100 py-3 fw-bold" style="display: flex; align-items: center; justify-content: center; height: auto; border: 1px solid #cbd5e1 !important; border-radius: 8px !important;"
+                                th:data-user-id="${user.userId}"
+                                th:data-full-name="${user.fullName}"
+                                th:data-email="${user.email}"
+                                th:data-role="${user.role.name()}"
+                                onclick="openAssignRoleModal(this.getAttribute('data-user-id'), this.getAttribute('data-full-name'), this.getAttribute('data-email'), this.getAttribute('data-role'))">
                             <i class="bi bi-shield-lock-fill me-2"></i>Gán vai trò
-                        </a>
+                        </button>
 
                         <!-- Lock/Unlock (Disabled if self) -->
                         <form th:action="@{/admin/users/{id}/toggle-status(id=${user.userId})}" method="post" class="w-100 m-0"
-                              th:if="${#authentication.name != user.email}">
-                            <button type="submit"
+                              th:if="${#authentication.name != user.email}" id="toggleStatusForm">
+                            <button type="button"
                                     th:class="${user.status?.name() == 'ACTIVE' ? 'btn btn-admin-danger w-100 py-3 fw-bold' : 'btn btn-admin-success w-100 py-3 fw-bold'}"
                                     th:text="${user.status?.name() == 'ACTIVE' ? 'Khóa tài khoản này' : 'Kích hoạt tài khoản này'}"
+                                    th:data-action="${user.status?.name() == 'ACTIVE' ? 'KHÓA' : 'KÍCH HOẠT'}"
+                                    onclick="confirmToggleStatus(this)"
                                     style="border-radius: 8px !important; font-size: 15px; height: 50px;">
                                 Khóa tài khoản
                             </button>
                         </form>
 
                         <!-- Self indicator -->
-                        <div th:if="${#authentication.name == user.email}" class="alert alert-light border rounded-0 text-center m-0">
+                        <div th:if="${#authentication.name == user.email}" class="alert alert-light border rounded-3 text-center m-0">
                             <i class="bi bi-person-fill-lock"></i> Bạn đang đăng nhập bằng tài khoản này.
                         </div>
                     </div>
@@ -99,7 +118,7 @@
             <div class="card admin-card mb-4">
                 <div class="admin-card-header d-flex justify-content-between align-items-center">
                     <span>Thông tin tài khoản ngân hàng</span>
-                    <span th:if="${user.role.name() == 'INSTRUCTOR'}" class="badge bg-warning text-dark rounded-0" style="font-size: 11px;">Nhận thanh toán</span>
+                    <span th:if="${user.role.name() == 'INSTRUCTOR'}" class="badge rounded-pill bg-warning-subtle text-warning border border-warning-subtle px-2.5 py-1" style="font-size: 11px;">Nhận thanh toán</span>
                 </div>
                 <div class="card-body p-4">
                     <div th:if="${user.bankName != null}" class="row g-3">
@@ -165,9 +184,9 @@
                                         +50,000đ
                                     </td>
                                     <td>
-                                        <span th:if="${tx.transactionType.name() == 'DEPOSIT'}" class="badge bg-light text-success border border-success rounded-0">Nạp tiền</span>
-                                        <span th:if="${tx.transactionType.name() == 'WITHDRAW'}" class="badge bg-light text-danger border border-danger rounded-0">Rút tiền</span>
-                                        <span th:if="${tx.transactionType.name() == 'PAYMENT'}" class="badge bg-light text-primary border border-primary rounded-0">Thanh toán</span>
+                                        <span th:if="${tx.transactionType.name() == 'DEPOSIT'}" class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-2.5 py-1">Nạp tiền</span>
+                                        <span th:if="${tx.transactionType.name() == 'WITHDRAW'}" class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1">Rút tiền</span>
+                                        <span th:if="${tx.transactionType.name() == 'PAYMENT'}" class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1">Thanh toán</span>
                                     </td>
                                     <td>
                                         <span th:if="${tx.status.name() == 'SUCCESS'}" class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Thành công</span>
@@ -194,6 +213,18 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        function confirmToggleStatus(button) {
+            const action = button.getAttribute('data-action');
+            const isDanger = action === 'KHÓA';
+            const msg = `Bạn có chắc chắn muốn ${action} tài khoản này không?`;
+            
+            showConfirm(msg, function() {
+                document.getElementById('toggleStatusForm').submit();
+            }, action === 'KHÓA' ? 'Khóa' : 'Kích hoạt', isDanger, action === 'KHÓA' ? 'Khóa tài khoản' : 'Kích hoạt tài khoản');
+        }
+    </script>
 </div>
 
 </body>

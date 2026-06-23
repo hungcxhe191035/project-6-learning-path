@@ -110,99 +110,54 @@ public class AdminController {
     // =============================================
     // TẠO MỚI NGƯỜI DÙNG
     // =============================================
-    @GetMapping("/users/create")
-    public String createUserForm(Model model) {
-        model.addAttribute("userForm", new CreateUserRequest());
-        model.addAttribute("roles", ERole.values());
-        model.addAttribute("statuses", EAccountStatus.values());
-        model.addAttribute("isEdit", false);
-        model.addAttribute("pageTitle", "Thêm Người dùng Mới");
-        model.addAttribute("activePage", "users");
-        model.addAttribute("pendingCount", applicationService.countPending());
-        return "pages/admin/user-form";
-    }
-
     @PostMapping("/users/create")
     public String createUser(
             @Valid @ModelAttribute("userForm") CreateUserRequest request,
             BindingResult bindingResult,
-            Model model,
+            jakarta.servlet.http.HttpServletRequest httpServletRequest,
             RedirectAttributes redirectAttributes) {
 
+        String referer = httpServletRequest.getHeader("Referer");
+        String redirectUrl = (referer != null && !referer.isEmpty()) ? referer : "/admin/users";
+
         if (bindingResult.hasErrors()) {
-            model.addAttribute("roles", ERole.values());
-            model.addAttribute("statuses", EAccountStatus.values());
-            model.addAttribute("isEdit", false);
-            model.addAttribute("pageTitle", "Thêm Người dùng Mới");
-            model.addAttribute("activePage", "users");
-            model.addAttribute("pendingCount", applicationService.countPending());
-            return "pages/admin/user-form";
+            String errorMsg = bindingResult.getFieldErrors().stream()
+                    .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                    .collect(java.util.stream.Collectors.joining(", "));
+            redirectAttributes.addFlashAttribute("errorMessage", "Dữ liệu không hợp lệ: " + errorMsg);
+            return "redirect:" + redirectUrl;
         }
 
         try {
             adminService.createUser(request);
             redirectAttributes.addFlashAttribute("successMessage", "Đã tạo tài khoản cho người dùng " + request.getFullName() + " thành công!");
-            return "redirect:/admin/users";
         } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("roles", ERole.values());
-            model.addAttribute("statuses", EAccountStatus.values());
-            model.addAttribute("isEdit", false);
-            model.addAttribute("pageTitle", "Thêm Người dùng Mới");
-            model.addAttribute("activePage", "users");
-            model.addAttribute("pendingCount", applicationService.countPending());
-            return "pages/admin/user-form";
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
+        return "redirect:" + redirectUrl;
     }
 
     // =============================================
     // GÁN VAI TRÒ NGƯỜI DÙNG (Assign Role)
     // =============================================
-    @GetMapping("/users/{id}/assign-role")
-    public String assignRoleForm(@PathVariable("id") Long id, Model model) {
-        User user = adminService.getUserById(id);
-
-        AssignRoleRequest roleForm = AssignRoleRequest.builder()
-                .role(user.getRole())
-                .build();
-
-        model.addAttribute("roleForm", roleForm);
-        model.addAttribute("userId", user.getUserId());
-        model.addAttribute("userEmail", user.getEmail());
-        model.addAttribute("userFullName", user.getFullName());
-        
-        List<ERole> assignableRoles = java.util.Arrays.stream(ERole.values())
-                .filter(r -> r != ERole.ADMIN)
-                .toList();
-        model.addAttribute("roles", assignableRoles);
-        model.addAttribute("pageTitle", "Gán vai trò - " + user.getFullName());
-        model.addAttribute("activePage", "users");
-        model.addAttribute("pendingCount", applicationService.countPending());
-        return "pages/admin/assign-role";
-    }
 
     @PostMapping("/users/{id}/assign-role")
     public String assignRole(
             @PathVariable("id") Long id,
             @Valid @ModelAttribute("roleForm") AssignRoleRequest request,
             BindingResult bindingResult,
-            Model model,
+            jakarta.servlet.http.HttpServletRequest httpServletRequest,
             RedirectAttributes redirectAttributes) {
 
-        List<ERole> assignableRoles = java.util.Arrays.stream(ERole.values())
-                .filter(r -> r != ERole.ADMIN)
-                .toList();
+        String referer = httpServletRequest.getHeader("Referer");
+        String redirectUrl = (referer != null && !referer.isEmpty()) ? referer : "/admin/users";
 
         if (bindingResult.hasErrors()) {
-            User user = adminService.getUserById(id);
-            model.addAttribute("userId", id);
-            model.addAttribute("userEmail", user.getEmail());
-            model.addAttribute("userFullName", user.getFullName());
-            model.addAttribute("roles", assignableRoles);
-            model.addAttribute("pageTitle", "Gán vai trò");
-            model.addAttribute("activePage", "users");
-            model.addAttribute("pendingCount", applicationService.countPending());
-            return "pages/admin/assign-role";
+            String errorMsg = bindingResult.getFieldErrors().stream()
+                    .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                    .collect(java.util.stream.Collectors.joining(", "));
+            redirectAttributes.addFlashAttribute("errorMessage", "Dữ liệu không hợp lệ: " + errorMsg);
+            return "redirect:" + redirectUrl;
         }
 
         try {
@@ -210,19 +165,10 @@ public class AdminController {
             User user = adminService.getUserById(id);
             String roleName = request.getRole() == ERole.STUDENT ? "Học viên" : (request.getRole() == ERole.INSTRUCTOR ? "Giảng viên" : "Quản trị viên");
             redirectAttributes.addFlashAttribute("successMessage", "Đã gán vai trò mới (" + roleName + ") cho người dùng " + user.getFullName() + " thành công!");
-            return "redirect:/admin/users";
         } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-            User user = adminService.getUserById(id);
-            model.addAttribute("userId", id);
-            model.addAttribute("userEmail", user.getEmail());
-            model.addAttribute("userFullName", user.getFullName());
-            model.addAttribute("roles", assignableRoles);
-            model.addAttribute("pageTitle", "Gán vai trò");
-            model.addAttribute("activePage", "users");
-            model.addAttribute("pendingCount", applicationService.countPending());
-            return "pages/admin/assign-role";
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
+        return "redirect:" + redirectUrl;
     }
 
     // =============================================
