@@ -4,124 +4,411 @@
         xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
         layout:decorate="~{layouts/main-layout}"
 >
+<head>
+    <meta charset="UTF-8">
+    <title>Lộ trình học của tôi</title>
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4c1d95 100%);
+            padding: 56px 0 52px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            width: 480px; height: 480px; border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            top: -180px; right: -120px;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            width: 280px; height: 280px; border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+            bottom: -80px; left: 40%;
+        }
+        .hero-greeting {
+            font-size: 2.6rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+        .hero-sub {
+            font-size: 1.05rem;
+            color: rgba(255,255,255,0.7);
+            margin: 0;
+        }
+    </style>
+</head>
 
 <body>
 
 <div layout:fragment="content">
 
-    <div class="container py-5">
-
-        <div
-                class="d-flex
-                       justify-content-between
-                       align-items-center
-                       mb-4">
-
-            <h2>
-                Lộ trình học của tôi
-            </h2>
-
-            <button
-                    type="button"
-                    class="btn btn-primary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#createLearningPathModal">
-
-                <i class="bi bi-plus-lg"></i>
-                Thêm lộ trình học
-
-            </button>
-
+    <!-- ===== HERO ===== -->
+    <section class="hero-section mb-4">
+        <div class="container position-relative" style="z-index:2">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h1 class="hero-greeting m-0">Lộ trình học của tôi</h1>
+                    <p class="hero-sub mt-2">Lập kế hoạch học tập chi tiết của riêng bạn.</p>
+                </div>
+                <div>
+                    <button
+                            type="button"
+                            class="btn btn-custom-primary border border-white-50 shadow-sm d-flex align-items-center gap-2"
+                            data-bs-toggle="modal"
+                            data-bs-target="#createLearningPathModal">
+                        <i class="bi bi-plus-lg"></i>
+                        Thêm lộ trình học
+                    </button>
+                </div>
+            </div>
         </div>
+    </section>
+
+    <div class="container py-4">
+
+    <style>
+        .yt-playlist-card {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-bottom: 24px;
+            background: transparent;
+            border: none;
+            position: relative;
+        }
+        .yt-playlist-card:hover {
+            transform: translateY(-2px);
+        }
+        .yt-thumbnail-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 ratio */
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f1f1f1;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            z-index: 2;
+        }
+        .yt-thumbnail-stack-layer-1 {
+            position: absolute;
+            top: -6px;
+            left: 6%;
+            right: 6%;
+            height: 12px;
+            background: #cbd5e1;
+            border-radius: 8px 8px 0 0;
+            z-index: 1;
+            transition: all 0.2s ease;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+        }
+        .yt-thumbnail-stack-layer-2 {
+            position: absolute;
+            top: -12px;
+            left: 12%;
+            right: 12%;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 8px 8px 0 0;
+            z-index: 0;
+            transition: all 0.2s ease;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.03);
+        }
+        .yt-playlist-card:hover .yt-thumbnail-stack-layer-1 {
+            top: -8px;
+            background: #94a3b8;
+        }
+        .yt-playlist-card:hover .yt-thumbnail-stack-layer-2 {
+            top: -16px;
+            background: #cbd5e1;
+        }
+        .yt-main-thumbnail {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            z-index: 2;
+        }
+        .yt-playlist-badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(15, 15, 15, 0.85);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 3;
+            backdrop-filter: blur(4px);
+        }
+        .yt-playlist-badge i {
+            font-size: 13px;
+        }
+        .yt-playlist-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f0f0f;
+            line-height: 20px;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.15s ease;
+        }
+        .yt-playlist-title:hover {
+            color: #a435f0;
+        }
+        .yt-playlist-meta {
+            font-size: 12px;
+            color: #606060 !important;
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+        .yt-view-playlist-btn {
+            font-size: 12px;
+            font-weight: 700;
+            color: #a435f0;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.15s ease;
+        }
+        .yt-view-playlist-btn:hover {
+            color: #8710d8;
+            text-decoration: underline;
+        }
+        
+        /* Custom Theme Overrides */
+        .btn-custom-primary {
+            background-color: #a435f0 !important;
+            border-color: #a435f0 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            border-radius: 8px !important;
+            padding: 8px 16px !important;
+            font-size: 14px;
+            transition: all 0.15s ease-in-out !important;
+        }
+        .btn-custom-primary:hover, .btn-custom-primary:focus {
+            background-color: #8710d8 !important;
+            border-color: #8710d8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(164, 53, 240, 0.25) !important;
+        }
+        .btn-custom-secondary {
+            background-color: #ffffff !important;
+            border: 1px solid #2d2f31 !important;
+            color: #2d2f31 !important;
+            font-weight: 700 !important;
+            border-radius: 8px !important;
+            padding: 8px 16px !important;
+            font-size: 14px;
+            transition: all 0.15s ease-in-out !important;
+        }
+        .btn-custom-secondary:hover {
+            background-color: #f7f9fa !important;
+            border-color: #1c1d1f !important;
+        }
+        .form-control:focus {
+            border-color: #a435f0 !important;
+            box-shadow: 0 0 0 0.25rem rgba(164, 53, 240, 0.15) !important;
+        }
+        /* ===== MODAL THEME MATCHING ===== */
+        #createLearningPathModal .modal-content,
+        #editLearningPathModal .modal-content {
+            border: none !important;
+            border-radius: 16px !important;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(164, 53, 240, 0.18) !important;
+        }
+        #createLearningPathModal .modal-header,
+        #editLearningPathModal .modal-header {
+            background: linear-gradient(135deg, #a435f0 0%, #7b2ff2 100%) !important;
+            border-bottom: none !important;
+            padding: 18px 24px !important;
+        }
+        #createLearningPathModal .modal-title,
+        #editLearningPathModal .modal-title {
+            color: #fff !important;
+            font-weight: 700 !important;
+            font-size: 1.1rem !important;
+        }
+        #createLearningPathModal .modal-header .btn-close,
+        #editLearningPathModal .modal-header .btn-close {
+            filter: brightness(0) invert(1) !important;
+            opacity: 0.85 !important;
+        }
+        #createLearningPathModal .modal-header .btn-close:hover,
+        #editLearningPathModal .modal-header .btn-close:hover {
+            opacity: 1 !important;
+        }
+        #createLearningPathModal .modal-body,
+        #editLearningPathModal .modal-body {
+            padding: 24px !important;
+        }
+        #createLearningPathModal .modal-footer,
+        #editLearningPathModal .modal-footer {
+            border-top: none !important;
+            padding: 0 24px 24px 24px !important;
+        }
+        #createLearningPathModal .form-label,
+        #editLearningPathModal .form-label {
+            font-weight: 600 !important;
+            color: #1e1b4b !important;
+        }
+        #createLearningPathModal .form-control,
+        #editLearningPathModal .form-control {
+            border-radius: 10px !important;
+            border: 1.5px solid #e9d5ff !important;
+            transition: border-color 0.2s, box-shadow 0.2s !important;
+        }
+        #createLearningPathModal .form-control:focus,
+        #editLearningPathModal .form-control:focus {
+            border-color: #a435f0 !important;
+            box-shadow: 0 0 0 0.2rem rgba(164, 53, 240, 0.15) !important;
+        }
+        #createLearningPathModal .btn-custom-primary,
+        #editLearningPathModal .btn-custom-primary {
+            background: linear-gradient(135deg, #a435f0, #7b2ff2) !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 700 !important;
+            border-radius: 10px !important;
+            padding: 10px 20px !important;
+            transition: opacity 0.2s, transform 0.15s !important;
+        }
+        #createLearningPathModal .btn-custom-primary:hover,
+        #editLearningPathModal .btn-custom-primary:hover {
+            opacity: 0.9 !important;
+            transform: translateY(-1px) !important;
+        }
+        #createLearningPathModal .btn-custom-secondary,
+        #editLearningPathModal .btn-custom-secondary {
+            background: #ffffff !important;
+            border: 1.5px solid #d1d7dc !important;
+            color: #2d2f31 !important;
+            font-weight: 700 !important;
+            border-radius: 10px !important;
+            padding: 9px 20px !important;
+            transition: all 0.2s ease !important;
+        }
+        #createLearningPathModal .btn-custom-secondary:hover,
+        #editLearningPathModal .btn-custom-secondary:hover {
+            background: #f7f9fa !important;
+            border-color: #1c1d1f !important;
+        }
+    </style>
 
         <div class="row g-4">
 
             <div
-                    class="col-md-4"
+                    class="col-12 col-sm-6 col-md-4 col-lg-3"
                     th:each="path : ${learningPaths}"
             >
 
-                <div
-                        class="card shadow-sm h-100">
-
-                    <div class="card-body">
-
-                        <div class="d-flex justify-content-between">
-
-                            <h5
-                                    class="card-title mb-0"
-                                    th:text="${path.title}">
-                            </h5>
-
-                            <div class="dropdown">
-
-                                <button
-                                        class="btn btn-sm btn-light"
-                                        data-bs-toggle="dropdown">
-
-                                    <i class="bi bi-three-dots-vertical"></i>
-
-                                </button>
-
-                                <ul class="dropdown-menu dropdown-menu-end">
-
-                                    <li>
-
-                                        <button
-                                                class="dropdown-item"
-
-                                                th:data-id="${path.pathId}"
-                                                th:data-title="${path.title}"
-                                                th:data-description="${path.description}"
-
-                                                onclick="openEditModal(this)">
-
-                                            <i class="bi bi-pencil"></i>
-                                            Chỉnh sửa
-
-                                        </button>
-
-                                    </li>
-
-                                    <li>
-
-                                        <button
-                                                class="dropdown-item text-danger"
-
-                                                th:data-id="${path.pathId}"
-
-                                                onclick="deleteLearningPath(this)">
-
-                                            <i class="bi bi-trash"></i>
-                                            Xóa
-
-                                        </button>
-
-                                    </li>
-
-                                </ul>
-
+                <div class="yt-playlist-card position-relative">
+                    
+                    <!-- Thumbnail Container with stack effect -->
+                    <div class="position-relative" style="margin-top: 15px;">
+                        <div class="yt-thumbnail-stack-layer-2"></div>
+                        <div class="yt-thumbnail-stack-layer-1"></div>
+                        
+                        <div class="yt-thumbnail-wrapper">
+                            <!-- Show thumbnail of first course if available -->
+                            <img
+                                    th:if="${path.thumbnailUrl != null}"
+                                    th:src="${path.thumbnailUrl}"
+                                    class="yt-main-thumbnail"
+                                    alt="Course Thumbnail"
+                            >
+                            <!-- Fallback placeholder if no courses are added -->
+                            <div th:if="${path.thumbnailUrl == null}" 
+                                 class="d-flex align-items-center justify-content-center w-100 h-100 rounded bg-light border position-absolute top-0 start-0" 
+                                 style="z-index: 2; border-radius: 12px !important;">
+                                <div class="text-center text-muted">
+                                    <i class="bi bi-collection-play-fill text-secondary" style="font-size: 2.2rem; opacity: 0.6;"></i>
+                                    <div style="font-size: 11px; margin-top: 4px; font-weight: 600;" class="text-secondary text-uppercase tracking-wider">Lộ trình trống</div>
+                                </div>
                             </div>
-
+                            
+                            <!-- Playlist Course Count Badge -->
+                            <div class="yt-playlist-badge">
+                                <i class="bi bi-list-ul"></i>
+                                <span th:text="${(path.courseCount != null ? path.courseCount : 0) + ' khóa học'}">0 khóa học</span>
+                            </div>
                         </div>
-
-                        <p
-                                class="text-muted mt-3"
-                                th:text="${path.description}">
-                        </p>
-
                     </div>
 
-                    <div class="card-footer bg-white">
+                    <!-- Details section -->
+                    <div class="d-flex justify-content-between align-items-start mt-2">
+                        <div style="flex: 1; padding-right: 8px;">
+                            <a th:href="@{/my-learning-paths/{id}(id=${path.pathId})}" class="text-decoration-none">
+                                <h5 class="yt-playlist-title" th:text="${path.title}">Lộ trình 1</h5>
+                            </a>
+                            
+                            <!-- Metadata -->
+                            <div class="yt-playlist-meta text-muted">
+                                <span>Riêng tư</span>
+                                <span class="mx-1">•</span>
+                                <span>Lộ trình học</span>
+                            </div>
+                            
+                            <!-- Description (truncate) -->
+                            <p class="yt-playlist-meta text-muted text-truncate mb-1" th:text="${path.description}" style="max-width: 250px;">
+                                Mô tả lộ trình
+                            </p>
+                            
+                            <a th:href="@{/my-learning-paths/{id}(id=${path.pathId})}" class="yt-view-playlist-btn">
+                                Xem toàn bộ danh sách
+                            </a>
+                        </div>
 
-                        <a
-                                th:href="@{/my-learning-paths/{id}(id=${path.pathId})}"
-                                class="btn btn-outline-primary w-100">
-
-                            Xem lộ trình học
-
-                        </a>
-
+                        <!-- Options Dropdown -->
+                        <div class="dropdown mt-2">
+                            <button
+                                    class="btn btn-sm btn-light bg-transparent border-0 rounded-circle p-0"
+                                    style="width: 32px; height: 32px;"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical" style="font-size: 1.1rem; color: #606060;"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 8px;">
+                                <li>
+                                    <button
+                                            class="dropdown-item py-2 px-3"
+                                            th:data-id="${path.pathId}"
+                                            th:data-title="${path.title}"
+                                            th:data-description="${path.description}"
+                                            onclick="openEditModal(this)">
+                                        <i class="bi bi-pencil me-2"></i>
+                                        Chỉnh sửa thông tin
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                            class="dropdown-item py-2 px-3 text-danger"
+                                            th:data-id="${path.pathId}"
+                                            onclick="deleteLearningPath(this)">
+                                        <i class="bi bi-trash me-2"></i>
+                                        Xóa lộ trình
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
 
                 </div>
@@ -197,7 +484,7 @@
 
                     <button
                             type="button"
-                            class="btn btn-secondary"
+                            class="btn btn-custom-secondary"
                             data-bs-dismiss="modal">
 
                         Hủy
@@ -206,8 +493,8 @@
 
                     <button
                             type="button"
-                            class="btn btn-primary"
-                            onclick="createLearningPath()">
+                            class="btn btn-custom-primary"
+                            onclick="createLearningPath()" id="createPathBtn">
 
                         Tạo mới
 
@@ -286,7 +573,7 @@
                 <div class="modal-footer">
 
                     <button
-                            class="btn btn-secondary"
+                            class="btn btn-custom-secondary"
                             data-bs-dismiss="modal">
 
                         Hủy
@@ -294,7 +581,7 @@
                     </button>
 
                     <button
-                            class="btn btn-primary"
+                            class="btn btn-custom-primary"
                             onclick="updateLearningPath()">
 
                         Lưu

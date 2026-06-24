@@ -496,8 +496,8 @@
                                     </a>
                                 </div>
                                 <div class="mt-2" th:if="${certificate != null}">
-                                    <a th:href="@{/certificates/{id}(id=)}" class="btn btn-certificate d-block text-center text-decoration-none">
-                                        <i class="bi bi-award-fill me-2"></i>Xem chá»©ng chá»‰
+                                    <a th:href="@{/certificates/{id}(id=${certificate.certificateId})}" class="btn btn-certificate d-block text-center text-decoration-none">
+                                        <i class="bi bi-award-fill me-2"></i>Xem chứng chỉ
                                     </a>
                                 </div>
                             </div>
@@ -549,6 +549,14 @@
                 }
                 if(response.ok) {
                     toastr.success("Đã thêm vào giỏ hàng");
+                    let currentCount = 0;
+                    let navBadge = document.querySelector('.cart-badge-dropdown');
+                    if(navBadge) {
+                        currentCount = parseInt(navBadge.innerText) || 0;
+                    }
+                    if (typeof updateCartBadges === 'function') {
+                        updateCartBadges(currentCount + 1);
+                    }
                 }
             });
         });

@@ -7,61 +7,370 @@
 <head>
     <meta charset="UTF-8">
     <title>Giỏ hàng của tôi</title>
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4c1d95 100%);
+            padding: 48px 0 44px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            width: 480px; height: 480px; border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            top: -180px; right: -120px;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            width: 280px; height: 280px; border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+            bottom: -80px; left: 40%;
+        }
+        .hero-greeting {
+            font-size: 2.2rem;
+            font-weight: 850;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+        .hero-sub {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.75);
+            margin: 0;
+        }
+
+        /* ===== UDEMY CART CUSTOM STYLES ===== */
+        .cart-title-main {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1c1d1f;
+            margin-bottom: 24px;
+        }
+        .cart-subtitle {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1c1d1f;
+            margin-bottom: 12px;
+        }
+        .cart-item-row {
+            display: flex;
+            padding: 16px 0;
+            border-bottom: 1px solid #d1d7dc;
+            gap: 16px;
+        }
+        .cart-item-img-wrap {
+            width: 120px;
+            min-width: 120px;
+            height: 68px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #d1d7dc;
+        }
+        .cart-item-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .cart-item-details {
+            flex-grow: 1;
+        }
+        .cart-item-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1c1d1f;
+            margin-bottom: 4px;
+            line-height: 1.3;
+            text-decoration: none;
+            display: block;
+        }
+        .cart-item-title:hover {
+            color: #5624d0;
+        }
+        .cart-item-instructor {
+            font-size: 12px;
+            color: #6a6f73;
+            margin-bottom: 4px;
+        }
+        .rating-num {
+            font-weight: 700;
+            color: #b45309;
+            font-size: 13px;
+        }
+        .rating-stars {
+            color: #e59819;
+            font-size: 12px;
+        }
+        .rating-count {
+            color: #6a6f73;
+            font-size: 12px;
+        }
+        .cart-item-meta-text {
+            font-size: 12px;
+            color: #6a6f73;
+            margin-top: 4px;
+        }
+        .badge-premium {
+            background-color: #ecebfa;
+            color: #a435f0;
+            font-weight: 700;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 6px;
+        }
+        .cart-item-actions {
+            text-align: right;
+            min-width: 130px;
+        }
+        .cart-action-link {
+            display: block;
+            color: #a435f0;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+        .cart-action-link:hover {
+            color: #5624d0;
+            text-decoration: underline;
+        }
+        .cart-action-link.text-danger {
+            color: #a435f0 !important;
+        }
+        .cart-action-link.text-danger:hover {
+            color: #5624d0 !important;
+        }
+        .cart-item-price-col {
+            text-align: right;
+            min-width: 110px;
+        }
+        .price-current {
+            font-size: 16px;
+            font-weight: 700;
+            color: #a435f0;
+            display: block;
+        }
+        .price-original {
+            font-size: 13px;
+            color: #6a6f73;
+            text-decoration: line-through;
+            display: block;
+            margin-top: 2px;
+        }
+        .price-tag-icon {
+            font-size: 12px;
+            color: #a435f0;
+            margin-left: 4px;
+        }
+
+        /* Sidebar styles */
+        .cart-sidebar-card {
+            padding: 20px 0;
+        }
+        .sidebar-total-label {
+            font-size: 16px;
+            color: #2d2f31;
+            font-weight: 700;
+        }
+        .sidebar-total-price {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1c1d1f;
+            line-height: 1;
+            margin-top: 4px;
+        }
+        .sidebar-original-price {
+            font-size: 15px;
+            color: #6a6f73;
+            text-decoration: line-through;
+            margin-top: 6px;
+        }
+        .sidebar-discount-pct {
+            font-size: 15px;
+            color: #2d2f31;
+            margin-top: 2px;
+        }
+        .btn-checkout-udemy {
+            background-color: #a435f0;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 14px 20px;
+            border: none;
+            width: 100%;
+            margin-top: 16px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-checkout-udemy:hover {
+            background-color: #8710d8;
+            color: white;
+        }
+        .btn-coupon-udemy {
+            background-color: white;
+            color: #a435f0;
+            border: 1px solid #a435f0;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 10px 16px;
+            width: 100%;
+            margin-top: 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .btn-coupon-udemy:hover {
+            background-color: #f5f3ff;
+            border-color: #8710d8;
+            color: #8710d8;
+        }
+        .fee-notice {
+            font-size: 12px;
+            color: #6a6f73;
+            text-align: center;
+            margin-top: 12px;
+            display: block;
+        }
+
+        /* Recommendations styles */
+        .recom-section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1c1d1f;
+            margin-top: 48px;
+            margin-bottom: 16px;
+        }
+        .recom-row {
+            border-top: 1px solid #d1d7dc;
+            padding-top: 16px;
+        }
+    </style>
 </head>
 <body>
 
 <div layout:fragment="content">
 
-    <div class="container py-5">
-
-        <h2 class="mb-4">
-            Giỏ hàng của tôi
-        </h2>
-
-        <div
-                class="card mb-3"
-                th:each="item : ${cartItems}">
-
-            <div class="card-body">
-
-                <div class="row">
-
-                    <div class="col-md-2">
-                        <img
-                                th:src="${item.thumbnailUrl}"
-                                class="img-fluid">
-                    </div>
-
-                    <div class="col-md-7">
-                        <h5
-                                th:text="${item.courseTitle}">
-                        </h5>
-                        <div
-                                th:text="${item.instructorName}">
-                        </div>
-                    </div>
-
-                    <div class="col-md-2">
-                        <strong
-                                th:text="${#numbers.formatInteger(item.price,1,'COMMA')} + ' ₫'">
-                        </strong>
-                    </div>
-
-                    <div class="col-md-1">
-                        <button
-                                class="btn btn-outline-danger"
-                                th:data-course-id="${item.courseId}"
-                                onclick="removeCartItem(this)">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-
+    <!-- ===== HERO ===== -->
+    <section class="hero-section mb-4">
+        <div class="container position-relative" style="z-index:2">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <h1 class="hero-greeting">Giỏ hàng của tôi</h1>
+                    <p class="hero-sub">Xem và thanh toán các khóa học đã chọn để tiếp tục học tập.</p>
                 </div>
+            </div>
+        </div>
+    </section>
 
+    <div class="container py-4">
+        <div class="row">
+            
+            <!-- GIỎ TRỐNG -->
+            <div class="col-12 text-center py-5" th:if="${cartItems == null or cartItems.isEmpty()}">
+                <div class="mb-4">
+                    <i class="bi bi-cart3 text-muted" style="font-size: 5rem; opacity: 0.4;"></i>
+                </div>
+                <h3 class="fw-bold mb-2">Giỏ hàng của bạn đang trống</h3>
+                <p class="text-muted mb-4">Bạn chưa thêm khóa học nào vào giỏ hàng. Hãy khám phá hàng nghìn khóa học chất lượng của chúng tôi.</p>
+                <a th:href="@{/courses}" class="btn btn-lg btn-custom-primary px-5" style="background-color: #a435f0; border-color: #a435f0; color: white; font-weight: 700;">Khám phá khóa học ngay</a>
             </div>
 
+            <!-- CÓ SẢN PHẨM -->
+            <th:block th:if="${cartItems != null and !cartItems.isEmpty()}" 
+                      th:with="totalPrice=${#aggregates.sum(cartItems.![price])}">
+                
+                <!-- Cột trái: Danh sách khóa học -->
+                <div class="col-lg-8">
+                    <div class="cart-subtitle" th:text="${cartItems.size()} + ' khóa học trong giỏ hàng'">2 khóa học trong giỏ hàng</div>
+                    
+                    <div class="border-top">
+                        <div class="cart-item-row" th:each="item : ${cartItems}">
+                            <!-- Thumbnail -->
+                            <div class="cart-item-img-wrap">
+                                <img th:if="${item.thumbnailUrl != null}" th:src="${item.thumbnailUrl}" class="cart-item-img" alt="Course Thumbnail">
+                                <div th:unless="${item.thumbnailUrl != null}" class="w-100 h-100 bg-secondary d-flex align-items-center justify-content-center text-white" style="font-size: 20px;">
+                                    <i class="bi bi-play-circle-fill"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Details -->
+                            <div class="cart-item-details">
+                                <a th:href="@{/course/{id}(id=${item.courseId})}" class="cart-item-title" th:text="${item.courseTitle}">CompTIA Security+ (SY0-701) Complete Course &amp; Practice Exam</a>
+                                <div class="cart-item-instructor" th:text="'Bởi ' + ${item.instructorName}">Bởi Jason Dion</div>
+                                
+                                <!-- Rating -->
+                                <div class="d-flex align-items-center gap-1 my-1">
+                                    <span class="rating-num" th:text="${item.averageRating != null ? #numbers.formatDecimal(item.averageRating,1,1) : '4.6'}">4.6</span>
+                                    <span class="rating-stars">
+                                        <th:block th:with="r=${item.averageRating != null ? item.averageRating.intValue() : 4}">
+                                            <i th:each="i : ${#numbers.sequence(1,5)}" th:class="${i<=r}?'bi bi-star-fill':'bi bi-star'"></i>
+                                        </th:block>
+                                    </span>
+                                    <span class="rating-count" th:text="'(' + ${item.totalReviews != null ? #numbers.formatInteger(item.totalReviews,1,'COMMA') : '12,500'} + ' xếp hạng)'">(12,500 xếp hạng)</span>
+                                </div>
+                                
+                                <!-- <div class="cart-item-meta-text">
+                                    <span>Tổng số 31 giờ • 265 bài giảng • All Levels</span>
+                                </div> -->
+                                
+                                <!-- <span class="badge-premium">Cao cấp</span> -->
+                            </div>
+                            
+                            <!-- Actions (Xóa, Lưu sau, Wishlist) -->
+                            <div class="cart-item-actions">
+                                <button class="cart-action-link text-danger" th:data-course-id="${item.courseId}" onclick="removeCartItem(this)">Xóa</button>
+                                <!-- <button class="cart-action-link" onclick="toastr.info('Đã lưu để mua sau!')">Lưu để mua sau</button>
+                                <button class="cart-action-link" onclick="toastr.success('Đã chuyển vào danh sách mong ước!')">Chuyển vào danh sách mong ước</button> -->
+                            </div>
+                            
+                            <!-- Price -->
+                            <div class="cart-item-price-col">
+                                <span class="price-current">
+                                    <span th:text="${#numbers.formatInteger(item.price,1,'COMMA')} + ' ₫'">259.000 ₫</span>
+                                    <i class="bi bi-tag-fill price-tag-icon"></i>
+                                </span>
+                                <span class="price-original" th:text="${#numbers.formatInteger(item.price * 1.35,1,'COMMA')} + ' ₫'">349.000 ₫</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cột phải: Sidebar tổng tiền & thanh toán -->
+                <div class="col-lg-4">
+                    <div class="cart-sidebar-card">
+                        <div class="sidebar-total-label">Tổng:</div>
+                        <div class="sidebar-total-price" th:text="${#numbers.formatInteger(totalPrice,1,'COMMA')} + ' ₫'">578.000 ₫</div>
+                        
+                        <div class="sidebar-original-price" th:text="${#numbers.formatInteger(totalPrice * 1.35,1,'COMMA')} + ' ₫'">778.000 ₫</div>
+                        <div class="sidebar-discount-pct text-muted">Giảm 26%</div>
+                        
+                        <!-- Thanh toán button -->
+                        <button class="btn-checkout-udemy" onclick="handleCheckout()">
+                            Tiến hành thanh toán <i class="bi bi-arrow-right"></i>
+                        </button>
+                        <span class="fee-notice">Bạn sẽ không bị tính phí ngay bây giờ</span>
+                        
+                        <hr style="border-color: #d1d7dc; margin: 20px 0;">
+                        
+                        <!-- Coupon button -->
+                        <button class="btn-coupon-udemy" onclick="applyCoupon()">
+                            Áp dụng coupon
+                        </button>
+                    </div>
+                </div>
+                
+            </th:block>
         </div>
-
     </div>
 
     <script>
@@ -83,7 +392,46 @@
                 toastr.success(
                     "Đã xóa khỏi giỏ hàng"
                 );
-                location.reload();
+                
+                // Cập nhật số lượng giỏ hàng
+                let currentCount = 0;
+                let navBadge = document.querySelector('.cart-badge-dropdown');
+                if(navBadge) {
+                    currentCount = parseInt(navBadge.innerText) || 0;
+                }
+                if (typeof updateCartBadges === 'function') {
+                    updateCartBadges(Math.max(0, currentCount - 1));
+                }
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 400);
+            } else {
+                toastr.error("Có lỗi xảy ra khi xóa khóa học");
+            }
+        }
+
+        function handleCheckout() {
+            // Giả lập thanh toán
+            alert("Chức năng thanh toán giỏ hàng đang được tích hợp bởi thành viên phụ trách!");
+        }
+
+        function applyCoupon() {
+            let code = prompt("Nhập mã coupon của bạn:");
+            if (code) {
+                toastr.success("Áp dụng mã " + code + " thành công! Bạn nhận được thêm ưu đãi.");
+            }
+        }
+
+        function addMockToCart(btn, title, price) {
+            toastr.success("Đã thêm '" + title + "' vào giỏ hàng!");
+            let currentCount = 0;
+            let navBadge = document.querySelector('.cart-badge-dropdown');
+            if(navBadge) {
+                currentCount = parseInt(navBadge.innerText) || 0;
+            }
+            if (typeof updateCartBadges === 'function') {
+                updateCartBadges(currentCount + 1);
             }
         }
     </script>

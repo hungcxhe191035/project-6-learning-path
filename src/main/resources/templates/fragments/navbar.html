@@ -156,9 +156,14 @@
             <a
                     sec:authorize="hasRole('STUDENT')"
                     th:href="@{/cart}"
-                    class="btn"
+                    class="btn position-relative"
+                    style="padding: 6px 12px;"
             >
                 <i class="bi bi-cart3 fs-5"></i>
+                <span th:text="${cartCount != null and cartCount > 0 ? cartCount : ''}"
+                      th:style="${cartCount != null and cartCount > 0 ? 'background-color: #a435f0; font-size: 10px; padding: 3px 6px; color: white;' : 'display: none;'}"
+                      class="position-absolute top-0 start-100 translate-middle badge rounded-circle cart-badge-header">
+                </span>
             </a>
 
             <!-- Chưa login -->
@@ -217,7 +222,7 @@
                             <li>
                                 <a class="dropdown-item py-2 px-3 text-secondary fw-semibold hover-udemy d-flex justify-content-between align-items-center" th:href="@{/cart}">
                                     <span>Giỏ hàng</span>
-                                    <span class="badge rounded-circle" style="background-color: #a435f0;">1</span>
+                                    <span class="badge rounded-circle cart-badge-dropdown" style="background-color: #a435f0; color: white;" th:text="${cartCount != null ? cartCount : 0}">0</span>
                                 </a>
                             </li>
                             <li><a class="dropdown-item py-2 px-3 text-secondary fw-semibold hover-udemy" th:href="@{/profile/settings}">Cài đặt tài khoản</a></li>
@@ -266,38 +271,64 @@
             </div>
         </div>
     </div>
-</nav>
 
-<script sec:authorize="isAuthenticated()">
-    document.addEventListener("DOMContentLoaded", function() {
-        var el = document.getElementById("userFullNameHidden");
-        var emailEl = document.getElementById("userEmailHidden");
-        var fallbackChar = "U";
+    <script sec:authorize="isAuthenticated()">
+        document.addEventListener("DOMContentLoaded", function() {
+            var el = document.getElementById("userFullNameHidden");
+            var emailEl = document.getElementById("userEmailHidden");
+            var fallbackChar = "U";
 
-        if (emailEl && emailEl.textContent.trim()) {
-            fallbackChar = emailEl.textContent.trim().charAt(0).toUpperCase();
-        }
-
-        if (el) {
-            var fullName = el.textContent.trim();
-            var initials = "";
-            if (fullName) {
-                var parts = fullName.split(" ");
-                if (parts.length > 1) {
-                    // Lấy chữ cái đầu của từ đầu tiên và từ cuối cùng (Ví dụ: Bùi Minh Chiến -> BC)
-                    initials = parts[0].charAt(0).toUpperCase() + parts[parts.length - 1].charAt(0).toUpperCase();
-                } else {
-                    // Lấy 2 ký tự đầu
-                    initials = fullName.substring(0, Math.min(2, fullName.length)).toUpperCase();
-                }
+            if (emailEl && emailEl.textContent.trim()) {
+                fallbackChar = emailEl.textContent.trim().charAt(0).toUpperCase();
             }
-            var navAvatar = document.getElementById("navAvatarLetter");
-            var menuAvatar = document.getElementById("menuAvatarLetter");
-            if (navAvatar) navAvatar.textContent = initials || fallbackChar;
-            if (menuAvatar) menuAvatar.textContent = initials || fallbackChar;
+
+            if (el) {
+                var fullName = el.textContent.trim();
+                var initials = "";
+                if (fullName) {
+                    var parts = fullName.split(" ");
+                    if (parts.length > 1) {
+                        // Lấy chữ cái đầu của từ đầu tiên và từ cuối cùng (Ví dụ: Bùi Minh Chiến -> BC)
+                        initials = parts[0].charAt(0).toUpperCase() + parts[parts.length - 1].charAt(0).toUpperCase();
+                    } else {
+                        // Lấy 2 ký tự đầu
+                        initials = fullName.substring(0, Math.min(2, fullName.length)).toUpperCase();
+                    }
+                }
+                var navAvatar = document.getElementById("navAvatarLetter");
+                var menuAvatar = document.getElementById("menuAvatarLetter");
+                if (navAvatar) navAvatar.textContent = initials || fallbackChar;
+                if (menuAvatar) menuAvatar.textContent = initials || fallbackChar;
+            }
+        });
+    </script>
+
+    <script>
+        function updateCartBadges(count) {
+            const headerBadges = document.querySelectorAll('.cart-badge-header');
+            const dropdownBadges = document.querySelectorAll('.cart-badge-dropdown');
+            
+            headerBadges.forEach(b => {
+                if (count > 0) {
+                    b.innerText = count;
+                    b.style.display = 'inline-block';
+                    b.style.backgroundColor = '#a435f0';
+                    b.style.fontSize = '10px';
+                    b.style.padding = '3px 6px';
+                    b.style.color = 'white';
+                } else {
+                    b.innerText = '';
+                    b.style.display = 'none';
+                }
+            });
+            
+            dropdownBadges.forEach(b => {
+                b.innerText = count;
+            });
         }
-    });
-</script>
+    </script>
+
+</nav>
 
 </body>
 </html>
