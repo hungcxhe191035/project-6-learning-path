@@ -7,8 +7,9 @@
     "database": {"type": "SQL Server"} 
   },
   "database_schema": { 
-    "tables": ["users", "courses", "course_versions", "course_sections", "lessons", "files", "wallets"], 
-    "relationships": ["Course -> User (Instructor)", "CourseVersion -> Course", "CourseVersion -> File (Thumbnail)", "CourseSection -> CourseVersion", "Lesson -> CourseSection"] 
+    "name": "SWP_final_project",
+    "tables": ["users", "courses", "course_versions", "course_sections", "lessons", "files", "wallets", "enrollments"], 
+    "relationships": ["Course -> User (Instructor)", "CourseVersion -> Course", "CourseVersion -> File (Thumbnail)", "CourseSection -> CourseVersion", "Lesson -> CourseSection", "Enrollment -> User (Student) + Course"] 
   },
   "api_endpoints": [
     "/api/instructor/courses/draft (POST)",
@@ -33,14 +34,16 @@
     "Instructor Dashboard",
     "Course Creation Wizard (Draft & Publish)",
     "Curriculum Management (Sections & Lessons)",
-    "Lesson Content Upload (Video/S3, Article/CKEditor, Quiz)"
+    "Lesson Content Upload (Video/S3, Article/CKEditor, Quiz)",
+    "Interactive Video Quiz"
   ],
   "knowledge_items": { 
     "patterns": ["Spring Security with BCrypt", "Service Layer Transactional", "S3 Uploads for media"], 
     "gotchas": [
       "PowerShell swallows $ in string interpolation when updating DB hashes",
       "Spring Security requires CSRF token for POST/PUT/DELETE requests via Javascript fetch",
-      "CKEditor S3 upload requires custom adapter passing CSRF token manually"
+      "CKEditor S3 upload requires custom adapter passing CSRF token manually",
+      "Browser fullscreen native video blocks siblings, use document.exitFullscreen() to show quiz overlay"
     ], 
     "conventions": ["Use CustomUserDetails for auth context"] 
   }
