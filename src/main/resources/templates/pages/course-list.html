@@ -138,6 +138,83 @@
             padding: 2px 8px;
             display: inline-block;
         }
+
+        /* ===== MODAL "LƯU VÀO" THEME ===== */
+        #learningPathModal .modal-content {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(164, 53, 240, 0.18);
+        }
+        #learningPathModal .modal-header {
+            background: linear-gradient(135deg, #a435f0 0%, #7b2ff2 100%);
+            border-bottom: none;
+            padding: 18px 24px;
+        }
+        #learningPathModal .modal-title {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        #learningPathModal .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: 0.85;
+        }
+        #learningPathModal .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+        #learningPathModal .modal-body {
+            padding: 24px;
+        }
+        #learningPathModal .modal-body hr {
+            border-color: #e9d5ff;
+            opacity: 0.5;
+        }
+        #learningPathModal .form-check-input:checked {
+            background-color: #a435f0;
+            border-color: #a435f0;
+        }
+        #learningPathModal .form-check-input:focus {
+            border-color: #c084fc;
+            box-shadow: 0 0 0 0.2rem rgba(164, 53, 240, 0.25);
+        }
+        #learningPathModal .form-check-label {
+            font-weight: 500;
+            color: #1e1b4b;
+        }
+        #learningPathModal #showCreatePathForm {
+            border-color: #a435f0;
+            color: #a435f0;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        #learningPathModal #showCreatePathForm:hover {
+            background: #a435f0;
+            color: #fff;
+        }
+        #learningPathModal .form-control {
+            border-radius: 10px;
+            border: 1.5px solid #e9d5ff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        #learningPathModal .form-control:focus {
+            border-color: #a435f0;
+            box-shadow: 0 0 0 0.2rem rgba(164, 53, 240, 0.15);
+        }
+        #learningPathModal #createPathBtn {
+            background: linear-gradient(135deg, #a435f0, #7b2ff2);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 10px;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        #learningPathModal #createPathBtn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
@@ -225,6 +302,17 @@
                                    style="position: relative; z-index: 10;">
                                     <i class="bi bi-play-circle me-1"></i> Vào học ngay
                                 </span>
+
+                                <!-- Save learning path -->
+                                <button
+                                        sec:authorize="isAuthenticated()"
+                                        class="btn btn-outline-secondary save-course-btn"
+                                        th:data-course-id="${course.courseId}"
+                                        title="Lưu khóa học"
+                                        style="position: relative; z-index: 10;">
+
+                                    <i class="bi bi-bookmark"></i>
+                                </button>
                             </div>
 
                             <div class="d-flex gap-2" th:unless="${course.isEnrolled}">
@@ -242,6 +330,7 @@
 
                                 <!-- Save learning path -->
                                 <button
+                                        sec:authorize="isAuthenticated()"
                                         class="btn btn-outline-secondary save-course-btn"
                                         th:data-course-id="${course.courseId}"
                                         title="Lưu khóa học"
@@ -630,10 +719,17 @@
                         return;
                     }
                     if(response.ok){
-
                         toastr.success(
                             "Đã thêm vào giỏ hàng"
                         );
+                        let currentCount = 0;
+                        let navBadge = document.querySelector('.cart-badge-dropdown');
+                        if(navBadge) {
+                            currentCount = parseInt(navBadge.innerText) || 0;
+                        }
+                        if (typeof updateCartBadges === 'function') {
+                            updateCartBadges(currentCount + 1);
+                        }
                     }
                 }
             );

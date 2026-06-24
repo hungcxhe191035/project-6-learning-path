@@ -9,203 +9,528 @@
 
 <div layout:fragment="content">
 
-    <div class="container py-5">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4c1d95 100%);
+            padding: 56px 0 52px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            width: 480px; height: 480px; border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            top: -180px; right: -120px;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            width: 280px; height: 280px; border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+            bottom: -80px; left: 40%;
+        }
+        .hero-greeting {
+            font-size: 2.6rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+        .hero-sub {
+            font-size: 1.05rem;
+            color: rgba(255,255,255,0.7);
+            margin: 0;
+        }
+        .yt-detail-sidebar {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4c1d95 100%);
+            color: #ffffff;
+            border-radius: 20px;
+            padding: 24px;
+            position: sticky;
+            top: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+        .yt-sidebar-thumbnail {
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 aspect ratio */
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .yt-sidebar-thumbnail img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .yt-sidebar-title {
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 30px;
+            margin-bottom: 12px;
+        }
+        .yt-sidebar-meta {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+        .yt-sidebar-meta span {
+            display: inline-block;
+        }
+        .yt-play-all-btn {
+            background-color: #ffffff;
+            color: #0f0f0f;
+            border-radius: 20px;
+            font-weight: 600;
+            padding: 10px 24px;
+            font-size: 14px;
+            border: none;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.15s ease;
+            text-decoration: none;
+        }
+        .yt-play-all-btn:hover {
+            background-color: #e6e6e6;
+            color: #0f0f0f;
+        }
+        .yt-action-icons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .yt-action-icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            transition: background-color 0.15s ease;
+        }
+        .yt-action-icon-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+        
+        /* Right Side Course List */
+        .yt-course-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .yt-course-row {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 12px;
+            transition: background-color 0.15s ease;
+            position: relative;
+        }
+        .yt-course-row:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        .yt-course-index {
+            width: 32px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #606060;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .yt-course-thumbnail-wrapper {
+            width: 140px;
+            padding-top: 78.75px; /* 16:9 aspect ratio */
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f1f1f1;
+            flex-shrink: 0;
+            margin: 0 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+        .yt-course-thumbnail-wrapper img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .yt-course-details {
+            flex-grow: 1;
+            min-width: 0;
+        }
+        .yt-course-title-link {
+            color: #0f0f0f;
+            display: inline-block;
+            max-width: 100%;
+        }
+        .yt-course-title-link:hover .yt-course-title {
+            color: #a435f0;
+            text-decoration: underline;
+        }
+        .yt-course-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: inherit;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .yt-course-meta {
+            font-size: 12.5px;
+            color: #606060;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .yt-course-desc {
+            font-size: 12px;
+            color: #717171;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 4px;
+        }
+        .yt-course-options {
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+        .yt-empty-container {
+            padding: 80px 20px;
+            text-align: center;
+            border: 2px dashed #dee2e6;
+            border-radius: 16px;
+            background: #fafafa;
+        }
+        
+        /* Custom Theme Overrides */
+        .btn-custom-primary {
+            background-color: #a435f0 !important;
+            border-color: #a435f0 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            border-radius: 8px !important;
+            padding: 8px 16px !important;
+            font-size: 14px;
+            transition: all 0.15s ease-in-out !important;
+        }
+        .btn-custom-primary:hover, .btn-custom-primary:focus {
+            background-color: #8710d8 !important;
+            border-color: #8710d8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(164, 53, 240, 0.25) !important;
+        }
+        .btn-custom-secondary {
+            background-color: #ffffff !important;
+            border: 1px solid #2d2f31 !important;
+            color: #2d2f31 !important;
+            font-weight: 700 !important;
+            border-radius: 8px !important;
+            padding: 8px 16px !important;
+            font-size: 14px;
+            transition: all 0.15s ease-in-out !important;
+        }
+        .btn-custom-secondary:hover {
+            background-color: #f7f9fa !important;
+            border-color: #1c1d1f !important;
+        }
+        .form-control:focus {
+            border-color: #a435f0 !important;
+            box-shadow: 0 0 0 0.25rem rgba(164, 53, 240, 0.15) !important;
+        }
+    </style>
 
-        <div class="mb-4">
-
-            <h2 th:text="${path.title}"></h2>
-
-            <p class="text-muted"
-               th:text="${path.description}">
-            </p>
-
-        </div>
-        <div class="alert alert-info"
-             th:if="${selectedCourse == null}">
-            Không có khóa học nào trong lộ trình học này.
-        </div>
-        <div class="row" th:if="${selectedCourse != null}">
-
-            <!-- LEFT MENU -->
-
-            <div class="col-md-3">
-
-                <div class="card">
-
-                    <div class="card-header">
-
-                        Khóa học
-
-                    </div>
-
-                    <div class="list-group list-group-flush">
-
-                        <a
-                                href="#"
-                                class="list-group-item list-group-item-action course-item"
-
-                                th:each="course : ${path.courses}"
-
-                                th:data-id="${course.courseId}"
-                                th:data-title="${course.title}"
-                                th:data-thumbnail="${course.thumbnailUrl}"
-                                th:data-description="${course.shortDescription}"
-                                th:data-rating="${course.averageRating}"
-                                th:data-students="${course.totalStudents}"
-                                th:data-instructor="${course.instructorName}"
-
-                        >
-
-                        <span
-                                th:text="${course.displayOrder}">
-                        </span>
-
-                            .
-
-                            <span
-                                    th:text="${course.title}">
-                        </span>
-
-                        </a>
-
-                    </div>
-
+    <!-- ===== HERO ===== -->
+    <section class="hero-section mb-4">
+        <div class="container position-relative" style="z-index:2">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <h1 class="hero-greeting">Chi tiết lộ trình</h1>
+                    <p class="hero-sub">Xem thông tin chi tiết và danh sách khóa học trong lộ trình.</p>
                 </div>
-
             </div>
-
-            <!-- RIGHT CONTENT -->
-
-            <div class="col-md-9">
-
-                <div class="card">
-
-                    <div class="card-body">
-
-                        <img
-                                id="courseThumbnail"
-                                class="img-fluid rounded mb-3"
-
-                                th:src="${selectedCourse.thumbnailUrl}"
-                        >
-
-                        <h3
-                                id="courseTitle"
-                                th:text="${selectedCourse.title}">
-                        </h3>
-
-                        <div class="mb-2">
-
-                            Giảng viên:
-
-                            <strong
-                                    id="courseInstructor"
-                                    th:text="${selectedCourse.instructorName}">
-                            </strong>
-
-                        </div>
-
-                        <div class="mb-2">
-
-                            Xếp hạng:
-
-                            <span
-                                    id="courseRating"
-                                    th:text="${selectedCourse.averageRating}">
-                        </span>
-
-                        </div>
-
-                        <div class="mb-3">
-
-                            Sinh viên:
-
-                            <span
-                                    id="courseStudents"
-                                    th:text="${selectedCourse.totalStudents}">
-                        </span>
-
-                        </div>
-
-                        <p
-                                id="courseDescription"
-                                th:text="${selectedCourse.shortDescription}">
-                        </p>
-
-                        <a
-                                id="courseLink"
-                                class="btn btn-primary"
-
-                                th:href="@{/courses/{id}(id=${selectedCourse.courseId})}"
-                        >
-
-                            Xem khóa học
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
         </div>
+    </section>
 
+    <div class="container py-4">
+        <div class="row g-4">
+            
+            <!-- LEFT PANEL: PLAYLIST OVERVIEW -->
+            <div class="col-lg-4 col-md-5">
+                <div class="yt-detail-sidebar">
+                    
+                    <!-- Thumbnail of the first course or fallback empty state placeholder -->
+                    <div class="yt-sidebar-thumbnail">
+                        <img th:if="${not #lists.isEmpty(path.courses)}"
+                             th:src="${path.courses[0].thumbnailUrl}"
+                             alt="Playlist Thumbnail">
+                        <div th:if="${#lists.isEmpty(path.courses)}"
+                             class="d-flex align-items-center justify-content-center w-100 h-100 rounded bg-secondary-subtle position-absolute top-0 start-0">
+                            <div class="text-center text-muted">
+                                <i class="bi bi-collection-play-fill text-secondary" style="font-size: 3rem; opacity: 0.6;"></i>
+                                <div style="font-size: 12px; margin-top: 8px; font-weight: 600;" class="text-secondary text-uppercase tracking-wider">Chưa có khóa học</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Playlist Meta Information -->
+                    <h2 class="yt-sidebar-title" th:text="${path.title}">Lộ trình học</h2>
+                    
+                    <div class="yt-sidebar-meta">
+                        <div class="mb-1" style="font-weight: 600;">Lộ trình học của tôi</div>
+                        <div class="d-flex align-items-center flex-wrap gap-1 text-white-50 small">
+                            <span>Riêng tư</span>
+                            <span>•</span>
+                            <span th:text="${path.courses.size() + ' khóa học'}">0 khóa học</span>
+                            <span>•</span>
+                            <span>0 lượt xem</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Play All Button -->
+                    <a th:if="${not #lists.isEmpty(path.courses)}"
+                       th:href="@{/course/{id}(id=${path.courses[0].courseId})}"
+                       class="yt-play-all-btn">
+                        <i class="bi bi-play-fill" style="font-size: 1.3rem;"></i>
+                        Bắt đầu học
+                    </a>
+                    <button th:if="${#lists.isEmpty(path.courses)}"
+                            class="yt-play-all-btn text-muted"
+                            disabled
+                            style="background-color: rgba(255, 255, 255, 0.4); cursor: not-allowed;">
+                        <i class="bi bi-play-fill" style="font-size: 1.3rem;"></i>
+                        Chưa có khóa học
+                    </button>
+                    
+                    <!-- Playlist Description -->
+                    <p class="small text-white-50 mt-3" th:text="${path.description}" style="white-space: pre-wrap; font-size: 13.5px;"></p>
+                    
+                    <!-- Action Bar -->
+                    <div class="yt-action-icons border-top border-secondary pt-3">
+                        <button class="yt-action-icon-btn"
+                                th:data-id="${path.pathId}"
+                                th:data-title="${path.title}"
+                                th:data-description="${path.description}"
+                                onclick="openEditModal(this)"
+                                title="Chỉnh sửa thông tin">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="yt-action-icon-btn text-danger"
+                                th:data-id="${path.pathId}"
+                                onclick="deleteLearningPath(this)"
+                                title="Xóa lộ trình">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- RIGHT PANEL: COURSE LIST -->
+            <div class="col-lg-8 col-md-7">
+                
+                <!-- Display courses if not empty -->
+                <div th:if="${not #lists.isEmpty(path.courses)}" class="yt-course-list">
+                    <div th:each="course, iter : ${path.courses}" class="yt-course-row">
+                        
+                        <!-- Number index -->
+                        <div class="yt-course-index" th:text="${iter.count}">1</div>
+                        
+                        <!-- Course thumbnail -->
+                        <div class="yt-course-thumbnail-wrapper">
+                            <a th:href="@{/course/{id}(id=${course.courseId})}">
+                                <img th:src="${course.thumbnailUrl}" alt="Course Thumbnail">
+                            </a>
+                        </div>
+                        
+                        <!-- Course details -->
+                        <div class="yt-course-details">
+                            <a th:href="@{/course/{id}(id=${course.courseId})}" class="yt-course-title-link text-decoration-none">
+                                <h4 class="yt-course-title" th:text="${course.title}">Tiêu đề khóa học</h4>
+                            </a>
+                            <div class="yt-course-meta">
+                                <span th:text="${course.instructorName}" style="font-weight: 600;">Tên giảng viên</span>
+                                <span>•</span>
+                                <span th:text="${course.totalStudents + ' học viên'}">0 học viên</span>
+                                <span>•</span>
+                                <span class="badge bg-warning text-dark px-2 py-0.5" style="font-size: 11px;">
+                                    <i class="bi bi-star-fill me-1"></i>
+                                    <span th:text="${course.averageRating}">4.5</span>
+                                </span>
+                            </div>
+                            <div class="yt-course-desc" th:text="${course.shortDescription}">
+                                Mô tả ngắn của khóa học.
+                            </div>
+                        </div>
+                        
+                        <!-- Course options dropdown -->
+                        <div class="dropdown yt-course-options">
+                            <button class="btn btn-sm btn-light bg-transparent border-0 rounded-circle p-0" 
+                                    style="width: 36px; height: 36px;" 
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical" style="font-size: 1.1rem; color: #606060;"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 8px;">
+                                <li>
+                                    <a class="dropdown-item py-2 px-3" th:href="@{/course/{id}(id=${course.courseId})}">
+                                        <i class="bi bi-eye me-2"></i>Xem khóa học
+                                    </a>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item py-2 px-3 text-danger" 
+                                            th:data-id="${course.courseId}" 
+                                            th:data-path-id="${path.pathId}" 
+                                            onclick="removeCourseFromPath(this)">
+                                        <i class="bi bi-trash me-2"></i>Xóa khỏi lộ trình
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <!-- Display empty state when no courses exist -->
+                <div th:if="${#lists.isEmpty(path.courses)}" class="yt-empty-container">
+                    <i class="bi bi-collection-play text-muted" style="font-size: 3.5rem; display: block; margin-bottom: 15px;"></i>
+                    <h4 class="fw-bold mb-2">Chưa có khóa học nào trong lộ trình này</h4>
+                    <p class="text-muted mb-4" style="max-width: 450px; margin: 0 auto 24px;">Hãy khám phá thư viện khóa học khổng lồ của chúng tôi và chọn các khóa học phù hợp với mục tiêu học tập của bạn.</p>
+                    <a href="/courses" class="btn btn-custom-primary px-4 py-2" style="border-radius: 20px !important;">
+                        <i class="bi bi-search me-2"></i>Tìm kiếm khóa học
+                    </a>
+                </div>
+                
+            </div>
+            
+        </div>
     </div>
+
+    <!-- Edit Learning Path Modal -->
+    <div class="modal fade text-dark"
+         id="editLearningPathModal"
+         tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Chỉnh sửa lộ trình học</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editPathId">
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-semibold">Tên lộ trình</label>
+                        <input id="editTitle" class="form-control" placeholder="Nhập tên lộ trình...">
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-semibold">Mô tả</label>
+                        <textarea id="editDescription" class="form-control" rows="4" placeholder="Nhập mô tả cho lộ trình..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-custom-secondary px-4" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-custom-primary px-4" onclick="updateLearningPath()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function openEditModal(btn) {
+            document.getElementById("editPathId").value = btn.dataset.id;
+            document.getElementById("editTitle").value = btn.dataset.title;
+            document.getElementById("editDescription").value = btn.dataset.description;
+            
+            const modal = new bootstrap.Modal(document.getElementById("editLearningPathModal"));
+            modal.show();
+        }
 
-        document.addEventListener("DOMContentLoaded", function() {
+        async function updateLearningPath() {
+            const pathId = document.getElementById("editPathId").value;
+            const title = document.getElementById("editTitle").value.trim();
+            const description = document.getElementById("editDescription").value.trim();
 
-            const items =
-                document.querySelectorAll(".course-item");
+            if (!title) {
+                toastr.error("Vui lòng nhập tên lộ trình");
+                return;
+            }
 
-            items.forEach(item => {
-
-                item.addEventListener("click", function(e){
-
-                    e.preventDefault();
-
-                    document.getElementById(
-                        "courseTitle"
-                    ).innerText =
-                        this.dataset.title;
-
-                    document.getElementById(
-                        "courseThumbnail"
-                    ).src =
-                        this.dataset.thumbnail;
-
-                    document.getElementById(
-                        "courseDescription"
-                    ).innerText =
-                        this.dataset.description;
-
-                    document.getElementById(
-                        "courseRating"
-                    ).innerText =
-                        this.dataset.rating;
-
-                    document.getElementById(
-                        "courseStudents"
-                    ).innerText =
-                        this.dataset.students;
-
-                    document.getElementById(
-                        "courseInstructor"
-                    ).innerText =
-                        this.dataset.instructor;
-
-                    document.getElementById(
-                        "courseLink"
-                    ).href =
-                        "/courses/" + this.dataset.id;
-
+            try {
+                const response = await fetch("/api/learning-paths/" + pathId, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ title, description })
                 });
 
-            });
+                if (response.ok) {
+                    toastr.success("Cập nhật thành công");
+                    location.reload();
+                } else {
+                    toastr.error("Cập nhật thất bại");
+                }
+            } catch (e) {
+                toastr.error("Lỗi khi kết nối đến máy chủ");
+            }
+        }
 
-        });
+        async function deleteLearningPath(btn) {
+            const pathId = btn.dataset.id;
+            if (!confirm("Bạn có chắc chắn muốn xóa lộ trình học này? Hành động này không thể hoàn tác.")) {
+                return;
+            }
 
+            try {
+                const response = await fetch("/api/learning-paths/" + pathId, {
+                    method: "DELETE"
+                });
+
+                if (response.ok) {
+                    toastr.success("Đã xóa lộ trình học");
+                    window.location.href = "/my-learning-paths";
+                } else {
+                    toastr.error("Xóa lộ trình học thất bại");
+                }
+            } catch (e) {
+                toastr.error("Lỗi khi kết nối đến máy chủ");
+            }
+        }
+
+        async function removeCourseFromPath(btn) {
+            const courseId = btn.dataset.id;
+            const pathId = btn.dataset.pathId;
+            if (!confirm("Bạn có chắc chắn muốn xóa khóa học này khỏi lộ trình?")) {
+                return;
+            }
+            try {
+                const response = await fetch(`/api/learning-paths/${pathId}/courses/${courseId}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    toastr.success("Đã xóa khóa học khỏi lộ trình");
+                    location.reload();
+                } else {
+                    toastr.error("Không thể xóa khóa học");
+                }
+            } catch (e) {
+                toastr.error("Lỗi khi kết nối đến máy chủ");
+            }
+        }
     </script>
 </div>
 

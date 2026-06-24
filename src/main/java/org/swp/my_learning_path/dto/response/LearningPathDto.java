@@ -17,4 +17,8 @@ public class LearningPathDto {
     private String description;
 
     private boolean selected;
+
+    private Integer courseCount;
+
+    private String thumbnailUrl;
 }

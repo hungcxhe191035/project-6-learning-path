@@ -46,12 +46,26 @@ public class LearningPathServiceImpl
                                             courseId
                                     );
 
-                            return LearningPathDto.builder()
-                                    .pathId(path.getPathId())
-                                    .title(path.getTitle())
-                                    .description(path.getDescription())
-                                    .selected(selected)
-                                    .build();
+                    List<LearningPathCourse> courses = learningPathCourseRepository
+                            .findByLearningPath_PathIdOrderByDisplayOrder(path.getPathId());
+                    String thumbnailUrl = null;
+                    if (!courses.isEmpty()) {
+                        Course firstCourse = courses.get(0).getCourse();
+                        if (firstCourse != null && 
+                            firstCourse.getCurrentPublishedVersion() != null && 
+                            firstCourse.getCurrentPublishedVersion().getThumbnail() != null) {
+                            thumbnailUrl = firstCourse.getCurrentPublishedVersion().getThumbnail().getFileUrl();
+                        }
+                    }
+
+                    return LearningPathDto.builder()
+                            .pathId(path.getPathId())
+                            .title(path.getTitle())
+                            .description(path.getDescription())
+                            .selected(selected)
+                            .courseCount(courses.size())
+                            .thumbnailUrl(thumbnailUrl)
+                            .build();
                 })
                 .toList();
     }
@@ -143,10 +157,24 @@ public class LearningPathServiceImpl
                 .findByUser_UserId(userId)
                 .stream()
                 .map(path -> {
+                    List<LearningPathCourse> courses = learningPathCourseRepository
+                            .findByLearningPath_PathIdOrderByDisplayOrder(path.getPathId());
+                    String thumbnailUrl = null;
+                    if (!courses.isEmpty()) {
+                        Course firstCourse = courses.get(0).getCourse();
+                        if (firstCourse != null && 
+                            firstCourse.getCurrentPublishedVersion() != null && 
+                            firstCourse.getCurrentPublishedVersion().getThumbnail() != null) {
+                            thumbnailUrl = firstCourse.getCurrentPublishedVersion().getThumbnail().getFileUrl();
+                        }
+                    }
+
                     return LearningPathDto.builder()
                             .pathId(path.getPathId())
                             .title(path.getTitle())
                             .description(path.getDescription())
+                            .courseCount(courses.size())
+                            .thumbnailUrl(thumbnailUrl)
                             .build();
                 })
                 .toList();

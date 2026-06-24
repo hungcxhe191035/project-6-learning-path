@@ -24,4 +24,8 @@ public class CartItemDto {
     private BigDecimal price;
 
     private String instructorName;
+
+    private java.math.BigDecimal averageRating;
+
+    private Integer totalReviews;
 }

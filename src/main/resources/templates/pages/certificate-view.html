@@ -5,246 +5,372 @@
       layout:decorate="~{layouts/main-layout}">
 
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Poppins:wght@300;400;500&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;500;600;700&display=swap"
           rel="stylesheet">
     <style>
-
-        body main{
-            background:#eceff4;
-            padding:40px;
-            font-family:Poppins,sans-serif;
+        /* ===== MAIN FRAME & PAGE STYLING ===== */
+        body main {
+            background: #f7f9fa !important;
+            padding: 48px 0;
+            font-family: 'Montserrat', sans-serif;
         }
 
-        .certificate{
-
-            max-width:1300px;
-            margin:auto;
-
-            background:white;
-
-            padding:80px;
-
-            border:20px solid #d4af37;
-
-            box-shadow:
-            0 10px 40px rgba(0,0,0,.15);
-
-            position:relative;
+        .cert-outer-wrapper {
+            max-width: 1050px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            border-radius: 8px;
+            position: relative;
         }
 
-        .title{
-
-            text-align:center;
-
-            font-size:58px;
-
-            font-family:Cinzel,serif;
-
-            color:#c79a00;
-
-            letter-spacing:3px;
+        /* Double border styling matching Udemy/professional style */
+        .cert-container {
+            border: 18px solid #1c1d1f;
+            outline: 2px solid #a435f0;
+            outline-offset: -10px;
+            padding: 56px 64px;
+            background: #fff;
+            position: relative;
+            min-height: 640px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .subtitle{
-
-            text-align:center;
-
-            margin-top:20px;
-
-            color:#666;
-
-            font-size:22px;
+        /* Certificate header: Logo & ID */
+        .cert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .cert-logo {
+            height: 48px;
+            width: auto;
+        }
+        .cert-id {
+            font-size: 11px;
+            color: #6a6f73;
+            text-align: right;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+        .cert-id strong {
+            color: #1c1d1f;
         }
 
-        .student-name{
-
-            text-align:center;
-
-            margin-top:40px;
-
-            font-size:58px;
-
-            font-weight:600;
-
-            color:#1e293b;
+        /* Content elements styling */
+        .cert-body {
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .cert-tagline {
+            font-family: 'Cinzel', serif;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #1c1d1f;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .cert-recipient-sub {
+            font-size: 14px;
+            color: #6a6f73;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+        .cert-recipient-name {
+            font-size: 38px;
+            font-weight: 700;
+            color: #a435f0; /* Accent theme color */
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+        }
+        .cert-course-sub {
+            font-size: 14px;
+            color: #6a6f73;
+            margin-bottom: 14px;
+        }
+        .cert-course-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1c1d1f;
+            line-height: 1.3;
+            margin: 0 auto 16px auto;
+            max-width: 800px;
+        }
+        .cert-details-meta {
+            font-size: 13px;
+            color: #6a6f73;
+            margin-bottom: 28px;
         }
 
-        .course-title{
-
-            text-align:center;
-
-            margin-top:35px;
-
-            font-size:40px;
-
-            font-weight:600;
-
-            color:#2563eb;
+        /* Signatures and Seals footer */
+        .cert-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 24px;
+        }
+        .cert-sign-block {
+            width: 220px;
+            text-align: center;
+        }
+        .cert-signature-art {
+            font-family: 'Dancing Script', cursive;
+            font-size: 32px;
+            color: #2d2f31;
+            margin-bottom: 8px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cert-sign-line {
+            border-top: 1.5px solid #d1d7dc;
+            padding-top: 6px;
+        }
+        .cert-sign-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #2d2f31;
+            margin-bottom: 2px;
+        }
+        .cert-sign-title {
+            font-size: 11px;
+            color: #6a6f73;
         }
 
-        .description{
-
-            text-align:center;
-
-            margin-top:30px;
-
-            font-size:22px;
+        /* Seal / Stamp */
+        .cert-seal-wrap {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .cert-seal {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 2px dashed #a435f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(164, 53, 240, 0.03);
+            position: relative;
+        }
+        .cert-seal-inner {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a435f0 0%, #7b2ff2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 10px rgba(164, 53, 240, 0.2);
+        }
+        .cert-seal-text-top {
+            font-size: 7px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+        .cert-seal-text-mid {
+            font-size: 9px;
+            font-weight: 700;
+            border-top: 1px solid rgba(255,255,255,0.4);
+            border-bottom: 1px solid rgba(255,255,255,0.4);
+            padding: 2px 4px;
+            margin: 2px 0;
+            letter-spacing: 1px;
         }
 
-        .bottom{
-
-            display:flex;
-
-            justify-content:space-between;
-
-            margin-top:100px;
+        /* Action buttons below certificate */
+        .cert-actions-section {
+            max-width: 1050px;
+            margin: 24px auto 0 auto;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            background: #fff;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .btn-cert-action {
+            font-weight: 700;
+            font-size: 14px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-cert-download {
+            background-color: #a435f0;
+            color: white;
+        }
+        .btn-cert-download:hover {
+            background-color: #8710d8;
+            color: white;
+        }
+        .btn-cert-share {
+            background-color: white;
+            border: 1px solid #1c1d1f;
+            color: #1c1d1f;
+        }
+        .btn-cert-share:hover {
+            background-color: #f7f9fa;
         }
 
-        .signature{
-            text-align:center;
+        /* ===== PRINT: A4 LANDSCAPE - CERTIFICATE ONLY ===== */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 0;
+            }
+            /* Hide everything except the certificate */
+            body * {
+                visibility: hidden !important;
+            }
+            .cert-outer-wrapper,
+            .cert-outer-wrapper * {
+                visibility: visible !important;
+            }
+            /* Hide navbar, footer, action buttons */
+            nav, footer, .cert-actions-section {
+                display: none !important;
+            }
+            /* Make cert fill A4 landscape */
+            body, html {
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+            }
+            body main {
+                padding: 0 !important;
+                background: white !important;
+            }
+            .cert-outer-wrapper {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 297mm !important;
+                height: 210mm !important;
+                max-width: 297mm !important;
+                margin: 0 !important;
+                padding: 8mm !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                box-sizing: border-box !important;
+            }
+            .cert-container {
+                width: 100% !important;
+                height: 100% !important;
+                min-height: unset !important;
+                padding: 28px 40px !important;
+                border-width: 14px !important;
+                box-sizing: border-box !important;
+            }
+            .cert-tagline {
+                font-size: 22px !important;
+            }
+            .cert-recipient-name {
+                font-size: 32px !important;
+            }
+            .cert-course-title {
+                font-size: 24px !important;
+            }
         }
-
-        .line{
-            width:220px;
-            border-top:2px solid #333;
-            margin-bottom:10px;
-        }
-
-        .verify{
-
-            margin-top:50px;
-
-            display:flex;
-
-            justify-content:space-between;
-
-            align-items:center;
-        }
-
-        .badge{
-
-            width:120px;
-            height:120px;
-
-            border-radius:50%;
-
-            border:6px solid gold;
-
-            display:flex;
-            align-items:center;
-            justify-content:center;
-
-            font-weight:bold;
-
-            color:gold;
-        }
-
-        .corner{
-
-            position:absolute;
-
-            top:0;
-            right:0;
-
-            width:220px;
-            height:220px;
-
-            background:#d4af37;
-
-            clip-path: polygon(100% 0, 0 0, 100% 100%);
-        }
-
-        footer{
-            margin-top: 0px !important;
-        }
-
     </style>
-
 </head>
 
 <body>
 <main layout:fragment="content">
-    <div class="certificate">
-
-        <div class="corner"></div>
-
-        <div style="text-align:center">
-            <img th:src="@{/image/logo.png}" style="height: 80px; width: auto;">
-        </div>
-
-        <div class="title">
-            CERTIFICATE OF COMPLETION
-        </div>
-
-        <div class="subtitle">
-            This certificate is proudly presented to
-        </div>
-
-        <div class="student-name"
-             th:text="${certificate.enrollment.student.fullName}">
-        </div>
-
-        <div class="description">
-            for successfully completing
-        </div>
-
-        <div class="course-title"
-             th:text="${certificate.enrollment.course.currentPublishedVersion.title}">
-        </div>
-
-        <div class="description">
-
-            Issued on
-
-            <strong
-                    th:text="${#temporals.format(
-              certificate.createdAt,
-              'dd MMMM yyyy')}">
-            </strong>
-
-        </div>
-
-        <div class="bottom">
-
-            <div class="signature">
-
-                <div class="line"></div>
-
-                Instructor
-
+    
+    <!-- Outer wrapper to limit width and frame shadow -->
+    <div class="cert-outer-wrapper">
+        <div class="cert-container">
+            
+            <!-- Header -->
+            <div class="cert-header">
+                <img th:src="@{/image/logo.png}" class="cert-logo" alt="Academy Logo">
+                <div class="cert-id">
+                    <div>Mã chứng chỉ: <strong th:text="${certificate.certificateCode}">UC-xxxxxx</strong></div>
+                    <div>Liên kết xác minh: <strong>my-learning-path.edu/verify</strong></div>
+                </div>
             </div>
 
-            <div class="signature">
-
-                <div class="line"></div>
-
-                Academy Director
-
+            <!-- Body -->
+            <div class="cert-body">
+                <div class="cert-tagline">Chứng chỉ hoàn thành khóa học</div>
+                <div class="cert-recipient-sub">Chứng chỉ này được trân trọng trao cho</div>
+                <div class="cert-recipient-name" th:text="${certificate.enrollment.student.fullName}">Nguyễn Văn A</div>
+                <div class="cert-course-sub">vì đã hoàn thành xuất sắc khóa học trực tuyến</div>
+                <div class="cert-course-title" th:text="${certificate.enrollment.course.currentPublishedVersion.title}">AWS Certified Solutions Architect Associate</div>
+                <div class="cert-details-meta">
+                    Giảng viên: <strong th:text="${certificate.enrollment.course.instructor.fullName}">Stephane Maarek</strong> 
+                    • Cấp vào ngày: <strong th:text="${#temporals.format(certificate.createdAt, 'dd/MM/yyyy')}">24/06/2026</strong>
+                </div>
             </div>
 
-        </div>
+            <!-- Footer -->
+            <div class="cert-footer">
+                <!-- Instructor sign -->
+                <div class="cert-sign-block">
+                    <div class="cert-signature-art" th:text="${certificate.enrollment.course.instructor.fullName}">Stephane Maarek</div>
+                    <div class="cert-sign-line">
+                        <div class="cert-sign-name" th:text="${certificate.enrollment.course.instructor.fullName}">Stephane Maarek</div>
+                        <div class="cert-sign-title">Giảng viên hướng dẫn</div>
+                    </div>
+                </div>
 
-        <div class="verify">
+                <!-- Verified Seal -->
+                <div class="cert-seal-wrap">
+                    <div class="cert-seal">
+                        <div class="cert-seal-inner">
+                            <div class="cert-seal-text-top">Academy</div>
+                            <div class="cert-seal-text-mid">VERIFIED</div>
+                            <div class="cert-seal-text-top">Chính chủ</div>
+                        </div>
+                    </div>
+                </div>
 
-            <div>
-
-                Certificate No:
-
-                <strong
-                        th:text="${certificate.certificateCode}">
-                </strong>
-
-            </div>
-
-            <div class="badge">
-                VERIFIED
+                <!-- Director sign -->
+                <div class="cert-sign-block">
+                    <div class="cert-signature-art" style="font-family: 'Dancing Script', cursive;">SWP-CEO</div>
+                    <div class="cert-sign-line">
+                        <div class="cert-sign-name">Ban Giám Đốc</div>
+                        <div class="cert-sign-title">Giám đốc Học viện</div>
+                    </div>
+                </div>
             </div>
 
         </div>
-
     </div>
 
-</main> <!-- Đóng thẻ main ở đây -->
+    <!-- Certification Action Panel -->
+    <div class="cert-actions-section">
+        <div class="d-flex gap-2">
+            <button class="btn-cert-action btn-cert-share" onclick="window.print()">
+                <i class="bi bi-printer"></i> In chứng chỉ
+            </button>
+        </div>
+    </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+</main>
 </body>
 </html>

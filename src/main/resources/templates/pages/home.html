@@ -130,6 +130,83 @@
             border-radius: 4px; font-size: 0.68rem;
             font-weight: 700; padding: 2px 7px;
         }
+
+        /* ===== MODAL "LƯU VÀO" THEME ===== */
+        #learningPathModal .modal-content {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(164, 53, 240, 0.18);
+        }
+        #learningPathModal .modal-header {
+            background: linear-gradient(135deg, #a435f0 0%, #7b2ff2 100%);
+            border-bottom: none;
+            padding: 18px 24px;
+        }
+        #learningPathModal .modal-title {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        #learningPathModal .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: 0.85;
+        }
+        #learningPathModal .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+        #learningPathModal .modal-body {
+            padding: 24px;
+        }
+        #learningPathModal .modal-body hr {
+            border-color: #e9d5ff;
+            opacity: 0.5;
+        }
+        #learningPathModal .form-check-input:checked {
+            background-color: #a435f0;
+            border-color: #a435f0;
+        }
+        #learningPathModal .form-check-input:focus {
+            border-color: #c084fc;
+            box-shadow: 0 0 0 0.2rem rgba(164, 53, 240, 0.25);
+        }
+        #learningPathModal .form-check-label {
+            font-weight: 500;
+            color: #1e1b4b;
+        }
+        #learningPathModal #showCreatePathForm {
+            border-color: #a435f0;
+            color: #a435f0;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        #learningPathModal #showCreatePathForm:hover {
+            background: #a435f0;
+            color: #fff;
+        }
+        #learningPathModal .form-control {
+            border-radius: 10px;
+            border: 1.5px solid #e9d5ff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        #learningPathModal .form-control:focus {
+            border-color: #a435f0;
+            box-shadow: 0 0 0 0.2rem rgba(164, 53, 240, 0.15);
+        }
+        #learningPathModal #createPathBtn {
+            background: linear-gradient(135deg, #a435f0, #7b2ff2);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 10px;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        #learningPathModal #createPathBtn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 
@@ -198,6 +275,11 @@
                                     <button class="btn btn-success w-100 fw-bold" th:onclick="|window.location.href='@{/course/{id}(id=${course.courseId})}'|">
                                         <i class="bi bi-play-circle me-1"></i> Vào học ngay
                                     </button>
+                                    <button sec:authorize="isAuthenticated()" class="btn btn-outline-secondary save-course-btn"
+                                            th:data-course-id="${course.courseId}"
+                                            title="Lưu khóa học">
+                                        <i class="bi bi-bookmark"></i>
+                                    </button>
                                 </div>
 
                                 <div class="d-flex gap-2 w-100" th:unless="${course.isEnrolled}">
@@ -206,7 +288,7 @@
                                             title="Thêm vào giỏ hàng">
                                         <i class="bi bi-cart-plus"></i>
                                     </button>
-                                    <button class="btn btn-outline-secondary save-course-btn"
+                                    <button sec:authorize="isAuthenticated()" class="btn btn-outline-secondary save-course-btn"
                                             th:data-course-id="${course.courseId}"
                                             title="Lưu khóa học">
                                         <i class="bi bi-bookmark"></i>
@@ -235,7 +317,7 @@
                     <button class="btn btn-outline-primary w-100" id="showCreatePathForm">
                         <i class="bi bi-plus-lg"></i> Tạo Learning Path mới
                     </button>
-                    <div id="createPathSection" class="mt-3 d-none">
+                    <div id="createPathSection" class="mt-3 d-none" style="margin-top:16px">
                         <input type="text" id="newPathTitle" class="form-control mb-2" placeholder="Tên Learning Path">
                         <textarea id="newPathDescription" class="form-control mb-2" rows="3" placeholder="Mô tả (không bắt buộc)"></textarea>
                         <button class="btn btn-primary w-100" id="createPathBtn">Tạo</button>
@@ -265,10 +347,13 @@
                     if(response.ok) {
                         toastr.success("Đã thêm vào giỏ hàng");
 
-                        let navBadge = document.querySelector('.dropdown-item[href="/cart"] .badge');
+                        let currentCount = 0;
+                        let navBadge = document.querySelector('.cart-badge-dropdown');
                         if(navBadge) {
-                            let count = parseInt(navBadge.innerText) || 0;
-                            navBadge.innerText = count + 1;
+                            currentCount = parseInt(navBadge.innerText) || 0;
+                        }
+                        if (typeof updateCartBadges === 'function') {
+                            updateCartBadges(currentCount + 1);
                         }
                     } else {
                         toastr.error("Có lỗi xảy ra hoặc khoá học đã trong giỏ!");

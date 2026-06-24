@@ -114,6 +114,12 @@ public class CartServiceImpl
                                             .getInstructor()
                                             .getFullName()
                             )
+                            .averageRating(
+                                    course.getAverageRating()
+                            )
+                            .totalReviews(
+                                    course.getTotalReviews()
+                            )
                             .build();
 
                 })
