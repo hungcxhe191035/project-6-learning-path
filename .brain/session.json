@@ -1,22 +1,23 @@
 {
-  "updated_at": "2026-06-08T15:10:00+07:00",
+  "updated_at": "2026-06-24T01:15:00+07:00",
   "working_on": {
-    "feature": "Knowledge Transfer & HTML tweaks",
-    "task": "Explained API flow, fetch mechanics, and HTML5 validation. Pushed minor navbar UI changes.",
+    "feature": "Project Documentation (UML)",
+    "task": "Generated and reviewed Use Case documentation and diagrams for the Instructor module.",
     "status": "completed",
-    "files": ["course-wizard.js", "InstructorCourseRestController.java", "navbar.html"],
+    "files": ["use_case_diagram.md"],
     "blockers": [],
-    "notes": "User successfully practiced git checkout, commit, and push on the main branch."
+    "notes": "Created 8 Use Cases for Instructor (Course Draft, Update, Publish, Sections, Video/Article/Quiz Lessons, Interactive Quiz). Clarified UML syntax (avoiding <<include>> for grouping and using Boundary Boxes/Packages instead). Exported Mermaid diagram."
   },
-  "pending_tasks": [
-    { "task": "Publish Course Feature (Phase 7)", "priority": "high", "notes": "Need to connect the 'Xuất bản khóa học' button to change Draft to Published" },
-    { "task": "Student Course Listing Page", "priority": "high", "notes": "Display published courses for students to browse" }
-  ],
+  "pending_tasks": [],
   "recent_changes": [
-    { "timestamp": "2026-06-08T13:30:00+07:00", "type": "chore", "description": "Minor UI updates to navbar.html", "files": ["navbar.html"] }
+    { "timestamp": "2026-06-12T14:43:00+07:00", "type": "chore", "description": "Created SQL seed scripts for testing enrollments (INSERT INTO enrollments)", "files": [] },
+    { "timestamp": "2026-06-10T16:05:00+07:00", "type": "feature", "description": "Interactive Video Quiz with timeupdate event and exitFullscreen bugfix", "files": ["course-preview.html", "curriculum.js"] }
   ],
-  "errors_encountered": [],
+  "errors_encountered": [
+    { "error": "Misunderstanding of Git Contributors vs Collaborators", "solution": "GitHub counts anyone in commit history as contributor. Verified no user named 'Chiến' in git log, likely old codebase remnant.", "resolved": true }
+  ],
   "decisions_made": [
-    { "decision": "Frontend native validation", "reason": "Rely on HTML5 required attribute for basic form validation before hitting Javascript or Backend" }
+    { "decision": "Keep Git history intact for grading", "reason": "Teachers grade based on commits. Plan B (new repo + copy files) formulated as fallback if teacher objects." },
+    { "decision": "Use direct SQL INSERT for enrollment testing", "reason": "Faster than building full purchase flow. Seed data directly into enrollments table with student_id and course_id." }
   ]
 }

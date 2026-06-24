@@ -1,0 +1,284 @@
+/* instructor.css */
+
+/* --- STEPPER WIZARD --- */
+.wizard-stepper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+/* Kẻ đường nối giữa các step */
+.wizard-stepper::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 4px;
+    background-color: #e9ecef;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.wizard-stepper .step-item {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    flex: 1;
+}
+
+.wizard-stepper .step-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 4px solid #e9ecef;
+    color: #6c757d;
+    font-weight: bold;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.wizard-stepper .step-label {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+/* Active Step */
+.wizard-stepper .nav-link.active .step-button {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.4);
+    transform: scale(1.1);
+}
+
+.wizard-stepper .nav-link.active .step-label {
+    color: #0d6efd;
+}
+
+/* Hide default nav-link styling in stepper */
+.wizard-stepper .nav-link {
+    border: none;
+    background: transparent;
+    padding: 0;
+}
+.wizard-stepper .nav-link:hover, .wizard-stepper .nav-link:focus {
+    border: none;
+}
+
+/* --- FORM FLOATING CUSTOMIZATIONS --- */
+.form-floating > .form-control:focus, 
+.form-floating > .form-control:not(:placeholder-shown) {
+    padding-top: 1.625rem;
+    padding-bottom: .625rem;
+}
+.form-floating > label {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+/* --- UPLOAD THUMBNAIL GLASSMORPHISM --- */
+.upload-area {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s ease;
+}
+.upload-area:hover {
+    border-color: #0d6efd;
+    background: rgba(13, 110, 253, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+/* --- CURRICULUM MICRO-ANIMATIONS --- */
+.lesson-item {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 4px solid transparent !important;
+}
+
+.lesson-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    background-color: #fff !important;
+    z-index: 10;
+}
+
+/* Màu sắc từng loại bài giảng */
+.lesson-item[data-type="VIDEO"]:hover { border-left-color: #0d6efd !important; }
+.lesson-item[data-type="ARTICLE"]:hover { border-left-color: #198754 !important; }
+.lesson-item[data-type="QUIZ"]:hover { border-left-color: #6f42c1 !important; }
+
+/* Drag handle hover */
+.drag-handle:hover {
+    color: #0d6efd !important;
+}
+
+/* --- PUBLISH SCREEN CONFETTI / SUMMARY --- */
+.publish-summary-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.8), 0 4px 6px rgba(0,0,0,0.05);
+}
+
+/* --- CURRICULUM SEPARATED ACCORDION ITEMS --- */
+#curriculumAccordion .accordion-item {
+    border: 1px solid #dee2e6 !important;
+    border-radius: 0.75rem !important;
+    margin-bottom: 1rem !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+#curriculumAccordion .accordion-button {
+    border-radius: 0.75rem !important;
+}
+#curriculumAccordion .accordion-button:not(.collapsed) {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    background-color: #f8f9fa;
+}
+#curriculumAccordion .accordion-button:focus {
+    box-shadow: none;
+}
+
+/* --- STUDIO LAYOUT (2 COLUMNS) --- */
+.sticky-editor-panel {
+    position: sticky;
+    top: 2rem;
+    height: calc(100vh - 4rem);
+    overflow-y: auto;
+    border-radius: 1rem;
+    /* Custom Scrollbar for inner editor */
+    scrollbar-width: thin;
+}
+.sticky-editor-panel::-webkit-scrollbar {
+    width: 6px;
+}
+.sticky-editor-panel::-webkit-scrollbar-thumb {
+    background-color: #dee2e6;
+    border-radius: 10px;
+}
+
+/* --- PREMIUM UI UPGRADES --- */
+/* Nút bấm Premium Gradient */
+.btn-primary.rounded-pill {
+    background: linear-gradient(135deg, #0d6efd 0%, #0043a8 100%);
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-primary.rounded-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(13, 110, 253, 0.3) !important;
+}
+
+.btn-success.rounded-pill {
+    background: linear-gradient(135deg, #198754 0%, #105936 100%);
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-success.rounded-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(25, 135, 84, 0.3) !important;
+}
+
+/* Panel Soạn Thảo Bên Phải - Premium Glass/Shadow */
+.sticky-editor-panel {
+    background: linear-gradient(to bottom right, #ffffff, #f8faff) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.06) !important;
+    border: 1px solid rgba(13, 110, 253, 0.1) !important;
+}
+
+/* Header của Editor */
+#lessonEditorTitle {
+    background: -webkit-linear-gradient(45deg, #0d6efd, #6f42c1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800 !important;
+}
+
+/* Accordion Active State */
+#curriculumAccordion .accordion-button:not(.collapsed) {
+    background: linear-gradient(to right, #f8f9fa, #eef2f7) !important;
+    border-left: 4px solid #0d6efd;
+}
+
+/* Màn hình trống Premium */
+#editorEmptyState i {
+    background: -webkit-linear-gradient(45deg, #ced4da, #e9ecef);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+#emptyCurriculumState {
+    background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%) !important;
+    border: 2px dashed #dee2e6 !important;
+}
+
+/* --- PREMIUM BACKGROUND FOR COURSE WIZARD --- */
+.wizard-page-bg {
+    background-color: #f6f8fb;
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(13, 110, 253, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(111, 66, 193, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(25, 135, 84, 0.05) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(13, 110, 253, 0.05) 0px, transparent 50%);
+    min-height: calc(100vh - 120px);
+}
+
+/* --- BASIC INFO CINEMATIC LAYOUT --- */
+.cinematic-upload-area {
+    min-height: 250px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 3px dashed #ced4da;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cinematic-upload-area:hover {
+    border-color: #0d6efd;
+    background: rgba(13, 110, 253, 0.05);
+    box-shadow: 0 10px 30px rgba(13, 110, 253, 0.1);
+}
+.cinematic-upload-area #thumbnailPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.cinematic-upload-area:hover .hover-show {
+    opacity: 1 !important;
+}
+
+/* Premium Inputs */
+.premium-input .form-control {
+    background-color: #f4f5f7;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: none !important;
+}
+.premium-input .form-control:focus {
+    background-color: #ffffff;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1) !important;
+}
+.premium-input label {
+    color: #6c757d;
+    font-weight: 500;
+}

@@ -10,9 +10,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const lessonModal = lessonModalElement ? new bootstrap.Modal(lessonModalElement) : null;
     const btnConfirmAddLesson = document.getElementById('btnConfirmAddLesson');
 
-    const lessonContentModalElement = document.getElementById('lessonContentModal');
-    const lessonContentModal = lessonContentModalElement ? new bootstrap.Modal(lessonContentModalElement) : null;
     const btnSaveLessonContent = document.getElementById('btnSaveLessonContent');
+    const btnCloseEditor = document.getElementById('btnCloseEditor');
+
+    if (btnCloseEditor) {
+        btnCloseEditor.addEventListener('click', function() {
+            document.getElementById('lessonEditorPanel').classList.add('d-none');
+            document.getElementById('editorEmptyState').classList.remove('d-none');
+        });
+    }
 
     let editorInstance = null;
 
@@ -180,8 +186,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         lessonNode.querySelector('.btn-edit-lesson').addEventListener('click', function() {
-            if(!lessonContentModal) return alert("Thiếu HTML của Modal nội dung!");
-
             const lessonTypeText = lessonNode.querySelector('.lesson-type-badge').textContent;
             let rawLessonType = 'ARTICLE'; // Mặc định là Bài viết
             if (lessonTypeText.includes('VIDEO')) {
@@ -249,7 +253,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             quizList.insertAdjacentHTML('beforeend', createQuestionHTML(0));
                         }
                     }
-                    lessonContentModal.show();
+                    document.getElementById('editorEmptyState').classList.add('d-none');
+                    document.getElementById('lessonEditorPanel').classList.remove('d-none');
                 });
         });
     }
@@ -378,8 +383,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         badge.classList.add('bg-success-subtle', 'text-success', 'fw-bold');
                         badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>ĐÃ CÓ VIDEO';
                     }
-
-                    lessonContentModal.hide();
                 } else {
                     alert("Lỗi tải video: " + xhr.responseText);
                 }
@@ -412,8 +415,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         badge.classList.add('bg-success-subtle', 'text-success', 'fw-bold');
                         badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>ĐÃ CÓ BÀI VIẾT';
                     }
-
-                    lessonContentModal.hide();
                 }).catch(err => {
                     console.error(err);
                     alert("Lỗi khi lưu bài viết!");
@@ -461,7 +462,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         badge.classList.add('bg-success-subtle', 'text-success', 'fw-bold');
                         badge.innerHTML = lessonType.includes('VIDEO') ? '<i class="bi bi-check-circle-fill me-1"></i>ĐÃ CÓ VIDEO' : '<i class="bi bi-check-circle-fill me-1"></i>ĐÃ CÓ TRẮC NGHIỆM';
                     }
-                    lessonContentModal.hide();
                 }).catch(err => {
                     console.error(err);
                     alert("Lỗi khi lưu trắc nghiệm!");
