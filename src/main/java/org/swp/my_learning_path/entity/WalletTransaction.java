@@ -41,6 +41,9 @@ public class WalletTransaction extends BaseEntity {
     @JoinColumn(name = "order_id")
     Order order;
 
+    @Column(name = "description", columnDefinition = "NVARCHAR(500)")
+    String description;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "wallet_id", nullable = false)
     Wallet wallet;

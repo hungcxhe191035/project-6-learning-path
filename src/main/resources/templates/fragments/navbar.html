@@ -190,6 +190,11 @@
                 <a th:href="@{/profile}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Học tập</a>
                 <a sec:authorize="hasRole('INSTRUCTOR')" th:href="@{/instructor/students}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Học viên</a>
                 <a sec:authorize="hasAnyRole('INSTRUCTOR', 'ADMIN')" th:href="@{/revenue}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Doanh thu</a>
+                <a th:href="@{/wallet}" class="btn btn-outline-success d-none d-lg-flex align-items-center gap-1 py-1 px-3 rounded-pill fw-bold text-decoration-none" style="font-size: 13px; border-color: #10b981; color: #10b981;">
+                    <i class="bi bi-wallet2"></i>
+                    <span th:if="${walletBalance != null}" th:text="${#numbers.formatInteger(walletBalance, 1, 'COMMA')} + ' ₫'">0 ₫</span>
+                    <span th:unless="${walletBalance != null}">0 ₫</span>
+                </a>
                 
                 <!-- Dropdown Avatar -->
                 <div class="dropdown">
@@ -219,6 +224,12 @@
                         <!-- Links list (Đúng 5 mục chức năng chính theo yêu cầu của user) -->
                         <ul class="list-unstyled py-2 m-0 border-bottom text-start" style="font-size: 14px;">
                             <li><a class="dropdown-item py-2 px-3 text-secondary fw-semibold hover-udemy" th:href="@{/profile}">Học tập</a></li>
+                            <li>
+                                <a class="dropdown-item py-2 px-3 text-secondary fw-semibold hover-udemy d-flex justify-content-between align-items-center" th:href="@{/wallet}">
+                                    <span>Ví tiền của tôi</span>
+                                    <span class="badge bg-success text-white" th:if="${walletBalance != null}" th:text="${#numbers.formatInteger(walletBalance, 1, 'COMMA')} + 'đ'">0d</span>
+                                </a>
+                            </li>
                             <li>
                                 <a class="dropdown-item py-2 px-3 text-secondary fw-semibold hover-udemy d-flex justify-content-between align-items-center" th:href="@{/cart}">
                                     <span>Giỏ hàng</span>

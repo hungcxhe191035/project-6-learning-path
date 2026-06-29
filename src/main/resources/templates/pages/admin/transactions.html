@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Ví & Giao dịch | Admin fCourse</title>
+    <style>
+        .badge-deposit { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .badge-withdraw { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .badge-payment { background-color: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #0f172a;">Quản lý Giao dịch & Ví tiền</h2>
+        </div>
+    </div>
+
+    <!-- Cấu hình % ăn chia của Giảng viên -->
+    <div class="card admin-card mb-4 shadow-sm">
+        <div class="card-header fw-bold bg-white" style="color: #0f172a; border-bottom: 1px solid #e2e8f0; padding: 15px 20px;">
+            <i class="bi bi-gear-fill me-2 text-primary"></i>Cấu hình Tỉ lệ Chia sẻ Doanh thu
+        </div>
+        <div class="card-body p-4">
+            <form id="revenueShareForm" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label for="sharePercentInput" class="form-label fw-bold text-muted" style="font-size: 13px;">
+                        Tỉ lệ phần trăm Giảng viên được nhận (%)
+                    </label>
+                    <div class="input-group">
+                        <input type="number" id="sharePercentInput" class="form-control form-control-lg fw-bold" 
+                               th:value="${sharePercent}" min="0" max="100" placeholder="Ví dụ: 80" style="border-radius: 8px 0 0 8px;">
+                        <span class="input-group-text bg-light fw-bold">%</span>
+                    </div>
+                    <div class="form-text text-muted">
+                        Số % còn lại sẽ tự động thuộc về doanh thu hệ thống (ví dụ: Giảng viên nhận 80%, Hệ thống nhận 20%).
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <button type="button" class="btn btn-primary btn-lg w-100 fw-bold" onclick="saveRevenueShare()" style="border-radius: 8px;">
+                        <i class="bi bi-save me-2"></i>Lưu cấu hình
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bảng danh sách giao dịch -->
+    <div class="card admin-card shadow-sm">
+        <div class="admin-card-header bg-white fw-bold" style="padding: 15px 20px; border-bottom: 1px solid #e2e8f0;">
+            <i class="bi bi-list-stars me-2 text-primary"></i>Danh sách tất cả các giao dịch trong hệ thống
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="font-size: 14px;">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4 py-3" style="width: 80px;">Mã GD</th>
+                        <th class="py-3">Tài khoản</th>
+                        <th class="py-3">Mô tả giao dịch</th>
+                        <th class="py-3">Loại</th>
+                        <th class="py-3">Số tiền</th>
+                        <th class="py-3">Trạng thái</th>
+                        <th class="py-3">Thời gian</th>
+                        <th class="py-3 pe-4 text-end" style="width: 250px;">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="tx : ${transactions}">
+                        <td class="ps-4 fw-semibold" th:text="'#' + ${tx.transactionId}">#1</td>
+                        <td>
+                            <div class="fw-bold text-dark" th:text="${tx.wallet.user.fullName}">Tên người dùng</div>
+                            <span class="text-muted small" th:text="${tx.wallet.user.email}">user@email.com</span>
+                            <span class="badge bg-secondary ms-1" style="font-size: 10px;" th:text="${tx.wallet.user.role.name()}">ROLE</span>
+                        </td>
+                        <td th:text="${tx.description}">Nạp tiền vào ví</td>
+                        <td>
+                            <span th:if="${tx.transactionType.name() == 'DEPOSIT'}" class="badge badge-deposit px-2.5 py-1.5 rounded-pill">Nạp tiền</span>
+                            <span th:if="${tx.transactionType.name() == 'WITHDRAW'}" class="badge badge-withdraw px-2.5 py-1.5 rounded-pill">Rút tiền</span>
+                            <span th:if="${tx.transactionType.name() == 'PAYMENT'}" class="badge badge-payment px-2.5 py-1.5 rounded-pill">Thanh toán</span>
+                        </td>
+                        <td class="fw-bold" 
+                            th:classappend="${tx.transactionType.name() == 'DEPOSIT' || (tx.transactionType.name() == 'PAYMENT' and tx.amount.compareTo(T(java.math.BigDecimal).ZERO) > 0) ? 'text-success' : 'text-danger'}"
+                            th:text="${(tx.transactionType.name() == 'DEPOSIT' || (tx.transactionType.name() == 'PAYMENT' and tx.amount.compareTo(T(java.math.BigDecimal).ZERO) > 0) ? '+' : '-') + #numbers.formatInteger(tx.amount, 1, 'COMMA') + ' ₫'}">
+                            +100.000đ
+                        </td>
+                        <td>
+                            <span th:if="${tx.status.name() == 'SUCCESS'}" class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Thành công</span>
+                            <span th:if="${tx.status.name() == 'PENDING'}" class="text-warning fw-bold"><i class="bi bi-hourglass-split me-1"></i>Đang xử lý</span>
+                            <span th:if="${tx.status.name() == 'FAIL'}" class="text-danger fw-bold"><i class="bi bi-x-circle-fill me-1"></i>Thất bại</span>
+                        </td>
+                        <td class="text-muted" th:text="${tx.createdAt != null ? #temporals.format(tx.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2026 12:00</td>
+                        <td class="pe-4 text-end">
+                            <div th:if="${tx.transactionType.name() == 'WITHDRAW' and tx.status.name() == 'PENDING'}" class="d-flex gap-2 justify-content-end">
+                                <button class="btn btn-success btn-sm fw-bold px-3" th:data-tx-id="${tx.transactionId}" onclick="approveWithdraw(this)">
+                                    <i class="bi bi-check-lg me-1"></i>Duyệt rút
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm fw-bold px-3" th:data-tx-id="${tx.transactionId}" onclick="rejectWithdraw(this)">
+                                    <i class="bi bi-x-lg me-1"></i>Từ chối
+                                </button>
+                            </div>
+                            <span th:unless="${tx.transactionType.name() == 'WITHDRAW' and tx.status.name() == 'PENDING'}" class="text-muted small">-</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${transactions == null || transactions.isEmpty()}">
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            Hệ thống chưa ghi nhận giao dịch nào.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        async function saveRevenueShare() {
+            const input = document.getElementById('sharePercentInput');
+            const percent = parseInt(input.value);
+
+            if (isNaN(percent) || percent < 0 || percent > 100) {
+                toastr.warning("Vui lòng nhập phần trăm hợp lệ từ 0 đến 100%");
+                return;
+            }
+
+            const response = await fetch('/api/admin/settings/revenue-share?sharePercent=' + percent, {
+                method: 'POST'
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                toastr.success(data.message);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                toastr.error(data.message || "Không thể lưu cấu hình!");
+            }
+        }
+
+        async function approveWithdraw(btn) {
+            const txId = btn.dataset.txId;
+            if (!confirm("Bạn xác nhận đã thực hiện chuyển khoản thành công giao dịch rút tiền này và muốn duyệt hoàn tất?")) {
+                return;
+            }
+
+            const response = await fetch('/api/admin/transactions/' + txId + '/approve', {
+                method: 'POST'
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                toastr.success(data.message);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                toastr.error(data.message || "Duyệt thất bại!");
+            }
+        }
+
+        async function rejectWithdraw(btn) {
+            const txId = btn.dataset.txId;
+            if (!confirm("Bạn có chắc muốn từ chối yêu cầu rút tiền này? Số tiền sẽ được hoàn lại ví của người dùng.")) {
+                return;
+            }
+
+            const response = await fetch('/api/admin/transactions/' + txId + '/reject', {
+                method: 'POST'
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                toastr.success(data.message);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                toastr.error(data.message || "Thao tác thất bại!");
+            }
+        }
+    </script>
+</div>
+
+</body>
+</html>

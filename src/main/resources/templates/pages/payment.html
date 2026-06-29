@@ -106,44 +106,48 @@
                     </div>
                 </div>
 
-                <!-- Phương thức thanh toán -->
-                <div class="payment-method-title">Chọn phương thức thanh toán</div>
-
-                <div class="payment-method-card selected" onclick="selectMethod(this)">
-                    <span class="payment-method-icon">🏦</span>
-                    <div>
-                        <div class="payment-method-name">Chuyển khoản ngân hàng</div>
-                        <div class="payment-method-desc">Vietcombank, BIDV, MB Bank, ...</div>
+                <!-- Ví tiền của tôi và số dư -->
+                <div class="card border-0 mb-4 bg-light" style="border-radius: 12px;">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted small fw-bold d-block text-uppercase">Số dư ví của bạn</span>
+                                <h4 class="fw-bold text-success m-0 mt-1" 
+                                    th:text="${#numbers.formatInteger(walletBalance != null ? walletBalance : 0, 1, 'COMMA')} + ' ₫'">
+                                    0 ₫
+                                </h4>
+                            </div>
+                            <div class="fs-2 text-muted">
+                                <i class="bi bi-wallet2"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="payment-method-card" onclick="selectMethod(this)">
-                    <span class="payment-method-icon">💳</span>
-                    <div>
-                        <div class="payment-method-name">Thẻ tín dụng / Ghi nợ</div>
-                        <div class="payment-method-desc">Visa, MasterCard, JCB</div>
+                <!-- So sánh số dư và hiển thị nút hành động -->
+                <div th:if="${walletBalance != null and walletBalance.compareTo(course.price) >= 0}">
+                    <div class="alert alert-success d-flex align-items-center" role="alert" style="border-radius: 10px;">
+                        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                        <div>Số dư ví khả dụng đủ điều kiện để thực hiện thanh toán này.</div>
                     </div>
+
+                    <!-- Nút xác nhận thanh toán -->
+                    <button class="btn-confirm" th:data-course-id="${course.courseId}" onclick="confirmWalletPayment(this)">
+                        <i class="bi bi-shield-check me-2"></i>Xác nhận thanh toán bằng ví
+                    </button>
                 </div>
 
-                <div class="payment-method-card" onclick="selectMethod(this)">
-                    <span class="payment-method-icon">📱</span>
-                    <div>
-                        <div class="payment-method-name">Ví điện tử</div>
-                        <div class="payment-method-desc">MoMo, ZaloPay, VNPay</div>
+                <div th:unless="${walletBalance != null and walletBalance.compareTo(course.price) >= 0}">
+                    <div class="alert alert-danger d-flex align-items-center" role="alert" style="border-radius: 10px;">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                        <div>Số dư ví hiện tại không đủ để thực hiện thanh toán này. Vui lòng nạp thêm tiền.</div>
                     </div>
-                </div>
 
-                <!-- Thông báo chức năng đang phát triển -->
-                <div class="notice-box">
-                    ⚠️ <strong>Chức năng đang phát triển:</strong>
-                    Trang thanh toán đầy đủ sẽ được hoàn thiện bởi thành viên phụ trách.
-                    Khoá học của bạn sẽ được kích hoạt ngay sau khi thanh toán thành công.
+                    <!-- Nút nạp tiền -->
+                    <a th:href="@{/wallet}" class="btn d-block text-center text-white fw-bold py-3 mt-3" style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; text-decoration: none;">
+                        <i class="bi bi-plus-circle me-2"></i>Nạp thêm tiền vào ví ngay
+                    </a>
                 </div>
-
-                <!-- Nút xác nhận (placeholder) -->
-                <button class="btn-confirm" onclick="alert('Chức năng thanh toán đang được phát triển!')">
-                    <i class="bi bi-shield-check me-2"></i>Xác nhận thanh toán
-                </button>
 
                 <!-- Quay lại -->
                 <a th:href="@{/course/{id}(id=${course.courseId})}"
@@ -156,10 +160,37 @@
 
     </div>
 
-    <script>
-        function selectMethod(el) {
-            document.querySelectorAll('.payment-method-card').forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected');
+    <script th:inline="javascript">
+        async function confirmWalletPayment(btn) {
+            const courseId = btn.dataset.courseId;
+            if (!confirm("Bạn có chắc chắn muốn dùng số dư ví để mua khóa học này?")) {
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý giao dịch...';
+
+            try {
+                const response = await fetch('/api/wallet/pay/course/' + courseId, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.success && data.redirect) {
+                    toastr.success("Thanh toán thành công! Chào mừng bạn đến với khóa học.");
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1500);
+                } else {
+                    toastr.error(data.message || "Thanh toán thất bại!");
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-shield-check me-2"></i>Xác nhận thanh toán bằng ví';
+                }
+            } catch (e) {
+                toastr.error("Đã xảy ra lỗi kết nối!");
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-shield-check me-2"></i>Xác nhận thanh toán bằng ví';
+            }
         }
     </script>
 </main>
