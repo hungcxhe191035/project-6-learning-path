@@ -167,6 +167,9 @@
                     <li class="nav-item">
                         <button class="nav-link" onclick="switchTab('tab-review', this)">Đánh giá</button>
                     </li>
+                    <li class="nav-item">
+                        <button class="nav-link" onclick="switchTab('tab-blogs', this)">Bài viết chia sẻ</button>
+                    </li>
                 </ul>
             </div>
 
@@ -218,6 +221,21 @@
                         </button>
                     </div>
                     <div id="feedbackMsg" class="mt-3 text-end" style="font-size:0.95rem; font-weight: 600;"></div>
+                </div>
+            </div>
+
+            <!-- Tab Bài viết chia sẻ -->
+            <div class="tab-body" id="tab-blogs">
+                <div class="tab-title d-flex justify-content-between align-items-center">
+                    <span>📝 Bài viết từ học viên</span>
+                    <a th:href="@{/course/{id}(id=${course.courseId})}" target="_blank" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-weight: 600; border: 2px solid var(--primary-light); color: var(--primary);">
+                        <i class="bi bi-pencil-square me-1"></i>Viết bài mới
+                    </a>
+                </div>
+                <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:24px;">Các bài viết chia sẻ kinh nghiệm, tóm tắt bài học chất lượng được đóng góp bởi các bạn học viên cùng khóa.</p>
+                
+                <div class="row g-3" id="learnBlogList">
+                    <!-- JS render rows here -->
                 </div>
             </div>
 
@@ -728,7 +746,145 @@
             }
             return new Date(dateArr).toLocaleDateString('vi-VN');
         }
+
+        // ===== MOCK BLOGS FOR LEARNING PAGE =====
+        const LEARN_MOCK_BLOGS = [
+            {
+                id: 1,
+                title: "Kinh nghiệm thiết kế DB chuẩn hóa và tối ưu truy vấn trong Spring Boot",
+                summary: "Một số quy tắc thiết kế database từ 1NF đến 3NF, cách đánh chỉ mục (Index) hiệu quả và xử lý N+1 query khi sử dụng Spring Data JPA.",
+                content: `<p>Chào mọi người, sau khi học xong chương về Thao tác cơ sở dữ liệu với JPA và Hibernate, mình xin chia sẻ một vài kinh nghiệm thực tế về tối ưu hóa DB.</p><h5>1. Chuẩn hóa cơ sở dữ liệu:</h5><p>Luôn cố gắng đưa DB về dạng chuẩn 3 (3NF) để tránh dư thừa dữ liệu. Tuy nhiên, trong một số trường hợp tần suất đọc quá cao, việc phi chuẩn hóa (denormalization) có kiểm soát cũng là giải pháp tốt.</p><h5>2. Xử lý vấn đề N+1 query:</h5><p>Đây là lỗi kinh điển khi sử dụng JPA. Khi ta query một danh sách thực thể có quan hệ @OneToMany, JPA mặc định sẽ query thêm N lần để lấy thực thể liên quan. Giải pháp là sử dụng Join Fetch trong JPQL:</p><pre class="bg-light p-3 rounded" style="font-family: monospace; font-size: 0.9rem; background-color: #f8fafc; border: 1px solid #e2e8f0;">@Query("SELECT c FROM Course c JOIN FETCH c.lessons WHERE c.id = :id")</pre><p>Hy vọng bài viết giúp ích cho các bạn trong quá trình thực hành dự án!</p>`,
+                cover: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800",
+                author: "Bùi Minh Chiến",
+                authorLetter: "BC",
+                date: "2026-06-28",
+                readTime: 4
+            },
+            {
+                id: 2,
+                title: "Hướng dẫn tích hợp Spring Security và Stateless JWT cho người mới bắt đầu",
+                summary: "Bài viết này hướng dẫn chi tiết cách cấu hình AuthenticationManager, JwtTokenProvider, OncePerRequestFilter để xây dựng hệ thống phân quyền REST API.",
+                content: `<p>Trong bài học Bảo mật ứng dụng với Spring Security, chúng ta được học cách bảo mật cơ bản. Để nâng cao hơn cho ứng dụng SPA (Single Page Application) hoặc Mobile, JWT là lựa chọn hàng đầu.</p><h5>Các bước triển khai chính:</h5><ol><li>Thêm dependency jwt (jjwt-api, jjwt-impl, jjwt-jackson).</li><li>Viết class JwtTokenProvider để generate và validate token.</li><li>Tạo JwtAuthenticationFilter kế thừa OncePerRequestFilter để intercept mọi request, trích xuất JWT từ Header Authorization và set Authentication vào SecurityContextHolder.</li><li>Cấu hình SecurityFilterChain để permitAll các endpoint public và requireAuthentication đối với API nội bộ.</p>`,
+                cover: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800",
+                author: "Nguyễn Văn Hoàng",
+                authorLetter: "NH",
+                date: "2026-06-30",
+                readTime: 6
+            }
+        ];
+
+        function renderLearningBlogs() {
+            const list = document.getElementById('learnBlogList');
+            if (!list) return;
+
+            let html = '';
+            LEARN_MOCK_BLOGS.forEach(blog => {
+                const coverStyle = blog.cover 
+                    ? `background: url('${blog.cover}') center/cover;`
+                    : `background: linear-gradient(135deg, var(--primary), #a78bfa);`;
+
+                html += `
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.2s;" onclick="openLearnBlogReader(${blog.id})" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                            <div style="height: 120px; ${coverStyle}"></div>
+                            <div class="card-body p-3">
+                                <h6 class="fw-bold mb-1 text-truncate" style="font-size: 0.95rem; color: var(--text-main);">${blog.title}</h6>
+                                <p class="text-muted mb-3" style="font-size: 0.8rem; line-height: 1.4; height: 2.2rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${blog.summary}</p>
+                                <div class="d-flex align-items-center justify-content-between text-muted border-top pt-2" style="font-size: 0.75rem;">
+                                    <span class="fw-bold" style="color: var(--primary-dark);"><i class="bi bi-person me-1"></i>${blog.author}</span>
+                                    <span><i class="bi bi-clock me-1"></i>${blog.readTime} phút</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        window.openLearnBlogReader = function(id) {
+            const blog = LEARN_MOCK_BLOGS.find(b => b.id === id);
+            if (!blog) return;
+
+            const readerTitle = document.getElementById('lBlogReaderTitle');
+            const readerAuthor = document.getElementById('lBlogReaderAuthor');
+            const readerAvatar = document.getElementById('lBlogReaderAvatar');
+            const readerDate = document.getElementById('lBlogReaderDate');
+            const readerReadTime = document.getElementById('lBlogReaderReadTime');
+            const readerContent = document.getElementById('lBlogReaderContent');
+            const readerCover = document.getElementById('lBlogReaderCover');
+
+            if (readerTitle) readerTitle.textContent = blog.title;
+            if (readerAuthor) readerAuthor.textContent = blog.author;
+            if (readerAvatar) readerAvatar.textContent = blog.authorLetter;
+            if (readerDate) readerDate.innerHTML = `<i class="bi bi-calendar3 me-1"></i>${blog.date.split('-').reverse().join('/')}`;
+            if (readerReadTime) readerReadTime.textContent = blog.readTime;
+
+            // Render HTML directly inside modal reader
+            if (readerContent) {
+                readerContent.innerHTML = blog.content;
+            }
+
+            if (readerCover) {
+                if (blog.cover) {
+                    readerCover.style.background = `url('${blog.cover}') center/cover`;
+                } else {
+                    readerCover.style.background = `linear-gradient(135deg, var(--primary), #a78bfa)`;
+                }
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('learnReadBlogModal'));
+            modal.show();
+        };
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Initialize learning blogs tab load
+        document.addEventListener("DOMContentLoaded", function() {
+            renderLearningBlogs();
+        });
     </script>
+
+    <!-- MODAL ĐỌC BLOG CHI TIẾT TRONG TRANG HỌC -->
+    <div class="modal fade" id="learnReadBlogModal" tabindex="-1" aria-labelledby="learnReadBlogModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 20px 50px rgba(0,0,0,0.15); border: none;">
+                <div class="modal-header border-0 pb-0" style="padding: 16px 24px 4px; display: flex; justify-content: flex-end;">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 0 32px 32px; color: var(--text-main);">
+                    <!-- Ảnh bìa lớn -->
+                    <div id="lBlogReaderCover" class="ratio ratio-21x9 rounded mb-4 overflow-hidden" style="background: linear-gradient(135deg, var(--primary), #a78bfa); display: flex; align-items: center; justify-content: center;"></div>
+                    
+                    <!-- Tiêu đề và thông tin tác giả -->
+                    <h2 class="fw-bold mb-3" id="lBlogReaderTitle" style="font-size: 1.8rem; letter-spacing: -0.5px;">Tiêu đề bài viết</h2>
+                    
+                    <div class="d-flex align-items-center gap-3 text-muted mb-4 pb-3 border-bottom" style="font-size: 0.88rem; font-weight: 500;">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="blog-author-avatar" id="lBlogReaderAvatar" style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">H</div>
+                            <span id="lBlogReaderAuthor" class="fw-bold" style="color: var(--text-main)">Học viên</span>
+                        </div>
+                        <div>•</div>
+                        <div id="lBlogReaderDate">01/07/2026</div>
+                        <div>•</div>
+                        <div><i class="bi bi-clock me-1"></i><span id="lBlogReaderReadTime">5</span> phút đọc</div>
+                    </div>
+
+                    <!-- Nội dung bài viết -->
+                    <div id="lBlogReaderContent" style="font-size: 1.05rem; line-height: 1.8; color: var(--text-main);">
+                        <!-- Content -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>
