@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả giao dịch | fCourse</title>
+    <style>
+        .result-container { max-width: 600px; margin: 60px auto; padding: 20px; }
+        .result-card {
+            background: white; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e7eb; padding: 45px; text-align: center;
+        }
+        .icon-circle {
+            width: 80px; height: 80px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; margin: 0 auto 25px auto;
+        }
+        .icon-success { background-color: #d1fae5; color: #10b981; }
+        .icon-fail { background-color: #fee2e2; color: #ef4444; }
+        .btn-wallet-back {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            color: white; border: none; border-radius: 12px;
+            font-weight: 700; padding: 12px 30px; display: inline-block;
+            text-decoration: none; transition: all 0.2s;
+        }
+        .btn-wallet-back:hover {
+            background: linear-gradient(135deg, #312e81, #4c1d95);
+            transform: translateY(-1px); color: white;
+        }
+    </style>
+</head>
+
+<body>
+<main layout:fragment="content">
+    <div class="result-container">
+        <div class="result-card">
+            
+            <!-- THÀNH CÔNG -->
+            <div th:if="${paymentSuccess}">
+                <div class="icon-circle icon-success">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <h3 class="fw-bold text-success mb-2">Thanh toán thành công!</h3>
+                <p class="text-muted mb-4" th:text="${orderInfo}">Nạp tiền vào ví fCourse</p>
+                
+                <div class="bg-light p-3 border rounded-3 mb-4 text-start" style="font-size: 0.95rem;">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Hình thức:</span>
+                        <strong class="text-dark">Nạp tiền vào ví</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Số tiền nạp:</span>
+                        <strong class="text-success" th:text="${#numbers.formatInteger(amount, 1, 'COMMA')} + ' ₫'">0đ</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THẤT BẠI -->
+            <div th:unless="${paymentSuccess}">
+                <div class="icon-circle icon-fail">
+                    <i class="bi bi-x-lg"></i>
+                </div>
+                <h3 class="fw-bold text-danger mb-2">Giao dịch thất bại!</h3>
+                <p class="text-muted mb-4">Giao dịch đã bị huỷ hoặc xảy ra lỗi trong quá trình xử lý thanh toán từ VNPay.</p>
+            </div>
+
+            <a th:href="@{/wallet}" class="btn-wallet-back mt-3">
+                <i class="bi bi-wallet2 me-2"></i>Quay lại Ví của tôi
+            </a>
+            
+        </div>
+    </div>
+</main>
+</body>
+</html>

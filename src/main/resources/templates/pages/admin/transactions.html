@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin-layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Ví & Giao dịch | Admin fCourse</title>
+    <style>
+        .badge-deposit { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .badge-withdraw { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .badge-payment { background-color: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: #0f172a;">Quản lý Giao dịch & Ví tiền</h2>
+        </div>
+    </div>
+
+    <!-- Cấu hình % ăn chia của Giảng viên -->
+    <div class="card admin-card mb-4 shadow-sm" style="border-radius: 12px; border: 1px solid #e2e8f0;">
+        <div class="card-body p-3">
+            <form id="revenueShareForm" class="row align-items-center g-3">
+                <div class="col-md-7 d-flex align-items-center">
+                    <div class="p-2.5 rounded-3 me-3" style="background-color: #f5f3ff; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+                        <i class="bi bi-percent fs-4 text-primary"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 text-dark" style="font-size: 14px;">Cấu hình Tỉ lệ Chia sẻ Doanh thu</h6>
+                        <span class="text-muted" style="font-size: 12px;">Số % còn lại sẽ tự động chuyển vào ví Admin hệ thống (ví dụ: Giảng viên nhận 80%, Admin nhận 20%).</span>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="d-flex align-items-center gap-2 justify-content-md-end">
+                        <div class="input-group" style="max-width: 200px;">
+                            <span class="input-group-text bg-white text-muted border-end-0 small fw-bold" style="font-size: 12px;">GV nhận:</span>
+                            <input type="number" id="sharePercentInput" class="form-control fw-bold border-start-0 border-end-0 text-center" 
+                                   th:value="${sharePercent}" min="0" max="100" placeholder="80" style="padding: 6px 10px;">
+                            <span class="input-group-text bg-light fw-bold">%</span>
+                        </div>
+                        <button type="button" class="btn btn-primary fw-bold" onclick="confirmRevenueShare()" style="padding: 7px 15px; border-radius: 8px;">
+                            <i class="bi bi-save me-1"></i>Lưu
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bộ lọc & Tìm kiếm Giao dịch -->
+    <div class="card admin-card mb-4 shadow-sm" style="border-radius: 12px; border: 1px solid #e2e8f0;">
+        <div class="card-body p-4">
+            <form th:action="@{/admin/transactions}" method="get" class="row g-3 align-items-end">
+                <!-- Tìm kiếm -->
+                <div class="col-md-4">
+                    <label for="search" class="form-label fw-bold" style="color: #334155; font-size: 14px;">Tìm kiếm giao dịch</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                        <input
+                                type="text"
+                                id="search"
+                                name="search"
+                                th:value="${search}"
+                                class="form-control border-start-0"
+                                placeholder="Mã GD, tên, email, mô tả..."
+                        >
+                    </div>
+                </div>
+
+                <!-- Loại Giao dịch -->
+                <div class="col-md-3">
+                    <label for="type" class="form-label fw-bold" style="color: #334155; font-size: 14px;">Loại giao dịch</label>
+                    <select id="type" name="type" class="form-select">
+                        <option value="ALL" th:selected="${selectedType == 'ALL'}">-- Tất cả loại --</option>
+                        <option
+                                th:each="t : ${types}"
+                                th:value="${t.name()}"
+                                th:text="${t.name() == 'DEPOSIT' ? 'Nạp tiền' : (t.name() == 'WITHDRAW' ? 'Rút tiền' : 'Thanh toán')}"
+                                th:selected="${selectedType == t.name()}"
+                        >
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Trạng thái -->
+                <div class="col-md-3">
+                    <label for="status" class="form-label fw-bold" style="color: #334155; font-size: 14px;">Trạng thái</label>
+                    <select id="status" name="status" class="form-select">
+                        <option value="ALL" th:selected="${selectedStatus == 'ALL'}">-- Tất cả trạng thái --</option>
+                        <option
+                                th:each="s : ${statuses}"
+                                th:value="${s.name()}"
+                                th:text="${s.name() == 'SUCCESS' ? 'Thành công' : (s.name() == 'PENDING' ? 'Đang xử lý' : 'Thất bại')}"
+                                th:selected="${selectedStatus == s.name()}"
+                        >
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Nút bấm -->
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2" style="border-radius: 8px;">
+                        Tìm kiếm
+                    </button>
+                    <a th:href="@{/admin/transactions}" class="btn btn-outline-secondary py-2" title="Xóa bộ lọc" style="display: flex; align-items: center; justify-content: center; width: 44px; padding: 0 !important; border-radius: 8px;">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bảng danh sách giao dịch -->
+    <div class="card admin-card shadow-sm">
+        <div class="admin-card-header bg-white fw-bold" style="padding: 15px 20px; border-bottom: 1px solid #e2e8f0;">
+            <i class="bi bi-list-stars me-2 text-primary"></i>Danh sách tất cả các giao dịch trong hệ thống
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="font-size: 14px;">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4 py-3" style="width: 80px;">Mã GD</th>
+                        <th class="py-3">Tài khoản</th>
+                        <th class="py-3">Mô tả giao dịch</th>
+                        <th class="py-3">Loại</th>
+                        <th class="py-3">Số tiền</th>
+                        <th class="py-3">Trạng thái</th>
+                        <th class="py-3 pe-4 text-end">Thời gian</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="tx : ${transactions}">
+                        <td class="ps-4 fw-semibold" th:text="'#' + ${tx.transactionId}">#1</td>
+                        <td>
+                            <div class="fw-bold text-dark" th:text="${tx.wallet.user.fullName}">Tên người dùng</div>
+                            <span class="text-muted small" th:text="${tx.wallet.user.email}">user@email.com</span>
+                            <span class="badge bg-secondary ms-1" style="font-size: 10px;" th:text="${tx.wallet.user.role.name()}">ROLE</span>
+                        </td>
+                        <td th:text="${tx.description}">Nạp tiền vào ví</td>
+                        <td>
+                            <span th:if="${tx.transactionType.name() == 'DEPOSIT'}" class="badge badge-deposit px-2.5 py-1.5 rounded-pill">Nạp tiền</span>
+                            <span th:if="${tx.transactionType.name() == 'WITHDRAW'}" class="badge badge-withdraw px-2.5 py-1.5 rounded-pill">Rút tiền</span>
+                            <span th:if="${tx.transactionType.name() == 'PAYMENT'}" class="badge badge-payment px-2.5 py-1.5 rounded-pill">Thanh toán</span>
+                        </td>
+                        <td class="fw-bold" 
+                            th:classappend="${tx.transactionType.name() == 'DEPOSIT' || (tx.transactionType.name() == 'PAYMENT' and tx.amount.compareTo(T(java.math.BigDecimal).ZERO) > 0) ? 'text-success' : 'text-danger'}"
+                            th:text="${(tx.transactionType.name() == 'DEPOSIT' || (tx.transactionType.name() == 'PAYMENT' and tx.amount.compareTo(T(java.math.BigDecimal).ZERO) > 0) ? '+' : '-') + #numbers.formatInteger(tx.amount, 1, 'COMMA') + ' ₫'}">
+                            +100.000đ
+                        </td>
+                        <td>
+                            <span th:if="${tx.status.name() == 'SUCCESS'}" class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Thành công</span>
+                            <span th:if="${tx.status.name() == 'PENDING'}" class="text-warning fw-bold"><i class="bi bi-hourglass-split me-1"></i>Đang xử lý</span>
+                            <span th:if="${tx.status.name() == 'FAIL'}" class="text-danger fw-bold"><i class="bi bi-x-circle-fill me-1"></i>Thất bại</span>
+                        </td>
+                        <td class="text-muted pe-4 text-end" th:text="${tx.createdAt != null ? #temporals.format(tx.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2026 12:00</td>
+                    </tr>
+                    <tr th:if="${transactions == null || transactions.isEmpty()}">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            Hệ thống chưa ghi nhận giao dịch nào.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination Footer -->
+        <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center py-3 px-4" th:if="${totalPages > 1}">
+            <div class="text-muted" style="font-size: 14px;">
+                Hiển thị trang <span class="fw-bold" th:text="${currentPage + 1}">1</span> / <span th:text="${totalPages}">1</span> (Tổng <span th:text="${totalElements}">0</span> giao dịch)
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0 pagination-sm">
+                    <!-- First Page -->
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/transactions(search=${search}, type=${selectedType}, status=${selectedStatus}, page=0)}">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <!-- Previous Page -->
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/transactions(search=${search}, type=${selectedType}, status=${selectedStatus}, page=${currentPage - 1})}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <!-- Page Numbers -->
+                    <li class="page-item" 
+                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                        th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                        th:classappend="${currentPage == i} ? 'active'">
+                        <a class="page-link" 
+                           th:href="@{/admin/transactions(search=${search}, type=${selectedType}, status=${selectedStatus}, page=${i})}" 
+                           th:text="${i + 1}">1</a>
+                    </li>
+                    <!-- Next Page -->
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/transactions(search=${search}, type=${selectedType}, status=${selectedStatus}, page=${currentPage + 1})}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <!-- Last Page -->
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/admin/transactions(search=${search}, type=${selectedType}, status=${selectedStatus}, page=${totalPages - 1})}">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+    <script>
+        function confirmRevenueShare() {
+            const input = document.getElementById('sharePercentInput');
+            const percent = parseInt(input.value);
+
+            if (isNaN(percent) || percent < 0 || percent > 100) {
+                toastr.warning("Vui lòng nhập phần trăm hợp lệ từ 0 đến 100%");
+                return;
+            }
+
+            const adminPercent = 100 - percent;
+            const message = `Bạn có chắc chắn muốn thay đổi tỉ lệ chia sẻ doanh thu?\n\n• Giảng viên nhận: ${percent}%\n• Admin nhận: ${adminPercent}%`;
+
+            showConfirm(
+                message,
+                () => saveRevenueShare(percent),
+                "Xác nhận thay đổi",
+                false,
+                "Thay đổi tỉ lệ chia sẻ doanh thu"
+            );
+        }
+
+        async function saveRevenueShare(percent) {
+            try {
+                const response = await fetch('/api/admin/settings/revenue-share?sharePercent=' + percent, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    toastr.success(data.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    toastr.error(data.message || "Không thể lưu cấu hình!");
+                }
+            } catch (e) {
+                toastr.error("Đã xảy ra lỗi khi lưu cấu hình!");
+            }
+        }
+    </script>
+</th:block>
+
+</body>
+</html>
