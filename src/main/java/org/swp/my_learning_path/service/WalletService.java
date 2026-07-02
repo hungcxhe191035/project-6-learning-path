@@ -1,5 +1,9 @@
 package org.swp.my_learning_path.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.swp.my_learning_path.constant.ETransactionStatus;
+import org.swp.my_learning_path.constant.ETransactionType;
 import org.swp.my_learning_path.entity.Wallet;
 import org.swp.my_learning_path.entity.WalletTransaction;
 
@@ -18,4 +22,6 @@ public interface WalletService {
     void rejectWithdraw(Long transactionId);
     List<WalletTransaction> getTransactionHistory(Long userId);
     List<WalletTransaction> getAllTransactions();
+    Page<WalletTransaction> getAllTransactions(Pageable pageable);
+    Page<WalletTransaction> searchTransactions(ETransactionType type, ETransactionStatus status, String search, Pageable pageable);
 }

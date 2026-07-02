@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <title>Ví của tôi | fCourse</title>
     <style>
-        .wallet-container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        .wallet-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
         .gradient-card {
             background: linear-gradient(135deg, #0f172a, #1e1b4b, #311042);
             color: white; border-radius: 20px;
@@ -28,16 +28,9 @@
         .action-card {
             background: white; border: 1px solid #e5e7eb; border-radius: 16px;
             padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            height: 100%; transition: transform 0.2s;
+            transition: transform 0.2s;
         }
         .action-card:hover { transform: translateY(-2px); }
-        .tab-btn {
-            font-weight: 600; padding: 10px 20px; border-radius: 8px;
-            border: 1px solid transparent; background: transparent; transition: all 0.2s;
-        }
-        .tab-btn.active {
-            background: #f5f3ff; color: #7c3aed; border-color: #ddd6fe;
-        }
         .quick-amount {
             border: 1px solid #e5e7eb; border-radius: 10px;
             padding: 12px; font-weight: 700; text-align: center; cursor: pointer;
@@ -58,135 +51,256 @@
         .badge-deposit { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         .badge-withdraw { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         .badge-payment { background-color: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+
+        /* Custom Tabs style */
+        #walletTab .nav-link {
+            color: #4b5563;
+            background: transparent;
+            border: none;
+        }
+        #walletTab .nav-link.active {
+            color: #7c3aed;
+            background: white;
+            box-shadow: 0 4px 10px rgba(124, 58, 237, 0.12);
+        }
+        
+        /* Pagination custom styles */
+        .pagination .page-item.active .page-link {
+            background-color: #7c3aed;
+            border-color: #7c3aed;
+            color: white;
+        }
+        .pagination .page-link {
+            color: #7c3aed;
+            border-radius: 6px;
+            margin: 0 2px;
+            font-weight: 600;
+        }
+        .pagination .page-link:hover {
+            color: #6d28d9;
+            background-color: #f5f3ff;
+            border-color: #ddd6fe;
+        }
     </style>
 </head>
 
 <body>
 <main layout:fragment="content">
     <div class="wallet-container">
-        
-        <!-- Thẻ Số dư Gradient cao cấp -->
-        <div class="gradient-card">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="balance-title">Số dư ví của tôi</div>
-                    <div class="balance-value" th:text="${#numbers.formatInteger(wallet.balance, 1, 'COMMA')} + ' ₫'">0 ₫</div>
-                    <div class="small opacity-75">
-                        <i class="bi bi-shield-lock-fill me-1"></i> Giao dịch bảo mật qua cổng VNPay & Hệ thống fCourse
+        <div class="row g-4">
+            <!-- CỘT TRÁI: Số dư & Thao tác (Nạp/Rút) -->
+            <div class="col-lg-5 col-md-12">
+                <!-- Thẻ Số dư Gradient cao cấp -->
+                <div class="gradient-card mb-4 py-4 px-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="balance-title">Số dư ví của tôi</div>
+                            <div class="balance-value fs-2 my-2" th:text="${#numbers.formatInteger(wallet.balance, 1, 'COMMA')} + ' ₫'">0 ₫</div>
+                            <div class="small opacity-75" style="font-size: 11px;">
+                                <i class="bi bi-shield-lock-fill me-1"></i> Giao dịch bảo mật qua VNPay & fCourse
+                            </div>
+                        </div>
+                        <div class="fs-1 opacity-50"><i class="bi bi-wallet2"></i></div>
                     </div>
                 </div>
-                <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                    <span class="fs-1 opacity-50"><i class="bi bi-wallet2"></i></span>
-                </div>
-            </div>
-        </div>
 
-        <div class="row g-4 mb-5">
-            <!-- Khu vực Nạp tiền -->
-            <div class="col-md-6">
-                <div class="action-card">
-                    <h5 class="fw-bold mb-4 text-indigo"><i class="bi bi-plus-circle-fill me-2"></i>Nạp tiền vào ví</h5>
-                    
-                    <div class="row g-2 mb-3">
-                        <div class="col-6"><div class="quick-amount" onclick="selectAmount(50000, this)">50.000đ</div></div>
-                        <div class="col-6"><div class="quick-amount" onclick="selectAmount(100000, this)">100.000đ</div></div>
-                        <div class="col-6"><div class="quick-amount" onclick="selectAmount(200000, this)">200.000đ</div></div>
-                        <div class="col-6"><div class="quick-amount" onclick="selectAmount(500000, this)">500.000đ</div></div>
-                    </div>
+                <!-- Thẻ Thao tác Nạp/Rút -->
+                <div class="action-card py-4 px-4">
+                    <!-- Nav Tabs -->
+                    <ul class="nav nav-pills mb-4 d-flex justify-content-center gap-2" id="walletTab" role="tablist" style="background: #f3f4f6; padding: 6px; border-radius: 12px; border: none;">
+                        <li class="nav-item flex-fill" role="presentation">
+                            <button class="nav-link active w-100 fw-bold py-2.5 text-center" id="deposit-tab" data-bs-toggle="tab" data-bs-target="#deposit-pane" type="button" role="tab" aria-controls="deposit-pane" aria-selected="true" style="border-radius: 8px; transition: all 0.2s;">
+                                <i class="bi bi-plus-circle me-1.5"></i>Nạp tiền
+                            </button>
+                        </li>
+                        <li class="nav-item flex-fill" role="presentation">
+                            <button class="nav-link w-100 fw-bold py-2.5 text-center" id="withdraw-tab" data-bs-toggle="tab" data-bs-target="#withdraw-pane" type="button" role="tab" aria-controls="withdraw-pane" aria-selected="false" style="border-radius: 8px; transition: all 0.2s;">
+                                <i class="bi bi-arrow-up-right-circle me-1.5"></i>Rút tiền
+                            </button>
+                        </li>
+                    </ul>
 
-                    <div class="mb-4">
-                        <label for="depositAmount" class="form-label small fw-bold text-muted">Hoặc nhập số tiền khác (VNĐ)</label>
-                        <input type="number" class="form-control form-control-lg" id="depositAmount" placeholder="Tối thiểu 10.000đ" min="10000" style="border-radius:10px;">
-                    </div>
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="walletTabContent">
+                        <!-- Tab Nạp tiền -->
+                        <div class="tab-pane fade show active" id="deposit-pane" role="tabpanel" aria-labelledby="deposit-tab">
+                            <div class="row g-2 mb-3">
+                                <div class="col-6"><div class="quick-amount py-2" onclick="selectAmount(50000, this)">50.000đ</div></div>
+                                <div class="col-6"><div class="quick-amount py-2" onclick="selectAmount(100000, this)">100.000đ</div></div>
+                                <div class="col-6"><div class="quick-amount py-2" onclick="selectAmount(200000, this)">200.000đ</div></div>
+                                <div class="col-6"><div class="quick-amount py-2" onclick="selectAmount(500000, this)">500.000đ</div></div>
+                            </div>
 
-                    <button class="btn-wallet-action btn-lg" onclick="handleDeposit()">
-                        <i class="bi bi-credit-card-2-back me-2"></i>Nạp tiền qua VNPay
-                    </button>
-                </div>
-            </div>
+                            <div class="mb-4">
+                                <label for="depositAmount" class="form-label small fw-bold text-muted mb-1">Hoặc nhập số tiền khác (VNĐ)</label>
+                                <input type="number" class="form-control" id="depositAmount" placeholder="Tối thiểu 10.000đ" min="10000" style="border-radius:10px; font-weight: 600;">
+                            </div>
 
-            <!-- Khu vực Rút tiền (Chỉ cho GIẢNG VIÊN) -->
-            <div class="col-md-6">
-                <div class="action-card">
-                    <h5 class="fw-bold mb-3 text-purple"><i class="bi bi-arrow-up-right-circle-fill me-2"></i>Rút tiền khả dụng</h5>
-                    
-                    <div sec:authorize="hasRole('INSTRUCTOR')">
-                        <p class="small text-muted mb-4">
-                            Số tiền sẽ được chuyển về tài khoản ngân hàng liên kết của bạn. Hãy đảm bảo thông tin ngân hàng trong Cài đặt tài khoản là chính xác.
-                        </p>
-                        
-                        <div class="mb-4">
-                            <label for="withdrawAmount" class="form-label small fw-bold text-muted">Số tiền muốn rút (VNĐ)</label>
-                            <input type="number" class="form-control form-control-lg" id="withdrawAmount" placeholder="Nhập số tiền..." min="50000" style="border-radius:10px;">
+                            <button class="btn-wallet-action py-2.5" onclick="handleDeposit()">
+                                <i class="bi bi-credit-card-2-back me-2"></i>Nạp tiền qua VNPay
+                            </button>
                         </div>
 
-                        <button class="btn-wallet-action btn-lg" style="background: linear-gradient(135deg, #7c3aed, #a855f7);" onclick="handleWithdraw()">
-                            <i class="bi bi-bank me-2"></i>Tạo yêu cầu rút tiền
-                        </button>
-                    </div>
+                        <!-- Tab Rút tiền -->
+                        <div class="tab-pane fade" id="withdraw-pane" role="tabpanel" aria-labelledby="withdraw-tab">
+                            <p class="small text-muted mb-3" style="font-size: 12px; line-height: 1.5;">
+                                Số tiền rút sẽ được chuyển về tài khoản ngân hàng của bạn. Đảm bảo thông tin ngân hàng trong <strong>Cài đặt tài khoản</strong> là chính xác.
+                            </p>
+                            
+                            <div class="mb-4">
+                                <label for="withdrawAmount" class="form-label small fw-bold text-muted mb-1">Số tiền muốn rút (VNĐ)</label>
+                                <input type="number" class="form-control" id="withdrawAmount" placeholder="Tối thiểu 50.000đ" min="50000" style="border-radius:10px; font-weight: 600;">
+                            </div>
 
-                    <div sec:authorize="!hasRole('INSTRUCTOR')" class="d-flex flex-column align-items-center justify-content-center h-75 text-center text-muted">
-                        <i class="bi bi-info-circle fs-2 text-warning mb-2"></i>
-                        <span class="small fw-semibold">Tính năng rút tiền chỉ dành cho tài khoản Giảng viên nhận doanh thu khóa học.</span>
+                            <button class="btn-wallet-action py-2.5" style="background: linear-gradient(135deg, #7c3aed, #a855f7);" onclick="handleWithdraw()">
+                                <i class="bi bi-bank me-2"></i>Tạo yêu cầu rút tiền
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI: Lịch sử giao dịch -->
+            <div class="col-lg-7 col-md-12">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4 d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="fw-bold mb-4"><i class="bi bi-clock-history me-2 text-primary"></i>Lịch sử giao dịch</h5>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" style="font-size: 14px;">
+                                    <thead>
+                                        <tr class="table-light">
+                                            <th class="py-2.5">Mã GD</th>
+                                            <th class="py-2.5">Mô tả</th>
+                                            <th class="py-2.5">Loại</th>
+                                            <th class="py-2.5">Số tiền</th>
+                                            <th class="py-2.5">Trạng thái</th>
+                                            <th class="py-2.5 text-end">Thời gian</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="tx : ${transactions}">
+                                            <td class="fw-semibold" th:text="'#' + ${tx.transactionId}">#123</td>
+                                            <td th:text="${tx.description}">Nạp tiền vào ví</td>
+                                            <td>
+                                                <span th:if="${tx.transactionType.name() == 'DEPOSIT'}" class="badge badge-deposit px-2 py-1 rounded-pill" style="font-size: 11px;">Nạp tiền</span>
+                                                <span th:if="${tx.transactionType.name() == 'WITHDRAW'}" class="badge badge-withdraw px-2 py-1 rounded-pill" style="font-size: 11px;">Rút tiền</span>
+                                                <span th:if="${tx.transactionType.name() == 'PAYMENT'}" class="badge badge-payment px-2 py-1 rounded-pill" style="font-size: 11px;">Thanh toán</span>
+                                            </td>
+                                            <td class="fw-bold"
+                                                th:classappend="${tx.transactionType.name() == 'DEPOSIT' || (tx.transactionType.name() == 'PAYMENT' and tx.amount.compareTo(T(java.math.BigDecimal).ZERO) > 0) ? 'text-success' : 'text-danger'}"
+                                                th:text="${(tx.transactionType.name() == 'DEPOSIT' || (tx.transactionType.name() == 'PAYMENT' and tx.amount.compareTo(T(java.math.BigDecimal).ZERO) > 0) ? '+' : '-') + #numbers.formatInteger(tx.amount, 1, 'COMMA') + ' ₫'}">
+                                                +50.000đ
+                                            </td>
+                                            <td>
+                                                <span th:if="${tx.status.name() == 'SUCCESS'}" class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Thành công</span>
+                                                <span th:if="${tx.status.name() == 'PENDING'}" class="text-warning fw-semibold"><i class="bi bi-hourglass-split me-1"></i>Đang xử lý</span>
+                                                <span th:if="${tx.status.name() == 'FAIL'}" class="text-danger fw-semibold"><i class="bi bi-x-circle-fill me-1"></i>Thất bại</span>
+                                            </td>
+                                            <td class="text-end text-muted" th:text="${tx.createdAt != null ? #temporals.format(tx.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">23/06/2026 12:00</td>
+                                        </tr>
+                                        <tr th:if="${transactions == null || transactions.isEmpty()}" class="empty-row">
+                                            <td colspan="6" class="text-center py-5 text-muted">
+                                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                                Bạn chưa thực hiện giao dịch nào.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Phân trang -->
+                        <div id="pagination-controls" class="d-flex justify-content-end mt-4"></div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Lịch sử giao dịch -->
-        <div class="card border-0 shadow-sm" style="border-radius: 16px;">
-            <div class="card-body p-4">
-                <h5 class="fw-bold mb-4"><i class="bi bi-clock-history me-2"></i>Lịch sử giao dịch gần đây</h5>
-                
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" style="font-size: 14px;">
-                        <thead>
-                            <tr class="table-light">
-                                <th class="py-3">Mã GD</th>
-                                <th class="py-3">Mô tả</th>
-                                <th class="py-3">Loại</th>
-                                <th class="py-3">Số tiền</th>
-                                <th class="py-3">Trạng thái</th>
-                                <th class="py-3 text-end">Thời gian</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="tx : ${transactions}">
-                                <td class="fw-semibold" th:text="'#' + ${tx.transactionId}">#123</td>
-                                <td th:text="${tx.description}">Nạp tiền vào ví</td>
-                                <td>
-                                    <span th:if="${tx.transactionType.name() == 'DEPOSIT'}" class="badge badge-deposit px-2.5 py-1.5 rounded-pill">Nạp tiền</span>
-                                    <span th:if="${tx.transactionType.name() == 'WITHDRAW'}" class="badge badge-withdraw px-2.5 py-1.5 rounded-pill">Rút tiền</span>
-                                    <span th:if="${tx.transactionType.name() == 'PAYMENT'}" class="badge badge-payment px-2.5 py-1.5 rounded-pill">Thanh toán</span>
-                                </td>
-                                <td class="fw-bold"
-                                    th:classappend="${tx.transactionType.name() == 'DEPOSIT' || (tx.transactionType.name() == 'PAYMENT' and tx.amount.compareTo(T(java.math.BigDecimal).ZERO) > 0) ? 'text-success' : 'text-danger'}"
-                                    th:text="${(tx.transactionType.name() == 'DEPOSIT' || (tx.transactionType.name() == 'PAYMENT' and tx.amount.compareTo(T(java.math.BigDecimal).ZERO) > 0) ? '+' : '-') + #numbers.formatInteger(tx.amount, 1, 'COMMA') + ' ₫'}">
-                                    +50.000đ
-                                </td>
-                                <td>
-                                    <span th:if="${tx.status.name() == 'SUCCESS'}" class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Thành công</span>
-                                    <span th:if="${tx.status.name() == 'PENDING'}" class="text-warning fw-bold"><i class="bi bi-hourglass-split me-1"></i>Đang xử lý</span>
-                                    <span th:if="${tx.status.name() == 'FAIL'}" class="text-danger fw-bold"><i class="bi bi-x-circle-fill me-1"></i>Thất bại</span>
-                                </td>
-                                <td class="text-end text-muted" th:text="${tx.createdAt != null ? #temporals.format(tx.createdAt, 'dd/MM/yyyy HH:mm') : '-'}">23/06/2026 12:00</td>
-                            </tr>
-                            <tr th:if="${transactions == null || transactions.isEmpty()}">
-                                <td colspan="6" class="text-center py-5 text-muted">
-                                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                                    Bạn chưa thực hiện giao dịch nào.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <!-- Script xử lý nạp rút -->
+    <!-- Script xử lý nạp rút & phân trang -->
     <script>
+        // Phân trang
+        let currentPage = 1;
+        const rowsPerPage = 5;
+        let tableRows = [];
+        let totalRows = 0;
+        let totalPages = 0;
+
+        function initPagination() {
+            tableRows = document.querySelectorAll('tbody tr:not(.empty-row)');
+            totalRows = tableRows.length;
+            totalPages = Math.ceil(totalRows / rowsPerPage);
+            
+            if (totalRows > 0) {
+                showPage(1);
+            }
+        }
+
+        function showPage(page) {
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            currentPage = page;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+
+            tableRows.forEach((row, idx) => {
+                if (idx >= start && idx < end) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const container = document.getElementById('pagination-controls');
+            if (!container) return;
+
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <nav aria-label="Transaction pagination">
+                    <ul class="pagination pagination-sm justify-content-end mb-0">
+                        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="showPage(${currentPage - 1}); return false;" aria-label="Trước">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `
+                    <li class="page-item ${currentPage === i ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="showPage(${i}); return false;">${i}</a>
+                    </li>
+                `;
+            }
+
+            html += `
+                        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="showPage(${currentPage + 1}); return false;" aria-label="Sau">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initPagination();
+        });
+
         function selectAmount(val, element) {
             document.querySelectorAll('.quick-amount').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');

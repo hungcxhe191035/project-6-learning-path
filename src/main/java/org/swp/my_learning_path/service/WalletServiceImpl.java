@@ -1,8 +1,11 @@
 package org.swp.my_learning_path.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.swp.my_learning_path.constant.ERole;
 import org.swp.my_learning_path.constant.ETransactionStatus;
 import org.swp.my_learning_path.constant.ETransactionType;
 import org.swp.my_learning_path.entity.*;
@@ -174,26 +177,71 @@ public class WalletServiceImpl implements WalletService {
         enrollment.setDeleteFlag(false);
         enrollmentRepository.save(enrollment);
 
-        // Chia sẻ doanh thu cho Giảng viên
-        if (course.getInstructor() != null && price.compareTo(BigDecimal.ZERO) > 0) {
-            int sharePercent = systemSettingService.getSettingValueAsInteger("INSTRUCTOR_REVENUE_SHARE_PERCENT", 80);
-            BigDecimal instructorAmount = price.multiply(new BigDecimal(sharePercent))
-                    .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
+        // Chia sẻ doanh thu cho Giảng viên & Admin
+        if (price.compareTo(BigDecimal.ZERO) > 0) {
+            User admin = userRepository.findByEmail("admin@fcourse.vn")
+                    .orElseGet(() -> userRepository.findAll().stream()
+                            .filter(u -> u.getRole() == ERole.ADMIN && !u.isDeleteFlag())
+                            .findFirst()
+                            .orElse(null));
 
-            Wallet instructorWallet = getWalletByUserId(course.getInstructor().getUserId());
-            instructorWallet.setBalance(instructorWallet.getBalance().add(instructorAmount));
-            walletRepository.save(instructorWallet);
+            if (course.getInstructor() != null) {
+                int sharePercent = systemSettingService.getSettingValueAsInteger("INSTRUCTOR_REVENUE_SHARE_PERCENT", 80);
+                BigDecimal instructorAmount = price.multiply(new BigDecimal(sharePercent))
+                        .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
 
-            WalletTransaction instructorTx = WalletTransaction.builder()
-                    .wallet(instructorWallet)
-                    .amount(instructorAmount)
-                    .transactionType(ETransactionType.PAYMENT)
-                    .status(ETransactionStatus.SUCCESS)
-                    .description("Doanh thu (" + sharePercent + "%) từ khoá học: " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")")
-                    .order(order)
-                    .build();
-            instructorTx.setDeleteFlag(false);
-            walletTransactionRepository.save(instructorTx);
+                Wallet instructorWallet = getWalletByUserId(course.getInstructor().getUserId());
+                instructorWallet.setBalance(instructorWallet.getBalance().add(instructorAmount));
+                walletRepository.save(instructorWallet);
+
+                WalletTransaction instructorTx = WalletTransaction.builder()
+                        .wallet(instructorWallet)
+                        .amount(instructorAmount)
+                        .transactionType(ETransactionType.PAYMENT)
+                        .status(ETransactionStatus.SUCCESS)
+                        .description("Doanh thu (" + sharePercent + "%) từ khoá học: " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")")
+                        .order(order)
+                        .build();
+                instructorTx.setDeleteFlag(false);
+                walletTransactionRepository.save(instructorTx);
+
+                if (admin != null) {
+                    BigDecimal adminAmount = price.subtract(instructorAmount);
+                    if (adminAmount.compareTo(BigDecimal.ZERO) > 0) {
+                        Wallet adminWallet = getWalletByUserId(admin.getUserId());
+                        adminWallet.setBalance(adminWallet.getBalance().add(adminAmount));
+                        walletRepository.save(adminWallet);
+
+                        WalletTransaction adminTx = WalletTransaction.builder()
+                                .wallet(adminWallet)
+                                .amount(adminAmount)
+                                .transactionType(ETransactionType.PAYMENT)
+                                .status(ETransactionStatus.SUCCESS)
+                                .description("Doanh thu admin (" + (100 - sharePercent) + "%) từ khoá học: " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")")
+                                .order(order)
+                                .build();
+                        adminTx.setDeleteFlag(false);
+                        walletTransactionRepository.save(adminTx);
+                    }
+                }
+            } else {
+                if (admin != null) {
+                    Wallet adminWallet = getWalletByUserId(admin.getUserId());
+                    adminWallet.setBalance(adminWallet.getBalance().add(price));
+                    walletRepository.save(adminWallet);
+
+                    WalletTransaction adminTx = WalletTransaction.builder()
+                            .wallet(adminWallet)
+                            .amount(price)
+                            .transactionType(ETransactionType.PAYMENT)
+                            .status(ETransactionStatus.SUCCESS)
+                            .description("Doanh thu từ khoá học (Hệ thống): " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")")
+                            .order(order)
+                            .build();
+                    adminTx.setDeleteFlag(false);
+                    walletTransactionRepository.save(adminTx);
+                }
+            }
         }
     }
 
@@ -279,25 +327,70 @@ public class WalletServiceImpl implements WalletService {
             enrollment.setDeleteFlag(false);
             enrollmentRepository.save(enrollment);
 
-            // Chia sẻ doanh thu cho giảng viên
-            if (course.getInstructor() != null && price.compareTo(BigDecimal.ZERO) > 0) {
-                BigDecimal instructorAmount = price.multiply(new BigDecimal(sharePercent))
-                        .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
+            // Chia sẻ doanh thu cho giảng viên & Admin
+            if (price.compareTo(BigDecimal.ZERO) > 0) {
+                User admin = userRepository.findByEmail("admin@fcourse.vn")
+                        .orElseGet(() -> userRepository.findAll().stream()
+                                .filter(u -> u.getRole() == ERole.ADMIN && !u.isDeleteFlag())
+                                .findFirst()
+                                .orElse(null));
 
-                Wallet instructorWallet = getWalletByUserId(course.getInstructor().getUserId());
-                instructorWallet.setBalance(instructorWallet.getBalance().add(instructorAmount));
-                walletRepository.save(instructorWallet);
+                if (course.getInstructor() != null) {
+                    BigDecimal instructorAmount = price.multiply(new BigDecimal(sharePercent))
+                            .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
 
-                WalletTransaction instructorTx = WalletTransaction.builder()
-                        .wallet(instructorWallet)
-                        .amount(instructorAmount)
-                        .transactionType(ETransactionType.PAYMENT)
-                        .status(ETransactionStatus.SUCCESS)
-                        .description("Doanh thu (" + sharePercent + "%) từ khoá học: " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")")
-                        .order(order)
-                        .build();
-                instructorTx.setDeleteFlag(false);
-                walletTransactionRepository.save(instructorTx);
+                    Wallet instructorWallet = getWalletByUserId(course.getInstructor().getUserId());
+                    instructorWallet.setBalance(instructorWallet.getBalance().add(instructorAmount));
+                    walletRepository.save(instructorWallet);
+
+                    WalletTransaction instructorTx = WalletTransaction.builder()
+                            .wallet(instructorWallet)
+                            .amount(instructorAmount)
+                            .transactionType(ETransactionType.PAYMENT)
+                            .status(ETransactionStatus.SUCCESS)
+                            .description("Doanh thu (" + sharePercent + "%) từ khoá học: " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")")
+                            .order(order)
+                            .build();
+                    instructorTx.setDeleteFlag(false);
+                    walletTransactionRepository.save(instructorTx);
+
+                    if (admin != null) {
+                        BigDecimal adminAmount = price.subtract(instructorAmount);
+                        if (adminAmount.compareTo(BigDecimal.ZERO) > 0) {
+                            Wallet adminWallet = getWalletByUserId(admin.getUserId());
+                            adminWallet.setBalance(adminWallet.getBalance().add(adminAmount));
+                            walletRepository.save(adminWallet);
+
+                            WalletTransaction adminTx = WalletTransaction.builder()
+                                    .wallet(adminWallet)
+                                    .amount(adminAmount)
+                                    .transactionType(ETransactionType.PAYMENT)
+                                    .status(ETransactionStatus.SUCCESS)
+                                    .description("Doanh thu admin (" + (100 - sharePercent) + "%) từ khoá học: " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")")
+                                    .order(order)
+                                    .build();
+                            adminTx.setDeleteFlag(false);
+                            walletTransactionRepository.save(adminTx);
+                        }
+                    }
+                } else {
+                    if (admin != null) {
+                        Wallet adminWallet = getWalletByUserId(admin.getUserId());
+                        adminWallet.setBalance(adminWallet.getBalance().add(price));
+                        walletRepository.save(adminWallet);
+
+                        WalletTransaction adminTx = WalletTransaction.builder()
+                                .wallet(adminWallet)
+                                .amount(price)
+                                .transactionType(ETransactionType.PAYMENT)
+                                .status(ETransactionStatus.SUCCESS)
+                                .description("Doanh thu từ khoá học (Hệ thống): " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")")
+                                .order(order)
+                                .build();
+                        adminTx.setDeleteFlag(false);
+                        walletTransactionRepository.save(adminTx);
+                    }
+                }
             }
         }
 
@@ -385,5 +478,18 @@ public class WalletServiceImpl implements WalletService {
     @Transactional(readOnly = true)
     public List<WalletTransaction> getAllTransactions() {
         return walletTransactionRepository.findByOrderByCreatedAtDesc();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<WalletTransaction> getAllTransactions(Pageable pageable) {
+        return walletTransactionRepository.findByOrderByCreatedAtDesc(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<WalletTransaction> searchTransactions(ETransactionType type, ETransactionStatus status, String search, Pageable pageable) {
+        String searchParam = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
+        return walletTransactionRepository.searchTransactions(type, status, searchParam, pageable);
     }
 }
