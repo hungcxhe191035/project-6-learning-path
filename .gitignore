@@ -32,3 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 **/application-secret.properties
+
+### Gemini Antigravity ###
+.brain/
