@@ -87,7 +87,7 @@ public class VoucherServiceImpl implements VoucherService {
         if ("ADMIN".equals(voucher.getCreatorRole())) {
             // ADMIN tạo -> Admin gánh 100% giảm giá. Giảng viên nhận đủ 80% giá gốc.
             instructorShare = originalPrice.multiply(new BigDecimal("0.8"));
-            adminShare = actualPaid.subtract(instructorShare);
+            adminShare = actualPaid.subtract(instructorShare).max(BigDecimal.ZERO);
         } else {
             // INSTRUCTOR tạo -> Giảng viên tự gánh 100% giảm giá. Sàn thu đủ 20% giá gốc.
             adminShare = originalPrice.multiply(new BigDecimal("0.2"));
@@ -123,5 +123,35 @@ public class VoucherServiceImpl implements VoucherService {
                     uv.setUsedAt(LocalDateTime.now());
                     userVoucherRepository.save(uv);
                 });
+    }
+
+    @Override
+    public java.util.List<Voucher> getAllVouchers() {
+        return voucherRepository.findAllByDeleteFlagFalse();
+    }
+
+    @Override
+    public java.util.List<Voucher> getVouchersByInstructor(Long instructorId) {
+        return voucherRepository.findByInstructor_UserIdAndDeleteFlagFalse(instructorId);
+    }
+
+    @Override
+    @Transactional
+    public Voucher createVoucher(Voucher voucher) {
+        if (voucherRepository.findByCodeAndDeleteFlagFalse(voucher.getCode()).isPresent()) {
+            throw new IllegalArgumentException("Mã giảm giá '" + voucher.getCode() + "' đã tồn tại trên hệ thống!");
+        }
+        voucher.setUsedCount(0);
+        voucher.setDeleteFlag(false);
+        return voucherRepository.save(voucher);
+    }
+
+    @Override
+    @Transactional
+    public void deleteVoucher(Long voucherId) {
+        Voucher voucher = voucherRepository.findById(voucherId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy mã giảm giá!"));
+        voucher.setDeleteFlag(true);
+        voucherRepository.save(voucher);
     }
 }

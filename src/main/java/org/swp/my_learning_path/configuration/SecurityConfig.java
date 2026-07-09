@@ -62,6 +62,8 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         // INSTRUCTOR routes: chỉ STUDENT mới cần nộp đơn, INSTRUCTOR xem trạng thái
                         .requestMatchers("/instructor/courses/**").hasRole("INSTRUCTOR")
+                        .requestMatchers("/instructor/vouchers/**").hasRole("INSTRUCTOR")
+                        .requestMatchers("/instructor/qna/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/instructor/apply").hasRole("STUDENT")
                         .requestMatchers("/instructor/apply/status").hasAnyRole("STUDENT", "INSTRUCTOR")
                         // API Security: Khóa bảo mật API soạn khóa học và S3

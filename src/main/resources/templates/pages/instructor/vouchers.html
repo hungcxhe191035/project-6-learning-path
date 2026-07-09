@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html
+        lang="vi"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/main-layout}"
+>
+<head>
+    <style>
+        .instructor-header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+            padding: 48px 0;
+            color: white;
+            margin-bottom: 40px;
+        }
+        .btn-purple {
+            background-color: #4c1d95;
+            color: white;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-purple:hover {
+            background-color: #312e81;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 29, 149, 0.3);
+        }
+        .voucher-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            background-color: white;
+            overflow: hidden;
+        }
+        .voucher-card-header {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 16px 20px;
+            font-weight: 700;
+            color: #1e1b4b;
+        }
+    </style>
+</head>
+<body>
+
+<main layout:fragment="content">
+
+    <!-- Banner -->
+    <div class="instructor-header">
+        <div class="container">
+            <h1 class="fw-bold mb-2">Quản lý Mã giảm giá (Voucher)</h1>
+            <p class="mb-0 text-white-50 fs-5">Tạo các chương trình khuyến mãi riêng biệt để thu hút học viên đăng ký khóa học</p>
+        </div>
+    </div>
+
+    <div class="container mb-5" style="min-height: 50vh;">
+
+        <!-- Toasts -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert" style="border-radius: 10px;">
+            <i class="bi bi-check-circle-fill me-2 fs-5 text-success"></i>
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert" style="border-radius: 10px;">
+            <i class="bi bi-exclamation-circle-fill me-2 fs-5 text-danger"></i>
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row g-4">
+            <!-- LEFT: Form tạo voucher cho Giảng viên -->
+            <div class="col-lg-4">
+                <div class="voucher-card">
+                    <div class="voucher-card-header">
+                        <i class="bi bi-plus-circle-fill me-2 text-primary"></i>Tạo mã giảm giá mới
+                    </div>
+                    <div class="card-body p-4">
+                        <form th:action="@{/instructor/vouchers/create}" method="post" id="createInstructorVoucher">
+                            
+                            <div class="mb-3">
+                                <label for="courseId" class="form-label fw-bold small text-dark">Áp dụng cho khóa học <span class="text-danger">*</span></label>
+                                <select id="courseId" name="courseId" class="form-select" required style="border-radius: 8px;">
+                                    <option value="" disabled selected>-- Chọn khóa học áp dụng --</option>
+                                    <option th:each="course : ${courses}" 
+                                            th:value="${course.courseId}" 
+                                            th:text="${course.currentPublishedVersion != null ? course.currentPublishedVersion.title : 'Khóa học chưa publish'}"></option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="code" class="form-label fw-bold small text-dark">Mã Code <span class="text-danger">*</span></label>
+                                <input type="text" id="code" name="code" class="form-control" placeholder="Ví dụ: JAVAWEB20" required style="border-radius: 8px;">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="discountValue" class="form-label fw-bold small text-dark">Số tiền giảm (₫) <span class="text-danger">*</span></label>
+                                <input type="number" id="discountValue" name="discountValue" class="form-control" placeholder="Ví dụ: 30000" min="0" required style="border-radius: 8px;">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="minOrderAmount" class="form-label fw-bold small text-dark">Giá trị tối thiểu khóa học (₫)</label>
+                                <input type="number" id="minOrderAmount" name="minOrderAmount" class="form-control" placeholder="Ví dụ: 150000" min="0" value="0" style="border-radius: 8px;">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="limitUsage" class="form-label fw-bold small text-dark">Lượt sử dụng tối đa <span class="text-danger">*</span></label>
+                                <input type="number" id="limitUsage" name="limitUsage" class="form-control" placeholder="Ví dụ: 30" min="1" required style="border-radius: 8px;">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="startDate" class="form-label fw-bold small text-dark">Ngày bắt đầu <span class="text-danger">*</span></label>
+                                <input type="datetime-local" id="startDate" name="startDate" class="form-control" required style="border-radius: 8px;">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="endDate" class="form-label fw-bold small text-dark">Ngày hết hạn <span class="text-danger">*</span></label>
+                                <input type="datetime-local" id="endDate" name="endDate" class="form-control" required style="border-radius: 8px;">
+                            </div>
+
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-purple" style="border-radius: 8px; padding: 10px; font-weight: 600;">
+                                    <i class="bi bi-plus-circle me-2"></i>Tạo mã giảm giá
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Danh sách voucher của giảng viên -->
+            <div class="col-lg-8">
+                <div class="voucher-card">
+                    <div class="voucher-card-header">
+                        <i class="bi bi-ticket-detailed-fill me-2 text-primary"></i>Các mã giảm giá của tôi
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" style="font-size: 14px;">
+                                <thead class="table-light">
+                                <tr>
+                                    <th class="px-4 py-3">Mã giảm giá</th>
+                                    <th class="py-3">Khóa học áp dụng</th>
+                                    <th class="py-3 text-end">Mức giảm (₫)</th>
+                                    <th class="py-3 text-end">Đơn tối thiểu</th>
+                                    <th class="py-3 text-center">Đã dùng / Giới hạn</th>
+                                    <th class="py-3">Hạn sử dụng</th>
+                                    <th class="px-4 py-3 text-center">Hành động</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="voucher : ${vouchers}">
+                                    <td class="px-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-ticket-perforated text-success me-2 fs-5"></i>
+                                            <span class="fw-bold text-dark" th:text="${voucher.code}">JAVAWEB20</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-3">
+                                        <div class="text-truncate" style="max-width: 180px;" 
+                                             th:text="${voucher.course != null ? voucher.course.currentPublishedVersion.title : 'Không xác định'}">
+                                            Tên khóa học
+                                        </div>
+                                    </td>
+                                    <td class="py-3 text-end fw-semibold text-danger" th:text="${#numbers.formatInteger(voucher.discountValue, 1, 'COMMA')} + ' ₫'">
+                                        30,000 ₫
+                                    </td>
+                                    <td class="py-3 text-end text-muted" th:text="${#numbers.formatInteger(voucher.minOrderAmount, 1, 'COMMA')} + ' ₫'">
+                                        150,000 ₫
+                                    </td>
+                                    <td class="py-3 text-center">
+                                        <span class="fw-bold text-primary" th:text="${voucher.usedCount}">0</span> /
+                                        <span class="text-muted" th:text="${voucher.limitUsage}">30</span>
+                                    </td>
+                                    <td class="py-3">
+                                        <div class="small">
+                                            <span class="text-success" th:text="${#temporals.format(voucher.startDate, 'dd/MM/yyyy HH:mm')}">01/07/2026 00:00</span>
+                                            <span class="text-muted d-block" th:text="'đến ' + ${#temporals.format(voucher.endDate, 'dd/MM/yyyy HH:mm')}">đến 31/12/2026 23:59</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <form th:action="@{/instructor/vouchers/delete/{id}(id=${voucher.voucherId})}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa mã giảm giá này không?');" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm border-0" style="padding: 4px 8px;">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr th:if="${vouchers.isEmpty()}">
+                                    <td colspan="7" class="text-center py-5 text-muted">
+                                        <i class="bi bi-ticket-detailed fs-1 d-block mb-3" style="color: #cbd5e1;"></i>
+                                        Bạn chưa tạo mã giảm giá nào cho khóa học của mình!
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+</body>
+</html>

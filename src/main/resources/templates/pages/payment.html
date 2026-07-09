@@ -103,6 +103,15 @@
                              th:text="${#numbers.formatInteger(course.price, 1, 'COMMA')} + ' ₫'">
                             259.000 ₫
                         </div>
+                           <!-- Áp dụng mã giảm giá (Voucher) -->
+                <div class="card border-0 mb-4 bg-light" style="border-radius: 12px;">
+                    <div class="card-body p-3">
+                        <label class="text-muted small fw-bold d-block text-uppercase mb-2">Mã giảm giá (Voucher)</label>
+                        <div class="input-group">
+                            <input type="text" id="voucherCodeInput" class="form-control" placeholder="Nhập mã voucher (VD: GIAM50K)" style="border-radius: 8px 0 0 8px;">
+                            <button class="btn btn-primary" type="button" id="btnApplyVoucher" onclick="applyVoucher()" style="border-radius: 0 8px 8px 0; background: linear-gradient(135deg, #4c1d95, #7c3aed); border: none;">Áp dụng</button>
+                        </div>
+                        <div id="voucherMessage" class="small mt-2" style="display: none;"></div>
                     </div>
                 </div>
 
@@ -125,28 +134,30 @@
                 </div>
 
                 <!-- So sánh số dư và hiển thị nút hành động -->
-                <div th:if="${walletBalance != null and walletBalance.compareTo(course.price) >= 0}">
-                    <div class="alert alert-success d-flex align-items-center" role="alert" style="border-radius: 10px;">
-                        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
-                        <div>Số dư ví khả dụng đủ điều kiện để thực hiện thanh toán này.</div>
+                <div id="actionContainer">
+                    <div th:if="${walletBalance != null and walletBalance.compareTo(course.price) >= 0}">
+                        <div class="alert alert-success d-flex align-items-center" role="alert" style="border-radius: 10px;">
+                            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                            <div>Số dư ví khả dụng đủ điều kiện để thực hiện thanh toán này.</div>
+                        </div>
+
+                        <!-- Nút xác nhận thanh toán -->
+                        <button class="btn-confirm" th:data-course-id="${course.courseId}" onclick="confirmWalletPayment(this)">
+                            <i class="bi bi-shield-check me-2"></i>Xác nhận thanh toán bằng ví
+                        </button>
                     </div>
 
-                    <!-- Nút xác nhận thanh toán -->
-                    <button class="btn-confirm" th:data-course-id="${course.courseId}" onclick="confirmWalletPayment(this)">
-                        <i class="bi bi-shield-check me-2"></i>Xác nhận thanh toán bằng ví
-                    </button>
-                </div>
+                    <div th:unless="${walletBalance != null and walletBalance.compareTo(course.price) >= 0}">
+                        <div class="alert alert-danger d-flex align-items-center" role="alert" style="border-radius: 10px;">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                            <div>Số dư ví hiện tại không đủ để thực hiện thanh toán này. Vui lòng nạp thêm tiền.</div>
+                        </div>
 
-                <div th:unless="${walletBalance != null and walletBalance.compareTo(course.price) >= 0}">
-                    <div class="alert alert-danger d-flex align-items-center" role="alert" style="border-radius: 10px;">
-                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
-                        <div>Số dư ví hiện tại không đủ để thực hiện thanh toán này. Vui lòng nạp thêm tiền.</div>
+                        <!-- Nút nạp tiền -->
+                        <a th:href="@{/wallet}" class="btn d-block text-center text-white fw-bold py-3 mt-3" style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; text-decoration: none;">
+                            <i class="bi bi-plus-circle me-2"></i>Nạp thêm tiền vào ví ngay
+                        </a>
                     </div>
-
-                    <!-- Nút nạp tiền -->
-                    <a th:href="@{/wallet}" class="btn d-block text-center text-white fw-bold py-3 mt-3" style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; text-decoration: none;">
-                        <i class="bi bi-plus-circle me-2"></i>Nạp thêm tiền vào ví ngay
-                    </a>
                 </div>
 
                 <!-- Quay lại -->
@@ -161,6 +172,95 @@
     </div>
 
     <script th:inline="javascript">
+        let activeVoucherCode = "";
+        const originalPrice = [[${course.price}]];
+        let finalPrice = [[${course.price}]];
+        const walletBalance = [[${walletBalance != null ? walletBalance : 0}]];
+
+        async function applyVoucher() {
+            const codeInput = document.getElementById("voucherCodeInput");
+            const code = codeInput.value.trim();
+            const messageDiv = document.getElementById("voucherMessage");
+            const btnApply = document.getElementById("btnApplyVoucher");
+            const courseId = [[${course.courseId}]];
+
+            if (!code) {
+                toastr.warning("Vui lòng nhập mã giảm giá!");
+                return;
+            }
+
+            btnApply.disabled = true;
+            btnApply.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+            try {
+                const response = await fetch(`/api/vouchers/apply?code=${encodeURIComponent(code)}&courseId=${courseId}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                messageDiv.style.display = "block";
+                if (data.success) {
+                    activeVoucherCode = code;
+                    finalPrice = data.actualPaid;
+                    
+                    // Hiển thị thông điệp thành công
+                    messageDiv.className = "small mt-2 text-success";
+                    messageDiv.innerHTML = `<i class="bi bi-patch-check-fill me-1"></i> Áp dụng thành công! Đã giảm ${data.discountAmount.toLocaleString('vi-VN')} ₫.`;
+                    
+                    // Cập nhật giá hiển thị trên UI
+                    document.querySelector(".course-summary-price").innerHTML = 
+                        `<del class="text-muted small me-2" style="font-size:0.9rem">${originalPrice.toLocaleString('vi-VN')} ₫</del>${finalPrice.toLocaleString('vi-VN')} ₫`;
+                    
+                    // Cập nhật nút thanh toán
+                    updatePaymentUI();
+                } else {
+                    activeVoucherCode = "";
+                    finalPrice = originalPrice;
+                    
+                    // Hiển thị thông điệp lỗi
+                    messageDiv.className = "small mt-2 text-danger";
+                    messageDiv.innerHTML = `<i class="bi bi-x-circle-fill me-1"></i> ${data.message}`;
+                    
+                    // Trả lại giá hiển thị ban đầu
+                    document.querySelector(".course-summary-price").innerHTML = `${originalPrice.toLocaleString('vi-VN')} ₫`;
+                    
+                    updatePaymentUI();
+                }
+            } catch (e) {
+                toastr.error("Đã xảy ra lỗi kết nối!");
+            } finally {
+                btnApply.disabled = false;
+                btnApply.innerHTML = 'Áp dụng';
+            }
+        }
+
+        function updatePaymentUI() {
+            const actionContainer = document.getElementById("actionContainer");
+            const courseId = [[${course.courseId}]];
+            
+            if (walletBalance >= finalPrice) {
+                actionContainer.innerHTML = `
+                    <div class="alert alert-success d-flex align-items-center" role="alert" style="border-radius: 10px;">
+                        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                        <div>Số dư ví khả dụng đủ điều kiện để thực hiện thanh toán này.</div>
+                    </div>
+                    <button class="btn-confirm" data-course-id="${courseId}" onclick="confirmWalletPayment(this)">
+                        <i class="bi bi-shield-check me-2"></i>Xác nhận thanh toán bằng ví
+                    </button>
+                `;
+            } else {
+                actionContainer.innerHTML = `
+                    <div class="alert alert-danger d-flex align-items-center" role="alert" style="border-radius: 10px;">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                        <div>Số dư ví hiện tại không đủ để thực hiện thanh toán này. Vui lòng nạp thêm tiền.</div>
+                    </div>
+                    <a href="/wallet" class="btn d-block text-center text-white fw-bold py-3 mt-3" style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; text-decoration: none;">
+                        <i class="bi bi-plus-circle me-2"></i>Nạp thêm tiền vào ví ngay
+                    </a>
+                `;
+            }
+        }
+
         async function confirmWalletPayment(btn) {
             const courseId = btn.dataset.courseId;
             if (!confirm("Bạn có chắc chắn muốn dùng số dư ví để mua khóa học này?")) {
@@ -171,7 +271,7 @@
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý giao dịch...';
 
             try {
-                const response = await fetch('/api/wallet/pay/course/' + courseId, {
+                const response = await fetch(`/api/wallet/pay/course/${courseId}?voucherCode=${encodeURIComponent(activeVoucherCode)}`, {
                     method: 'POST'
                 });
                 const data = await response.json();
@@ -194,5 +294,4 @@
         }
     </script>
 </main>
-</body>
 </html>

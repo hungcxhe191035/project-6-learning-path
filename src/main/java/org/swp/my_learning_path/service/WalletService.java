@@ -15,7 +15,7 @@ public interface WalletService {
     Wallet getWalletByUserId(Long userId);
     String createDepositUrl(Long userId, BigDecimal amount, String ipAddress, String callbackUrl);
     boolean processVNPayCallback(Map<String, String> fields);
-    void purchaseCourse(Long userId, Long courseId);
+    void purchaseCourse(Long userId, Long courseId, String voucherCode);
     void purchaseCart(Long userId);
     void createWithdrawRequest(Long userId, BigDecimal amount);
     void approveWithdraw(Long transactionId);

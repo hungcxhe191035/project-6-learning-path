@@ -73,6 +73,7 @@ public class WalletApiController {
     @PostMapping("/api/wallet/pay/course/{courseId}")
     public ResponseEntity<?> payCourse(
             @PathVariable Long courseId,
+            @RequestParam(value = "voucherCode", required = false) String voucherCode,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         if (userDetails == null) {
@@ -80,7 +81,7 @@ public class WalletApiController {
         }
 
         try {
-            walletService.purchaseCourse(userDetails.getUserId(), courseId);
+            walletService.purchaseCourse(userDetails.getUserId(), courseId, voucherCode);
             return ResponseEntity.ok(Map.of("success", true, "redirect", "/course/" + courseId));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));

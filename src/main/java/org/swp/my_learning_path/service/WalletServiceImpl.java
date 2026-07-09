@@ -30,6 +30,7 @@ public class WalletServiceImpl implements WalletService {
     private final CartItemRepository cartItemRepository;
     private final VNPayService vnpayService;
     private final SystemSettingService systemSettingService;
+    private final VoucherService voucherService;
 
     @Override
     @Transactional
@@ -109,7 +110,7 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     @Transactional
-    public void purchaseCourse(Long userId, Long courseId) {
+    public void purchaseCourse(Long userId, Long courseId, String voucherCode) {
         User student = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy học viên!"));
         Course course = courseRepository.findById(courseId)
@@ -125,24 +126,48 @@ public class WalletServiceImpl implements WalletService {
             throw new IllegalStateException("Bạn đã sở hữu khoá học này rồi!");
         }
 
-        BigDecimal price = course.getCurrentPublishedVersion().getPrice();
-        if (price == null) {
-            price = BigDecimal.ZERO;
+        BigDecimal originalPrice = course.getCurrentPublishedVersion().getPrice();
+        if (originalPrice == null) {
+            originalPrice = BigDecimal.ZERO;
+        }
+
+        BigDecimal priceToPay = originalPrice;
+        BigDecimal instructorAmount = BigDecimal.ZERO;
+        BigDecimal adminAmount = BigDecimal.ZERO;
+        boolean hasVoucher = voucherCode != null && !voucherCode.trim().isEmpty();
+
+        if (hasVoucher) {
+            // Tính toán giá trị thanh toán thực tế dựa vào Voucher
+            var voucherResult = voucherService.calculateVoucher(voucherCode, courseId, userId);
+            if (!voucherResult.isSuccess()) {
+                throw new IllegalStateException(voucherResult.getMessage());
+            }
+            priceToPay = voucherResult.getActualPaid();
+            instructorAmount = voucherResult.getInstructorShare();
+            adminAmount = voucherResult.getAdminShare();
+        } else {
+            priceToPay = originalPrice;
+            if (originalPrice.compareTo(BigDecimal.ZERO) > 0) {
+                int sharePercent = systemSettingService.getSettingValueAsInteger("INSTRUCTOR_REVENUE_SHARE_PERCENT", 80);
+                instructorAmount = originalPrice.multiply(new BigDecimal(sharePercent))
+                        .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
+                adminAmount = originalPrice.subtract(instructorAmount);
+            }
         }
 
         Wallet studentWallet = getWalletByUserId(userId);
-        if (studentWallet.getBalance().compareTo(price) < 0) {
+        if (studentWallet.getBalance().compareTo(priceToPay) < 0) {
             throw new IllegalStateException("Số dư ví không đủ, vui lòng nạp thêm tiền!");
         }
 
         // Trừ tiền ví học viên
-        studentWallet.setBalance(studentWallet.getBalance().subtract(price));
+        studentWallet.setBalance(studentWallet.getBalance().subtract(priceToPay));
         walletRepository.save(studentWallet);
 
         // Tạo đơn hàng
         Order order = Order.builder()
                 .user(student)
-                .totalAmount(price)
+                .totalAmount(priceToPay)
                 .paymentStatus(ETransactionStatus.SUCCESS)
                 .build();
         order.setDeleteFlag(false);
@@ -152,7 +177,7 @@ public class WalletServiceImpl implements WalletService {
         OrderItem orderItem = OrderItem.builder()
                 .order(order)
                 .course(course)
-                .price(price)
+                .price(priceToPay)
                 .build();
         orderItem.setDeleteFlag(false);
         orderItemRepository.save(orderItem);
@@ -160,10 +185,11 @@ public class WalletServiceImpl implements WalletService {
         // Tạo giao dịch ví cho học viên
         WalletTransaction studentTx = WalletTransaction.builder()
                 .wallet(studentWallet)
-                .amount(price)
+                .amount(priceToPay)
                 .transactionType(ETransactionType.PAYMENT)
                 .status(ETransactionStatus.SUCCESS)
-                .description("Thanh toán khoá học: " + course.getCurrentPublishedVersion().getTitle())
+                .description("Thanh toán khoá học: " + course.getCurrentPublishedVersion().getTitle() + 
+                             (hasVoucher ? " (Áp dụng voucher " + voucherCode + ")" : ""))
                 .order(order)
                 .build();
         studentTx.setDeleteFlag(false);
@@ -178,18 +204,14 @@ public class WalletServiceImpl implements WalletService {
         enrollmentRepository.save(enrollment);
 
         // Chia sẻ doanh thu cho Giảng viên & Admin
-        if (price.compareTo(BigDecimal.ZERO) > 0) {
-            User admin = userRepository.findByEmail("admin@fcourse.vn")
-                    .orElseGet(() -> userRepository.findAll().stream()
-                            .filter(u -> u.getRole() == ERole.ADMIN && !u.isDeleteFlag())
-                            .findFirst()
-                            .orElse(null));
+        User admin = userRepository.findByEmail("admin@fcourse.vn")
+                .orElseGet(() -> userRepository.findAll().stream()
+                        .filter(u -> u.getRole() == ERole.ADMIN && !u.isDeleteFlag())
+                        .findFirst()
+                        .orElse(null));
 
-            if (course.getInstructor() != null) {
-                int sharePercent = systemSettingService.getSettingValueAsInteger("INSTRUCTOR_REVENUE_SHARE_PERCENT", 80);
-                BigDecimal instructorAmount = price.multiply(new BigDecimal(sharePercent))
-                        .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
-
+        if (course.getInstructor() != null) {
+            if (instructorAmount.compareTo(BigDecimal.ZERO) > 0) {
                 Wallet instructorWallet = getWalletByUserId(course.getInstructor().getUserId());
                 instructorWallet.setBalance(instructorWallet.getBalance().add(instructorAmount));
                 walletRepository.save(instructorWallet);
@@ -199,49 +221,51 @@ public class WalletServiceImpl implements WalletService {
                         .amount(instructorAmount)
                         .transactionType(ETransactionType.PAYMENT)
                         .status(ETransactionStatus.SUCCESS)
-                        .description("Doanh thu (" + sharePercent + "%) từ khoá học: " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")")
+                        .description("Doanh thu từ khoá học: " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")" + (hasVoucher ? " (Voucher: " + voucherCode + ")" : ""))
                         .order(order)
                         .build();
                 instructorTx.setDeleteFlag(false);
                 walletTransactionRepository.save(instructorTx);
-
-                if (admin != null) {
-                    BigDecimal adminAmount = price.subtract(instructorAmount);
-                    if (adminAmount.compareTo(BigDecimal.ZERO) > 0) {
-                        Wallet adminWallet = getWalletByUserId(admin.getUserId());
-                        adminWallet.setBalance(adminWallet.getBalance().add(adminAmount));
-                        walletRepository.save(adminWallet);
-
-                        WalletTransaction adminTx = WalletTransaction.builder()
-                                .wallet(adminWallet)
-                                .amount(adminAmount)
-                                .transactionType(ETransactionType.PAYMENT)
-                                .status(ETransactionStatus.SUCCESS)
-                                .description("Doanh thu admin (" + (100 - sharePercent) + "%) từ khoá học: " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")")
-                                .order(order)
-                                .build();
-                        adminTx.setDeleteFlag(false);
-                        walletTransactionRepository.save(adminTx);
-                    }
-                }
-            } else {
-                if (admin != null) {
-                    Wallet adminWallet = getWalletByUserId(admin.getUserId());
-                    adminWallet.setBalance(adminWallet.getBalance().add(price));
-                    walletRepository.save(adminWallet);
-
-                    WalletTransaction adminTx = WalletTransaction.builder()
-                            .wallet(adminWallet)
-                            .amount(price)
-                            .transactionType(ETransactionType.PAYMENT)
-                            .status(ETransactionStatus.SUCCESS)
-                            .description("Doanh thu từ khoá học (Hệ thống): " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")")
-                            .order(order)
-                            .build();
-                    adminTx.setDeleteFlag(false);
-                    walletTransactionRepository.save(adminTx);
-                }
             }
+
+            if (admin != null && adminAmount.compareTo(BigDecimal.ZERO) > 0) {
+                Wallet adminWallet = getWalletByUserId(admin.getUserId());
+                adminWallet.setBalance(adminWallet.getBalance().add(adminAmount));
+                walletRepository.save(adminWallet);
+
+                WalletTransaction adminTx = WalletTransaction.builder()
+                        .wallet(adminWallet)
+                        .amount(adminAmount)
+                        .transactionType(ETransactionType.PAYMENT)
+                        .status(ETransactionStatus.SUCCESS)
+                        .description("Doanh thu admin từ khoá học: " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")" + (hasVoucher ? " (Voucher: " + voucherCode + ")" : ""))
+                        .order(order)
+                        .build();
+                adminTx.setDeleteFlag(false);
+                walletTransactionRepository.save(adminTx);
+            }
+        } else {
+            if (admin != null && priceToPay.compareTo(BigDecimal.ZERO) > 0) {
+                Wallet adminWallet = getWalletByUserId(admin.getUserId());
+                adminWallet.setBalance(adminWallet.getBalance().add(priceToPay));
+                walletRepository.save(adminWallet);
+
+                WalletTransaction adminTx = WalletTransaction.builder()
+                        .wallet(adminWallet)
+                        .amount(priceToPay)
+                        .transactionType(ETransactionType.PAYMENT)
+                        .status(ETransactionStatus.SUCCESS)
+                        .description("Doanh thu từ khoá học (Hệ thống): " + course.getCurrentPublishedVersion().getTitle() + " (Học viên: " + student.getFullName() + ")")
+                        .order(order)
+                        .build();
+                adminTx.setDeleteFlag(false);
+                walletTransactionRepository.save(adminTx);
+            }
+        }
+
+        // Đánh dấu Voucher đã được sử dụng thành công
+        if (hasVoucher) {
+            voucherService.confirmUseVoucher(voucherCode, userId);
         }
     }
 

@@ -989,6 +989,14 @@
                     <span>Ví & Giao dịch</span>
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a th:href="@{/admin/vouchers}"
+                   class="sidebar-link"
+                   th:classappend="${activePage == 'vouchers' ? 'active' : ''}">
+                    <i class="bi bi-ticket-perforated-fill"></i>
+                    <span>Quản lý Voucher</span>
+                </a>
+            </li>
         </ul>
         <div class="sidebar-footer">
             <a th:href="@{/home}" class="sidebar-link" style="padding: 10px 0;">

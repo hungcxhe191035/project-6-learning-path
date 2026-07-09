@@ -189,6 +189,8 @@
             <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-3">
                 <a th:href="@{/profile}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Học tập</a>
                 <a sec:authorize="hasRole('INSTRUCTOR')" th:href="@{/instructor/students}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Học viên</a>
+                <a sec:authorize="hasRole('INSTRUCTOR')" th:href="@{/instructor/vouchers}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Voucher</a>
+                <a sec:authorize="hasRole('INSTRUCTOR')" th:href="@{/instructor/qna}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Hỏi đáp</a>
                 <a sec:authorize="hasAnyRole('INSTRUCTOR', 'ADMIN')" th:href="@{/revenue}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Doanh thu</a>
                 <a th:href="@{/wallet}" class="btn btn-outline-success d-none d-lg-flex align-items-center gap-1 py-1 px-3 rounded-pill fw-bold text-decoration-none" style="font-size: 13px; border-color: #10b981; color: #10b981;">
                     <i class="bi bi-wallet2"></i>
