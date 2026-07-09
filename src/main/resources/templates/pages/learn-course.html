@@ -5,8 +5,21 @@
       layout:decorate="~{layouts/main-layout}">
 
 <head>
+    <!-- TinyMCE 6 CDN (cdnjs open-source) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js" referrerpolicy="origin"></script>
     <title th:text="${course.title} + ' — Học khoá học'">Học khoá học</title>
     <style>
+        /* TinyMCE */
+        .tox-tinymce { border-radius: 10px !important; border: 2px solid #e2e8f0 !important; }
+        /* Style images in blog content to prevent overflow */
+        #lBlogReaderContent img {
+            max-width: 100% !important;
+            height: auto !important;
+            border-radius: 12px;
+            margin: 16px 0;
+            display: block;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
         :root {
             --primary: #7c3aed;
             --primary-light: #ede9fe;
@@ -228,11 +241,11 @@
             <div class="tab-body" id="tab-blogs">
                 <div class="tab-title d-flex justify-content-between align-items-center">
                     <span>📝 Bài viết từ học viên</span>
-                    <a th:href="@{/course/{id}(id=${course.courseId})}" target="_blank" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-weight: 600; border: 2px solid var(--primary-light); color: var(--primary);">
+                    <button class="btn btn-sm btn-outline-primary" id="btnWriteLearnBlog" style="border-radius: 8px; font-weight: 600; border: 2px solid var(--primary-light); color: var(--primary);">
                         <i class="bi bi-pencil-square me-1"></i>Viết bài mới
-                    </a>
+                    </button>
                 </div>
-                <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:24px;">Các bài viết chia sẻ kinh nghiệm, tóm tắt bài học chất lượng được đóng góp bởi các bạn học viên cùng khóa.</p>
+                <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:24px;">Các bài viết chia sẻ kinh nghiệm, tóm tắt bài học chất lượng liên quan đến bài học đang xem.</p>
                 
                 <div class="row g-3" id="learnBlogList">
                     <!-- JS render rows here -->
@@ -317,9 +330,15 @@
         let currentlyShowingQuiz = null;
 
         window.addEventListener('DOMContentLoaded', function () {
-            if (firstLessonId) {
-                var el = document.getElementById('lesson-item-' + firstLessonId);
-                if (el) el.click();
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryLessonId = urlParams.get('lessonId');
+            const targetLessonId = queryLessonId || firstLessonId;
+            if (targetLessonId) {
+                var el = document.getElementById('lesson-item-' + targetLessonId);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.click();
+                }
             }
         });
 
@@ -366,6 +385,9 @@
                 loadArticleLesson(lessonId);
             }
             loadComments(lessonId);
+            if (typeof loadLearningBlogs === 'function') {
+                loadLearningBlogs(lessonId);
+            }
         }
 
         // ===== LOAD VIDEO =====
@@ -747,110 +769,310 @@
             return new Date(dateArr).toLocaleDateString('vi-VN');
         }
 
-        // ===== MOCK BLOGS FOR LEARNING PAGE =====
-        const LEARN_MOCK_BLOGS = [
-            {
-                id: 1,
-                title: "Kinh nghiệm thiết kế DB chuẩn hóa và tối ưu truy vấn trong Spring Boot",
-                summary: "Một số quy tắc thiết kế database từ 1NF đến 3NF, cách đánh chỉ mục (Index) hiệu quả và xử lý N+1 query khi sử dụng Spring Data JPA.",
-                content: `<p>Chào mọi người, sau khi học xong chương về Thao tác cơ sở dữ liệu với JPA và Hibernate, mình xin chia sẻ một vài kinh nghiệm thực tế về tối ưu hóa DB.</p><h5>1. Chuẩn hóa cơ sở dữ liệu:</h5><p>Luôn cố gắng đưa DB về dạng chuẩn 3 (3NF) để tránh dư thừa dữ liệu. Tuy nhiên, trong một số trường hợp tần suất đọc quá cao, việc phi chuẩn hóa (denormalization) có kiểm soát cũng là giải pháp tốt.</p><h5>2. Xử lý vấn đề N+1 query:</h5><p>Đây là lỗi kinh điển khi sử dụng JPA. Khi ta query một danh sách thực thể có quan hệ @OneToMany, JPA mặc định sẽ query thêm N lần để lấy thực thể liên quan. Giải pháp là sử dụng Join Fetch trong JPQL:</p><pre class="bg-light p-3 rounded" style="font-family: monospace; font-size: 0.9rem; background-color: #f8fafc; border: 1px solid #e2e8f0;">@Query("SELECT c FROM Course c JOIN FETCH c.lessons WHERE c.id = :id")</pre><p>Hy vọng bài viết giúp ích cho các bạn trong quá trình thực hành dự án!</p>`,
-                cover: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800",
-                author: "Bùi Minh Chiến",
-                authorLetter: "BC",
-                date: "2026-06-28",
-                readTime: 4
-            },
-            {
-                id: 2,
-                title: "Hướng dẫn tích hợp Spring Security và Stateless JWT cho người mới bắt đầu",
-                summary: "Bài viết này hướng dẫn chi tiết cách cấu hình AuthenticationManager, JwtTokenProvider, OncePerRequestFilter để xây dựng hệ thống phân quyền REST API.",
-                content: `<p>Trong bài học Bảo mật ứng dụng với Spring Security, chúng ta được học cách bảo mật cơ bản. Để nâng cao hơn cho ứng dụng SPA (Single Page Application) hoặc Mobile, JWT là lựa chọn hàng đầu.</p><h5>Các bước triển khai chính:</h5><ol><li>Thêm dependency jwt (jjwt-api, jjwt-impl, jjwt-jackson).</li><li>Viết class JwtTokenProvider để generate và validate token.</li><li>Tạo JwtAuthenticationFilter kế thừa OncePerRequestFilter để intercept mọi request, trích xuất JWT từ Header Authorization và set Authentication vào SecurityContextHolder.</li><li>Cấu hình SecurityFilterChain để permitAll các endpoint public và requireAuthentication đối với API nội bộ.</p>`,
-                cover: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800",
-                author: "Nguyễn Văn Hoàng",
-                authorLetter: "NH",
-                date: "2026-06-30",
-                readTime: 6
-            }
-        ];
+
+        // ===== BLOGS FUNCTIONALITIES (API-DRIVEN) =====
+        let learningBlogs = [];
+
+        function loadLearningBlogs(lessonId) {
+            if (!lessonId) return;
+            fetch(`/api/courses/${COURSE_ID}/blogs?lessonId=${lessonId}`)
+                .then(function(r) { return r.json(); })
+                .then(function(blogs) {
+                    learningBlogs = blogs || [];
+                    renderLearningBlogs();
+                }).catch(function(e) { console.error('Lỗi khi tải blog bài học:', e); });
+        }
 
         function renderLearningBlogs() {
             const list = document.getElementById('learnBlogList');
             if (!list) return;
 
             let html = '';
-            LEARN_MOCK_BLOGS.forEach(blog => {
-                const coverStyle = blog.cover 
-                    ? `background: url('${blog.cover}') center/cover;`
+            let countVisible = 0;
+            learningBlogs.forEach(blog => {
+                const statusKey = (blog.status || '').toUpperCase();
+                if (statusKey !== 'APPROVED') return;
+                countVisible++;
+
+                const coverStyle = blog.coverUrl 
+                    ? `background: url('${blog.coverUrl}') center/cover;`
                     : `background: linear-gradient(135deg, var(--primary), #a78bfa);`;
 
                 html += `
                     <div class="col-md-6">
-                        <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.2s;" onclick="openLearnBlogReader(${blog.id})" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                        <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.2s;" onclick="openLearnBlogReader(${blog.blogId})" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
                             <div style="height: 120px; ${coverStyle}"></div>
                             <div class="card-body p-3">
                                 <h6 class="fw-bold mb-1 text-truncate" style="font-size: 0.95rem; color: var(--text-main);">${blog.title}</h6>
                                 <p class="text-muted mb-3" style="font-size: 0.8rem; line-height: 1.4; height: 2.2rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${blog.summary}</p>
                                 <div class="d-flex align-items-center justify-content-between text-muted border-top pt-2" style="font-size: 0.75rem;">
-                                    <span class="fw-bold" style="color: var(--primary-dark);"><i class="bi bi-person me-1"></i>${blog.author}</span>
-                                    <span><i class="bi bi-clock me-1"></i>${blog.readTime} phút</span>
+                                    <span class="fw-bold" style="color: var(--primary-dark);"><i class="bi bi-person me-1"></i>${blog.authorName}</span>
+                                    <span><i class="bi bi-clock me-1"></i>${estimateReadTime(blog.content)} phút</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 `;
             });
+
+            if (countVisible === 0) {
+                list.innerHTML = `
+                    <div class="col-12 text-center py-5 text-muted">
+                        <i class="bi bi-journal-x fs-1 opacity-50 mb-2 d-block"></i>
+                        <span>Chưa có bài viết chia sẻ nào cho bài học này.</span>
+                    </div>`;
+                return;
+            }
+
             list.innerHTML = html;
         }
 
-        window.openLearnBlogReader = function(id) {
-            const blog = LEARN_MOCK_BLOGS.find(b => b.id === id);
-            if (!blog) return;
+        window.openLearnBlogReader = async function(id) {
+            // Hiển thị modal ngay với cache (nếu có) để UX nhanh hơn
+            const cached = learningBlogs.find(b => b.blogId === id);
+            const modalEl = document.getElementById('learnReadBlogModal');
+            const modal = new bootstrap.Modal(modalEl);
 
-            const readerTitle = document.getElementById('lBlogReaderTitle');
-            const readerAuthor = document.getElementById('lBlogReaderAuthor');
-            const readerAvatar = document.getElementById('lBlogReaderAvatar');
-            const readerDate = document.getElementById('lBlogReaderDate');
-            const readerReadTime = document.getElementById('lBlogReaderReadTime');
-            const readerContent = document.getElementById('lBlogReaderContent');
-            const readerCover = document.getElementById('lBlogReaderCover');
-
-            if (readerTitle) readerTitle.textContent = blog.title;
-            if (readerAuthor) readerAuthor.textContent = blog.author;
-            if (readerAvatar) readerAvatar.textContent = blog.authorLetter;
-            if (readerDate) readerDate.innerHTML = `<i class="bi bi-calendar3 me-1"></i>${blog.date.split('-').reverse().join('/')}`;
-            if (readerReadTime) readerReadTime.textContent = blog.readTime;
-
-            // Render HTML directly inside modal reader
-            if (readerContent) {
-                readerContent.innerHTML = blog.content;
+            if (cached) {
+                document.getElementById('lBlogReaderTitle').textContent    = cached.title;
+                document.getElementById('lBlogReaderAuthor').textContent   = cached.authorName || 'Ẩn danh';
+                document.getElementById('lBlogReaderAvatar').textContent   = cached.authorLetter || '?';
+                document.getElementById('lBlogReaderDate').innerHTML       = `<i class="bi bi-calendar3 me-1"></i>${formatBlogDate(cached.createdAt)}`;
+                document.getElementById('lBlogReaderReadTime').textContent = estimateReadTime(cached.content);
+                document.getElementById('lBlogReaderContent').innerHTML    = cached.content || '<p class="text-muted">Đang tải...</p>';
+                const readerCover = document.getElementById('lBlogReaderCover');
+                if (readerCover) readerCover.style.background = cached.coverUrl
+                    ? `url('${cached.coverUrl}') center/cover`
+                    : `linear-gradient(135deg, var(--primary), #a78bfa)`;
+            } else {
+                document.getElementById('lBlogReaderContent').innerHTML = '<p class="text-muted">Đang tải...</p>';
             }
-
-            if (readerCover) {
-                if (blog.cover) {
-                    readerCover.style.background = `url('${blog.cover}') center/cover`;
-                } else {
-                    readerCover.style.background = `linear-gradient(135deg, var(--primary), #a78bfa)`;
-                }
-            }
-
-            const modal = new bootstrap.Modal(document.getElementById('learnReadBlogModal'));
             modal.show();
+
+            // Fetch dữ liệu mới nhất từ API + đánh dấu lượt xem
+            try {
+                const res = await fetch(`/api/blogs/${id}/view`, {
+                    method: 'POST',
+                    headers: { [CSRF_HEADER]: CSRF_TOKEN }
+                });
+                if (res.ok) {
+                    const fresh = await res.json();
+                    document.getElementById('lBlogReaderTitle').textContent    = fresh.title;
+                    document.getElementById('lBlogReaderAuthor').textContent   = fresh.authorName || 'Ẩn danh';
+                    document.getElementById('lBlogReaderAvatar').textContent   = fresh.authorLetter || '?';
+                    document.getElementById('lBlogReaderDate').innerHTML       = `<i class="bi bi-calendar3 me-1"></i>${formatBlogDate(fresh.createdAt)}`;
+                    document.getElementById('lBlogReaderReadTime').textContent = estimateReadTime(fresh.content);
+                    document.getElementById('lBlogReaderContent').innerHTML    = fresh.content || '';
+                    const readerCover = document.getElementById('lBlogReaderCover');
+                    if (readerCover) readerCover.style.background = fresh.coverUrl
+                        ? `url('${fresh.coverUrl}') center/cover`
+                        : `linear-gradient(135deg, var(--primary), #a78bfa)`;
+                    // Cập nhật cache local
+                    const idx = learningBlogs.findIndex(b => b.blogId === id);
+                    if (idx !== -1) learningBlogs[idx] = fresh;
+                }
+            } catch (e) { console.warn('Không thể tải dữ liệu blog mới nhất:', e); }
         };
 
-        function escapeHtml(text) {
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+        // Kích hoạt, cấu hình Modal viết bài và TinyMCE sau khi DOM đã được tải hoàn toàn
+        document.addEventListener("DOMContentLoaded", function() {
+            // Kích hoạt Modal viết bài
+            const writeBtn = document.getElementById('btnWriteLearnBlog');
+            if (writeBtn) {
+                writeBtn.onclick = function() {
+                    if (!currentLessonId) {
+                        toastr.warning('Vui lòng chọn một bài học trước khi viết bài!');
+                        return;
+                    }
+                    new bootstrap.Modal(document.getElementById('writeLearnBlogModal')).show();
+                };
+            }
+
+            // Khởi tạo TinyMCE (lần đầu khi modal mở)
+            let lEditorReady = false;
+            const modalEl = document.getElementById('writeLearnBlogModal');
+            if (modalEl) {
+                modalEl.addEventListener('shown.bs.modal', function () {
+                    if (lEditorReady) return;
+                    lEditorReady = true;
+                    tinymce.init({
+                        selector: '#lBlogContentEditor',
+                        height: 320,
+                        menubar: false,
+                        plugins: 'lists link image table code wordcount',
+                        toolbar: 'undo redo | styles | bold italic underline | bullist numlist | link image | table | code | removeformat',
+                        content_style: 'body { font-family: Inter, sans-serif; font-size: 15px; line-height: 1.7; }',
+                        promotion: false,
+                        branding: false,
+                        automatic_uploads: true,
+                        images_upload_url: '/api/blogs/upload-image',
+                        images_upload_handler: function (blobInfo, progress) {
+                            return new Promise((resolve, reject) => {
+                                const xhr = new XMLHttpRequest();
+                                xhr.withCredentials = false;
+                                xhr.open('POST', '/api/blogs/upload-image');
+                                
+                                // Lấy CSRF header từ meta tags
+                                const csrfMeta = document.querySelector('meta[name="_csrf"]');
+                                const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+                                if (csrfMeta && csrfHeaderMeta) {
+                                    xhr.setRequestHeader(csrfHeaderMeta.getAttribute('content'), csrfMeta.getAttribute('content'));
+                                }
+
+                                xhr.upload.onprogress = (e) => {
+                                    progress(e.loaded / e.total * 100);
+                                };
+
+                                xhr.onload = () => {
+                                    if (xhr.status === 403) {
+                                        reject({ message: 'Lỗi HTTP: ' + xhr.status, remove: true });
+                                        return;
+                                    }
+                                    if (xhr.status < 200 || xhr.status >= 300) {
+                                        reject('Lỗi HTTP: ' + xhr.status);
+                                        return;
+                                    }
+                                    const json = JSON.parse(xhr.responseText);
+                                    if (!json || typeof json.location !== 'string') {
+                                        reject('Dữ liệu JSON không hợp lệ: ' + xhr.responseText);
+                                        return;
+                                    }
+                                    resolve(json.location);
+                                };
+
+                                xhr.onerror = () => {
+                                    reject('Tải ảnh thất bại do lỗi kết nối XHR.');
+                                };
+
+                                const formData = new FormData();
+                                formData.append('file', blobInfo.blob(), blobInfo.filename());
+                                xhr.send(formData);
+                            });
+                        }
+                    });
+                });
+            }
+
+            const learnForm = document.getElementById('writeLearnBlogForm');
+            if (learnForm) {
+                learnForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    if (!currentLessonId) {
+                        toastr.warning('Vui lòng chọn bài học trước!');
+                        return;
+                    }
+
+                    const title   = document.getElementById('lBlogTitleInput').value.trim();
+                    const summary = document.getElementById('lBlogSummaryInput').value.trim();
+                    const content = tinymce.get('lBlogContentEditor') ? tinymce.get('lBlogContentEditor').getContent() : '';
+                    const coverFileEl = document.getElementById('lBlogCoverInput');
+                    const coverFile   = coverFileEl ? coverFileEl.files[0] : null;
+
+                    if (!title || !summary || !content || content.trim() === '' || content === '<p>&nbsp;</p>') {
+                        toastr.warning('Vui lòng điền đầy đủ Tiêu đề, Tóm tắt và Nội dung.');
+                        return;
+                    }
+
+                    const submitBtn = learnForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang gửi...';
+
+                    const formData = new FormData();
+                    formData.append('title', title);
+                    formData.append('summary', summary);
+                    formData.append('content', content);
+                    formData.append('lessonId', currentLessonId);
+                    if (coverFile) formData.append('coverFile', coverFile);
+
+                    try {
+                        const res = await fetch(`/api/courses/${COURSE_ID}/blogs`, {
+                            method: 'POST',
+                            headers: { [CSRF_HEADER]: CSRF_TOKEN },
+                            body: formData
+                        });
+
+                        if (!res.ok) {
+                            const err = await res.text();
+                            toastr.error('Lỗi: ' + err);
+                            return;
+                        }
+                        toastr.success('🎉 Đã gửi bài viết! Đang chờ giảng viên duyệt.');
+                        bootstrap.Modal.getInstance(document.getElementById('writeLearnBlogModal'))?.hide();
+                        learnForm.reset();
+                        if (tinymce.get('lBlogContentEditor')) tinymce.get('lBlogContentEditor').setContent('');
+                        loadLearningBlogs(currentLessonId);
+                    } catch (err) {
+                        toastr.error('Lỗi kết nối: ' + err.message);
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Gửi bài viết';
+                    }
+                });
+            }
+        });
+
+        // Utils
+        function formatBlogDate(isoStr) {
+            if (!isoStr) return '';
+            try {
+                const d = new Date(isoStr);
+                return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+            } catch(e) { return isoStr; }
+        }
+
+        function estimateReadTime(html) {
+            if (!html) return 1;
+            const words = html.replace(/<[^>]*>/g, '').split(/\s+/).length;
+            return Math.max(1, Math.ceil(words / 150));
         }
 
         // Initialize learning blogs tab load
         document.addEventListener("DOMContentLoaded", function() {
-            renderLearningBlogs();
+            if (currentLessonId) {
+                loadLearningBlogs(currentLessonId);
+            }
         });
     </script>
+
+    <!-- MODAL VIẾT BLOG MỚI TRONG TRANG HỌC -->
+    <div class="modal fade" id="writeLearnBlogModal" tabindex="-1" aria-labelledby="writeLearnBlogModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 20px 50px rgba(0,0,0,0.15); color: var(--text-main);">
+                <div class="modal-header border-0 pb-0" style="padding: 24px 24px 8px;">
+                    <h5 class="modal-title fw-bold text-dark" id="writeLearnBlogModalLabel" style="font-size: 1.4rem;">
+                        <i class="bi bi-pencil-square text-primary me-2"></i>Viết bài chia sẻ cho bài học
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 16px 24px 24px;">
+                    <form id="writeLearnBlogForm">
+                        <div class="mb-3">
+                            <label for="lBlogTitleInput" class="form-label fw-bold text-secondary" style="font-size: 0.9rem;">Tiêu đề bài viết <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control py-2" id="lBlogTitleInput" required placeholder="Nhập tiêu đề ấn tượng..." style="border-radius: 10px; border: 2px solid #e2e8f0;">
+                        </div>
+                        <div class="mb-3">
+                            <label for="lBlogCoverInput" class="form-label fw-bold text-secondary" style="font-size: 0.9rem;">Chọn ảnh bìa bài viết <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control py-2" id="lBlogCoverInput" accept="image/*" required style="border-radius: 10px; border: 2px solid #e2e8f0;">
+                            <div class="form-text text-muted" style="font-size:0.75rem;">Vui lòng chọn một tệp hình ảnh từ máy tính (JPEG, PNG, WebP) làm ảnh bìa.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="lBlogSummaryInput" class="form-label fw-bold text-secondary" style="font-size: 0.9rem;">Tóm tắt ngắn <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="lBlogSummaryInput" rows="2" required placeholder="Viết một đoạn tóm tắt ngắn..." style="border-radius: 10px; border: 2px solid #e2e8f0;"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary" style="font-size: 0.9rem;">Nội dung bài viết <span class="text-danger">*</span></label>
+                            <!-- TinyMCE Textarea Container -->
+                            <textarea id="lBlogContentEditor"></textarea>
+                        </div>
+                        <div class="text-end mt-4">
+                            <button type="button" class="btn btn-light me-2 fw-bold" data-bs-dismiss="modal" style="border-radius: 8px; padding: 10px 20px;">Hủy bỏ</button>
+                            <button type="submit" class="btn btn-primary fw-bold" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); border: none; border-radius: 8px; padding: 10px 24px;">Gửi bài viết</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL ĐỌC BLOG CHI TIẾT TRONG TRANG HỌC -->
     <div class="modal fade" id="learnReadBlogModal" tabindex="-1" aria-labelledby="learnReadBlogModalLabel" aria-hidden="true">

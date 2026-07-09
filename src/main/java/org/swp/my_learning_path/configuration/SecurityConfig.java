@@ -50,6 +50,8 @@ public class SecurityConfig {
                                 "/courses",
                                 "/course/**",        // Trang chi tiết khoá học — xem được khi chưa login
                                 "/search",           // Tìm kiếm — xem được khi chưa login
+                                "/api/courses/*/blogs", // Xem danh sách blog công khai
+                                "/api/blogs/*/view",    // Xem chi tiết blog công khai
                                 "/login",
                                 "/forgot-password",
                                 "/register",
