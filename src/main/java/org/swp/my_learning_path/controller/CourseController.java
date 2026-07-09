@@ -50,6 +50,10 @@ public class CourseController {
         model.addAttribute("enrolled", enrolled);
         model.addAttribute("isOwner",  isOwner);
         model.addAttribute("certificate", certificate);
+        // Tên đầy đủ user hiện tại (dùng để filter "Bài viết của tôi")
+        String currentUserName = (userDetails != null && userDetails.getUser().getFullName() != null)
+                ? userDetails.getUser().getFullName() : "";
+        model.addAttribute("currentUserName", currentUserName);
         return "pages/course-detail";
     }
 

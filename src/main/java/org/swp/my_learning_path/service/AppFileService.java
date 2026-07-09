@@ -21,4 +21,16 @@ public class AppFileService {
                 .build();
         return appFileRepository.save(appFile);
     }
+
+    @Transactional
+    public AppFile saveFileInfo(String fileUrl, org.swp.my_learning_path.constant.EFileType fileType,
+                                String originalName, org.swp.my_learning_path.constant.EFilePurpose purpose) {
+        AppFile appFile = AppFile.builder()
+                .fileUrl(fileUrl)
+                .fileType(fileType)
+                .fileName(originalName)
+                .purpose(purpose)
+                .build();
+        return appFileRepository.save(appFile);
+    }
 }
