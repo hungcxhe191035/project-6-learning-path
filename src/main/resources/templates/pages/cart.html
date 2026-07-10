@@ -40,16 +40,38 @@
                 Khám phá khóa học ngay
             </a>
         </div>
-
+        
         <!-- GIỎ HÀNG CÓ SẢN PHẨM -->
         <div th:unless="${cartItems == null || cartItems.isEmpty()}" class="row g-4">
             
             <!-- Danh sách khóa học -->
             <div class="col-lg-8">
+                <!-- Chọn tất cả & Hành động -->
+                <div class="d-flex align-items-center justify-content-between p-3 mb-3 bg-light rounded-3 border">
+                    <div class="form-check d-flex align-items-center">
+                        <input class="form-check-input" type="checkbox" id="selectAllCart" checked onchange="toggleSelectAll(this)" style="width: 1.25rem; height: 1.25rem; cursor: pointer;">
+                        <label class="form-check-label fw-bold text-dark ms-2 mb-0" for="selectAllCart" style="cursor: pointer;">
+                            Chọn tất cả (<span id="selectedCount">0</span>/<span th:text="${cartItems.size()}">0</span> khóa học)
+                        </label>
+                    </div>
+                    <button class="btn btn-outline-danger btn-sm border-0 fw-semibold" onclick="removeSelectedCartItems()" id="btnDeleteSelected" style="display: none;">
+                        <i class="bi bi-trash me-1"></i>Xóa đã chọn
+                    </button>
+                </div>
+
                 <div class="card cart-card shadow-sm" th:each="item : ${cartItems}">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                             <div class="d-flex align-items-center gap-3">
+                                <!-- Checkbox chọn lẻ -->
+                                <div class="form-check">
+                                    <input class="form-check-input cart-item-check" type="checkbox" checked
+                                           th:id="'check-item-' + ${item.courseId}"
+                                           th:data-course-id="${item.courseId}"
+                                           th:data-price="${item.price}"
+                                           onchange="updateCartSummary()"
+                                           style="width: 1.25rem; height: 1.25rem; cursor: pointer;">
+                                </div>
                                 <img th:src="${item.thumbnailUrl}" class="cart-img" alt="Thumbnail">
                                 <div>
                                     <h6 class="fw-bold text-dark mb-1" th:text="${item.courseTitle}">Tên khóa học</h6>
@@ -74,36 +96,24 @@
                     
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">Tạm tính:</span>
-                        <strong class="text-dark" th:text="${#numbers.formatInteger(totalPrice, 1, 'COMMA')} + ' ₫'">0 ₫</strong>
+                        <strong class="text-dark" id="subtotalPrice">0 ₫</strong>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-4">
                         <span class="fw-bold fs-5 text-dark">Tổng tiền:</span>
-                        <strong class="fs-5 text-purple" th:text="${#numbers.formatInteger(totalPrice, 1, 'COMMA')} + ' ₫'">0 ₫</strong>
+                        <strong class="fs-5 text-purple" id="totalPrice">0 ₫</strong>
                     </div>
 
                     <!-- Thông tin ví cá nhân -->
                     <div class="bg-white p-3 border rounded-3 mb-4" style="font-size: 0.9rem;">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-muted"><i class="bi bi-wallet2 me-1"></i>Số dư ví của bạn:</span>
-                            <strong class="text-success" th:text="${#numbers.formatInteger(walletBalance != null ? walletBalance : 0, 1, 'COMMA')} + ' ₫'">0 ₫</strong>
+                            <strong class="text-success" th:data-balance="${walletBalance != null ? walletBalance : 0}" id="walletBalanceVal" th:text="${#numbers.formatInteger(walletBalance != null ? walletBalance : 0, 1, 'COMMA')} + ' ₫'">0 ₫</strong>
                         </div>
                     </div>
 
-                    <!-- Nút thanh toán -->
-                    <div th:if="${walletBalance != null and walletBalance.compareTo(totalPrice) >= 0}">
-                        <button class="btn-checkout py-3" onclick="checkoutCart(this)">
-                            <i class="bi bi-shield-check me-2"></i>Thanh toán bằng ví fCourse
-                        </button>
-                    </div>
-                    <div th:unless="${walletBalance != null and walletBalance.compareTo(totalPrice) >= 0}">
-                        <div class="alert alert-danger small mb-3 py-2" role="alert">
-                            Số dư ví không đủ để thanh toán. Vui lòng nạp thêm tiền.
-                        </div>
-                        <a th:href="@{/wallet}" class="btn w-100 py-3 text-white fw-bold" style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; text-decoration: none; text-align: center;">
-                            <i class="bi bi-plus-circle me-2"></i>Nạp thêm tiền vào ví
-                        </a>
-                    </div>
+                    <!-- Nút thanh toán và cảnh báo sẽ render động -->
+                    <div id="paymentArea"></div>
                 </div>
             </div>
 
@@ -112,6 +122,91 @@
     </div>
 
     <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            updateCartSummary();
+        });
+
+        function updateCartSummary() {
+            const checks = document.querySelectorAll('.cart-item-check');
+            let selectedCount = 0;
+            let totalPrice = 0;
+            const selectAllCheck = document.getElementById('selectAllCart');
+
+            checks.forEach(check => {
+                if (check.checked) {
+                    selectedCount++;
+                    totalPrice += parseFloat(check.getAttribute('data-price') || 0);
+                }
+            });
+
+            // Đồng bộ trạng thái "Chọn tất cả"
+            if (checks.length > 0 && selectAllCheck) {
+                selectAllCheck.checked = (selectedCount === checks.length);
+            }
+            const selectedCountEl = document.getElementById('selectedCount');
+            if (selectedCountEl) {
+                selectedCountEl.innerText = selectedCount;
+            }
+
+            // Format hiển thị tiền
+            const formattedPrice = new Intl.NumberFormat('vi-VN').format(totalPrice) + ' ₫';
+            const subtotalPriceEl = document.getElementById('subtotalPrice');
+            if (subtotalPriceEl) {
+                subtotalPriceEl.innerText = formattedPrice;
+            }
+            const totalPriceEl = document.getElementById('totalPrice');
+            if (totalPriceEl) {
+                totalPriceEl.innerText = formattedPrice;
+            }
+
+            // Ẩn/hiện nút "Xóa đã chọn"
+            const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+            if (btnDeleteSelected) {
+                btnDeleteSelected.style.display = selectedCount > 0 ? 'inline-block' : 'none';
+            }
+
+            // Kiểm tra ví tiền và hiển thị nút tương ứng
+            const walletBalanceElement = document.getElementById('walletBalanceVal');
+            const paymentArea = document.getElementById('paymentArea');
+            if (walletBalanceElement && paymentArea) {
+                const walletBalance = parseFloat(walletBalanceElement.getAttribute('data-balance') || 0);
+
+                if (selectedCount === 0) {
+                    paymentArea.innerHTML = `
+                        <div class="alert alert-warning small mb-3 py-2" role="alert">
+                            Vui lòng chọn ít nhất một khóa học để thanh toán.
+                        </div>
+                        <button class="btn-checkout py-3" disabled style="opacity: 0.6; cursor: not-allowed;">
+                            <i class="bi bi-shield-check me-2"></i>Thanh toán bằng ví fCourse
+                        </button>
+                    `;
+                } else if (walletBalance >= totalPrice) {
+                    paymentArea.innerHTML = `
+                        <button class="btn-checkout py-3" onclick="checkoutCart(this)">
+                            <i class="bi bi-shield-check me-2"></i>Thanh toán bằng ví fCourse
+                        </button>
+                    `;
+                } else {
+                    paymentArea.innerHTML = `
+                        <div class="alert alert-danger small mb-3 py-2" role="alert">
+                            Số dư ví không đủ để thanh toán. Vui lòng nạp thêm tiền.
+                        </div>
+                        <a href="/wallet" class="btn w-100 py-3 text-white fw-bold" style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; text-decoration: none; text-align: center; display: block;">
+                            <i class="bi bi-plus-circle me-2"></i>Nạp thêm tiền vào ví
+                        </a>
+                    `;
+                }
+            }
+        }
+
+        function toggleSelectAll(cb) {
+            const checks = document.querySelectorAll('.cart-item-check');
+            checks.forEach(check => {
+                check.checked = cb.checked;
+            });
+            updateCartSummary();
+        }
+
         async function removeCartItem(btn){
             const courseId = btn.dataset.courseId;
             if(!confirm("Xóa khóa học khỏi giỏ hàng?")){
@@ -128,17 +223,52 @@
             }
         }
 
+        async function removeSelectedCartItems() {
+            const checkedBoxes = document.querySelectorAll('.cart-item-check:checked');
+            if (checkedBoxes.length === 0) return;
+
+            if (!confirm(`Xóa ${checkedBoxes.length} khóa học đã chọn khỏi giỏ hàng?`)) {
+                return;
+            }
+
+            let successCount = 0;
+            for (let cb of checkedBoxes) {
+                const courseId = cb.dataset.courseId;
+                const response = await fetch("/api/cart/" + courseId, {
+                    method: "DELETE"
+                });
+                if (response.ok) {
+                    successCount++;
+                }
+            }
+
+            if (successCount > 0) {
+                toastr.success(`Đã xóa ${successCount} khóa học khỏi giỏ hàng`);
+                location.reload();
+            }
+        }
+
         async function checkoutCart(btn) {
-            if(!confirm("Bạn có chắc chắn muốn dùng ví tiền để thanh toán tất cả các khóa học trong giỏ hàng?")) {
+            const checkedBoxes = document.querySelectorAll('.cart-item-check:checked');
+            if (checkedBoxes.length === 0) {
+                toastr.warning("Vui lòng chọn ít nhất một khóa học!");
+                return;
+            }
+
+            if(!confirm("Bạn có chắc chắn muốn dùng ví tiền để thanh toán các khóa học đã chọn?")) {
                 return;
             }
 
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý đơn hàng...';
 
+            const courseIds = Array.from(checkedBoxes).map(cb => Number(cb.dataset.courseId));
+
             try {
                 const response = await fetch('/api/wallet/pay/cart', {
-                    method: 'POST'
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ courseIds: courseIds })
                 });
                 const data = await response.json();
 

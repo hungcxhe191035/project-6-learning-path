@@ -337,28 +337,64 @@
       }).join('');
 
       document.getElementById('resultArea').style.display = 'block';
+
+      // Kiểm tra có vừa được cấp chứng chỉ không
+      const certIssued = result.certificateIssued === true && result.certificateId;
+      const certId = result.certificateId;
+
+      let actionsHtml;
+      if (passed && certIssued) {
+        // 🎓 Học xong toàn bộ khoá học → chuyển đến trang certificate
+        actionsHtml = `
+          <a href="/certificates/${certId}"
+             class="btn btn-success"
+             style="border-radius:12px; font-weight:700; padding:14px 32px;
+                    background: linear-gradient(135deg,#10b981,#059669);
+                    box-shadow:0 6px 20px rgba(16,185,129,0.45); font-size:1.05rem;">
+            <i class="bi bi-award-fill me-2"></i>Xem Chứng Chỉ Hoàn Thành
+          </a>`;
+      } else if (passed) {
+        actionsHtml = `
+          <a href="/learn/${COURSE_ID}" class="btn btn-success"
+             style="border-radius:12px; font-weight:700; padding:12px 28px;
+                    box-shadow:0 4px 15px rgba(16,185,129,0.3);">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại học tiếp
+          </a>`;
+      } else {
+        actionsHtml = `
+          <button class="btn btn-warning text-white" onclick="location.reload()"
+                  style="border-radius:12px; font-weight:700; padding:12px 28px;
+                         box-shadow:0 4px 15px rgba(245,158,11,0.3);">
+            <i class="bi bi-arrow-clockwise me-1"></i>Làm lại bài
+          </button>
+          <a href="/learn/${COURSE_ID}" class="btn btn-outline-secondary"
+             style="border-radius:12px; font-weight:700; padding:12px 28px;">
+            Quay lại
+          </a>`;
+      }
+
       document.getElementById('resultArea').innerHTML = `
         <div class="result-card">
           <div class="result-score ${passed ? 'pass' : 'fail'}">${score}%</div>
           <div class="result-label">${result.correctCount} / ${result.totalQuestions} câu đúng</div>
           <div class="result-badge ${passed ? 'badge-pass' : 'badge-fail'}">
-            ${passed ? '🎉 Chúc mừng! Bạn đã vượt qua!' : '😔 Chưa đạt — Cần ≥80% để qua bài'}
+            ${certIssued
+              ? '🎓 Xuất sắc! Bạn đã hoàn thành toàn bộ khoá học!'
+              : (passed ? '🎉 Chúc mừng! Bạn đã vượt qua!' : '😔 Chưa đạt — Cần ≥80% để qua bài')}
           </div>
           <div class="result-actions">
-            ${passed
-              ? `<a href="/learn/${COURSE_ID}" class="btn btn-success" style="border-radius:12px; font-weight:700; padding:12px 28px; box-shadow:0 4px 15px rgba(16,185,129,0.3);">
-                   <i class="bi bi-arrow-left me-1"></i>Quay lại học tiếp
-                 </a>`
-              : `<button class="btn btn-warning text-white" onclick="location.reload()" style="border-radius:12px; font-weight:700; padding:12px 28px; box-shadow:0 4px 15px rgba(245,158,11,0.3);">
-                   <i class="bi bi-arrow-clockwise me-1"></i>Làm lại bài
-                 </button>
-                 <a href="/learn/${COURSE_ID}" class="btn btn-outline-secondary" style="border-radius:12px; font-weight:700; padding:12px 28px;">
-                   Quay lại
-                 </a>`}
+            ${actionsHtml}
           </div>
         </div>
         <div class="detail-title">Chi tiết từng câu:</div>
         ${detailHtml}`;
+
+      // Nếu có certificate thì tự redirect sau 3 giây
+      if (certIssued) {
+        setTimeout(function() {
+          window.location.href = '/certificates/' + certId;
+        }, 3000);
+      }
     }
   </script>
 </div>

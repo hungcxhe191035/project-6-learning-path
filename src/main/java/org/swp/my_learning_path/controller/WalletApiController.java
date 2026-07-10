@@ -10,6 +10,7 @@ import org.swp.my_learning_path.service.SystemSettingService;
 import org.swp.my_learning_path.service.WalletService;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -90,6 +91,7 @@ public class WalletApiController {
 
     @PostMapping("/api/wallet/pay/cart")
     public ResponseEntity<?> payCart(
+            @RequestBody(required = false) Map<String, List<Long>> payload,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         if (userDetails == null) {
@@ -97,7 +99,12 @@ public class WalletApiController {
         }
 
         try {
-            walletService.purchaseCart(userDetails.getUserId());
+            List<Long> courseIds = payload != null ? payload.get("courseIds") : null;
+            if (courseIds == null || courseIds.isEmpty()) {
+                walletService.purchaseCart(userDetails.getUserId());
+            } else {
+                walletService.purchaseCart(userDetails.getUserId(), courseIds);
+            }
             return ResponseEntity.ok(Map.of("success", true, "redirect", "/my-learning-path"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));

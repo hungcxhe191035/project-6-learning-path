@@ -345,18 +345,22 @@
                         return;
                     }
                     if(response.ok) {
-                        toastr.success("Đã thêm vào giỏ hàng");
-
-                        let currentCount = 0;
-                        let navBadge = document.querySelector('.cart-badge-dropdown');
-                        if(navBadge) {
-                            currentCount = parseInt(navBadge.innerText) || 0;
-                        }
-                        if (typeof updateCartBadges === 'function') {
-                            updateCartBadges(currentCount + 1);
+                        const data = await response.json();
+                        if (data.added) {
+                            toastr.success("Đã thêm vào giỏ hàng");
+                            let currentCount = 0;
+                            let navBadge = document.querySelector('.cart-badge-dropdown');
+                            if(navBadge) {
+                                currentCount = parseInt(navBadge.innerText) || 0;
+                            }
+                            if (typeof updateCartBadges === 'function') {
+                                updateCartBadges(currentCount + 1);
+                            }
+                        } else {
+                            toastr.info("Khóa học này đã có trong giỏ hàng!");
                         }
                     } else {
-                        toastr.error("Có lỗi xảy ra hoặc khoá học đã trong giỏ!");
+                        toastr.error("Có lỗi xảy ra!");
                     }
                 } catch(err) {
                     console.error("Lỗi:", err);

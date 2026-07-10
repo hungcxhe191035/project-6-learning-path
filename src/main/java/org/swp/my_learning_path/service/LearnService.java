@@ -11,7 +11,8 @@ public interface LearnService {
     LearnCourseDTO getLearnData(Long courseId, Long studentId);
 
     // Đánh dấu hoàn thành bài học (cho VIDEO / ARTICLE)
-    void completeLesson(Long lessonId, Long studentId);
+    // Trả về Map có success=true, certificateIssued=true/false, certificateId (nếu vừa cấp)
+    Map<String, Object> completeLesson(Long lessonId, Long studentId);
 
     // Lấy danh sách câu hỏi quiz (không lộ đáp án đúng)
     List<Map<String, Object>> getQuizData(Long lessonId);

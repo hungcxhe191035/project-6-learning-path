@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -272,11 +273,26 @@ public class WalletServiceImpl implements WalletService {
     @Override
     @Transactional
     public void purchaseCart(Long userId) {
+        purchaseCart(userId, null);
+    }
+
+    @Override
+    @Transactional
+    public void purchaseCart(Long userId, List<Long> courseIds) {
         User student = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy học viên!"));
         List<CartItem> cartItems = cartItemRepository.findByUserUserId(userId);
         if (cartItems.isEmpty()) {
             throw new IllegalStateException("Giỏ hàng của bạn đang trống!");
+        }
+
+        if (courseIds != null && !courseIds.isEmpty()) {
+            cartItems = cartItems.stream()
+                    .filter(item -> courseIds.contains(item.getCourse().getCourseId()))
+                    .collect(Collectors.toList());
+            if (cartItems.isEmpty()) {
+                throw new IllegalStateException("Không có khoá học hợp lệ nào được chọn để thanh toán!");
+            }
         }
 
         BigDecimal totalAmount = BigDecimal.ZERO;
@@ -297,7 +313,7 @@ public class WalletServiceImpl implements WalletService {
 
         Wallet studentWallet = getWalletByUserId(userId);
         if (studentWallet.getBalance().compareTo(totalAmount) < 0) {
-            throw new IllegalStateException("Số dư ví không đủ để thanh toán toàn bộ giỏ hàng!");
+            throw new IllegalStateException("Số dư ví không đủ để thanh toán các khóa học đã chọn!");
         }
 
         // Trừ tiền ví học viên
@@ -418,7 +434,7 @@ public class WalletServiceImpl implements WalletService {
             }
         }
 
-        // Xoá giỏ hàng
+        // Xoá giỏ hàng chỉ xóa những items đã thanh toán
         cartItemRepository.deleteAll(cartItems);
     }
 

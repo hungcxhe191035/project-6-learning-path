@@ -17,6 +17,7 @@ public interface WalletService {
     boolean processVNPayCallback(Map<String, String> fields);
     void purchaseCourse(Long userId, Long courseId, String voucherCode);
     void purchaseCart(Long userId);
+    void purchaseCart(Long userId, List<Long> courseIds);
     void createWithdrawRequest(Long userId, BigDecimal amount);
     void approveWithdraw(Long transactionId);
     void rejectWithdraw(Long transactionId);
