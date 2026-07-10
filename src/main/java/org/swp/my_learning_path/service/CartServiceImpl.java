@@ -26,7 +26,7 @@ public class CartServiceImpl
     private final UserRepository userRepository;
 
     @Override
-    public void addToCart(
+    public boolean addToCart(
             Long userId,
             Long courseId
     ) {
@@ -40,7 +40,7 @@ public class CartServiceImpl
                         .isPresent();
 
         if (exists) {
-            return;
+            return false;
         }
 
         User user =
@@ -58,6 +58,7 @@ public class CartServiceImpl
                         .build();
 
         cartItemRepository.save(item);
+        return true;
     }
 
     @Override

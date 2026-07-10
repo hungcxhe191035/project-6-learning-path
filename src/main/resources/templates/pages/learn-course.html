@@ -576,14 +576,21 @@
                 headers: { [CSRF_HEADER]: CSRF_TOKEN }
             })
                 .then(function(r) { return r.json(); })
-                .then(function() {
+                .then(function(data) {
                     var el = document.getElementById('lesson-item-' + lessonId);
                     if (el) {
                         el.classList.add('completed');
                         var check = el.querySelector('.lesson-check');
                         if (check) check.innerHTML = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.4rem;"></i>';
                     }
-                    setTimeout(function() { location.reload(); }, 800);
+                    // Nếu vừa được cấp chứng chỉ → chuyển thẳng sang trang certificate
+                    if (data.certificateIssued && data.certificateId) {
+                        setTimeout(function() {
+                            window.location.href = '/certificates/' + data.certificateId;
+                        }, 800);
+                    } else {
+                        setTimeout(function() { location.reload(); }, 800);
+                    }
                 });
         }
 

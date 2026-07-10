@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface CartService {
 
-    void addToCart(
+    boolean addToCart(
             Long userId,
             Long courseId
     );

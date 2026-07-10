@@ -15,18 +15,18 @@ public class CartApiController {
     private final CartService cartService;
 
     @PostMapping("/{courseId}")
-    public ResponseEntity<Void> addToCart(
+    public ResponseEntity<?> addToCart(
             @PathVariable Long courseId,
             @AuthenticationPrincipal
             CustomUserDetails user
     ) {
 
-        cartService.addToCart(
+        boolean added = cartService.addToCart(
                 user.getUserId(),
                 courseId
         );
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(java.util.Map.of("success", true, "added", added));
     }
 
     @DeleteMapping("/{courseId}")

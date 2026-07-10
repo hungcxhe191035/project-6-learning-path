@@ -26,6 +26,7 @@ public class LearnServiceImpl implements LearnService {
     private final QuizAnswerRepository quizAnswerRepository;
     private final CourseFeedbackRepository courseFeedbackRepository;
     private final UserRepository userRepository;
+    private final CertificateService certificateService;
 
     @Override
     @Transactional(readOnly = true)
@@ -125,7 +126,7 @@ public class LearnServiceImpl implements LearnService {
 
     @Override
     @Transactional
-    public void completeLesson(Long lessonId, Long studentId) {
+    public Map<String, Object> completeLesson(Long lessonId, Long studentId) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bài học!"));
 
@@ -151,6 +152,18 @@ public class LearnServiceImpl implements LearnService {
                     .build();
             lessonProgressRepository.save(progress);
         }
+
+        // Kiểm tra hoàn thành toàn bộ khoá học → tự động cấp chứng chỉ
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("success", true);
+        Certificate certificate = certificateService.issueCertificateIfCompleted(enrollment.getEnrollmentId());
+        if (certificate != null) {
+            result.put("certificateIssued", true);
+            result.put("certificateId", certificate.getCertificateId());
+        } else {
+            result.put("certificateIssued", false);
+        }
+        return result;
     }
 
     @Override
@@ -229,8 +242,9 @@ public class LearnServiceImpl implements LearnService {
         boolean passed = scorePercent >= 80;
 
         // Nếu đạt >= 80% thì đánh dấu bài học này là hoàn thành
+        Map<String, Object> completionResult = null;
         if (passed) {
-            completeLesson(lessonId, studentId);
+            completionResult = completeLesson(lessonId, studentId);
         }
 
         Map<String, Object> result = new LinkedHashMap<>();
@@ -239,6 +253,14 @@ public class LearnServiceImpl implements LearnService {
         result.put("scorePercent", scorePercent);
         result.put("passed", passed);
         result.put("questionResults", questionResults);
+
+        // Thêm thông tin certificate nếu vừa học xong khoá học
+        if (completionResult != null) {
+            result.put("certificateIssued", completionResult.get("certificateIssued"));
+            result.put("certificateId", completionResult.get("certificateId"));
+        } else {
+            result.put("certificateIssued", false);
+        }
         return result;
     }
 

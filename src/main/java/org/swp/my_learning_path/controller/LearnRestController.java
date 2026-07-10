@@ -19,11 +19,12 @@ public class LearnRestController {
     private final LearnService learnService;
 
     // Đánh dấu hoàn thành VIDEO hoặc ARTICLE
+    // Response: { success: true, certificateIssued: true/false, certificateId: ... }
     @PostMapping("/complete/{lessonId}")
     public ResponseEntity<?> complete(@PathVariable Long lessonId,
                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
-        learnService.completeLesson(lessonId, userDetails.getUserId());
-        return ResponseEntity.ok(Map.of("success", true));
+        Map<String, Object> result = learnService.completeLesson(lessonId, userDetails.getUserId());
+        return ResponseEntity.ok(result);
     }
 
     // Lấy câu hỏi quiz (không lộ đáp án đúng)
