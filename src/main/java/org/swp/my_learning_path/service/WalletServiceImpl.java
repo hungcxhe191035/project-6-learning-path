@@ -467,48 +467,6 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    @Transactional
-    public void approveWithdraw(Long transactionId) {
-        WalletTransaction transaction = walletTransactionRepository.findById(transactionId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy giao dịch rút tiền!"));
-
-        if (transaction.getTransactionType() != ETransactionType.WITHDRAW) {
-            throw new IllegalStateException("Giao dịch không phải loại rút tiền!");
-        }
-
-        if (transaction.getStatus() != ETransactionStatus.PENDING) {
-            throw new IllegalStateException("Yêu cầu rút tiền này đã được xử lý trước đó!");
-        }
-
-        transaction.setStatus(ETransactionStatus.SUCCESS);
-        walletTransactionRepository.save(transaction);
-    }
-
-    @Override
-    @Transactional
-    public void rejectWithdraw(Long transactionId) {
-        WalletTransaction transaction = walletTransactionRepository.findById(transactionId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy giao dịch rút tiền!"));
-
-        if (transaction.getTransactionType() != ETransactionType.WITHDRAW) {
-            throw new IllegalStateException("Giao dịch không phải loại rút tiền!");
-        }
-
-        if (transaction.getStatus() != ETransactionStatus.PENDING) {
-            throw new IllegalStateException("Yêu cầu rút tiền này đã được xử lý trước đó!");
-        }
-
-        transaction.setStatus(ETransactionStatus.FAIL);
-        
-        // Hoàn lại tiền vào ví người dùng
-        Wallet wallet = transaction.getWallet();
-        wallet.setBalance(wallet.getBalance().add(transaction.getAmount()));
-        
-        walletRepository.save(wallet);
-        walletTransactionRepository.save(transaction);
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public List<WalletTransaction> getTransactionHistory(Long userId) {
         return walletTransactionRepository.findByWalletUserUserIdOrderByCreatedAtDesc(userId);

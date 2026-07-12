@@ -19,8 +19,6 @@ public interface WalletService {
     void purchaseCart(Long userId);
     void purchaseCart(Long userId, List<Long> courseIds);
     void createWithdrawRequest(Long userId, BigDecimal amount);
-    void approveWithdraw(Long transactionId);
-    void rejectWithdraw(Long transactionId);
     List<WalletTransaction> getTransactionHistory(Long userId);
     List<WalletTransaction> getAllTransactions();
     Page<WalletTransaction> getAllTransactions(Pageable pageable);

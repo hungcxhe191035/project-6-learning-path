@@ -111,40 +111,6 @@ public class WalletApiController {
         }
     }
 
-    @PostMapping("/api/admin/transactions/{txId}/approve")
-    public ResponseEntity<?> approveWithdraw(
-            @PathVariable Long txId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        if (userDetails == null || !"ADMIN".equals(userDetails.getUser().getRole().name())) {
-            return ResponseEntity.status(403).body(Map.of("message", "Không có quyền thực hiện!"));
-        }
-
-        try {
-            walletService.approveWithdraw(txId);
-            return ResponseEntity.ok(Map.of("success", true, "message", "Duyệt yêu cầu rút tiền thành công!"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
-        }
-    }
-
-    @PostMapping("/api/admin/transactions/{txId}/reject")
-    public ResponseEntity<?> rejectWithdraw(
-            @PathVariable Long txId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        if (userDetails == null || !"ADMIN".equals(userDetails.getUser().getRole().name())) {
-            return ResponseEntity.status(403).body(Map.of("message", "Không có quyền thực hiện!"));
-        }
-
-        try {
-            walletService.rejectWithdraw(txId);
-            return ResponseEntity.ok(Map.of("success", true, "message", "Từ chối yêu cầu rút tiền thành công!"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
-        }
-    }
-
     @PostMapping("/api/admin/settings/revenue-share")
     public ResponseEntity<?> updateRevenueShare(
             @RequestParam("sharePercent") String sharePercent,
