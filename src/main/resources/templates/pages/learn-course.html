@@ -198,8 +198,10 @@
             <div class="tab-body" id="tab-qa">
                 <div class="tab-title">Hỏi &amp; Đáp cùng giảng viên và học viên</div>
                 <div class="qa-input-wrapper">
+                    <input type="text" id="qaTitleInput" class="form-control mb-2"
+                           placeholder="Tiêu đề câu hỏi (bắt buộc)" />
                     <textarea id="qaInput" class="form-control qa-textarea" rows="3"
-                              placeholder="Bạn đang thắc mắc điều gì trong bài học này?"></textarea>
+                              placeholder="Mô tả chi tiết thắc mắc của bạn..."></textarea>
                     <div class="text-end mt-3">
                         <button class="btn btn-primary btn-qa-send" onclick="submitComment()">
                             <i class="bi bi-send-fill me-2"></i>Gửi câu hỏi
@@ -594,17 +596,21 @@
                 });
         }
 
-        // ===== Q&A =====
-        let allComments = [];     // Lưu toàn bộ comment
+        // ===== Q&A (CourseQnA API) =====
+        let allComments = [];     // Lưu toàn bộ câu hỏi
         let shownCount = 3;       // Số lượng hiển thị ban đầu
         const LOAD_MORE_STEP = 5; // Mỗi lần xem thêm tải thêm bao nhiêu
 
         function loadComments(lessonId) {
-            fetch('/api/learn/comments/' + lessonId)
+            fetch('/api/qna/lesson/' + lessonId)
                 .then(function(r) { return r.json(); })
-                .then(function(comments) {
-                    allComments = comments || [];
+                .then(function(questions) {
+                    allComments = questions || [];
                     shownCount = 3; // Reset lại mỗi khi đổi bài học
+                    renderComments();
+                })
+                .catch(function() {
+                    allComments = [];
                     renderComments();
                 });
         }
@@ -615,56 +621,64 @@
             if (allComments.length === 0) {
                 list.innerHTML =
                     '<div style="text-align:center; padding: 40px; color: var(--text-muted);">' +
-                    '<i class="bi bi-chat-dots" style="font-size: 3rem; opacity: 0.3;"></i>' +
-                    '<p class="mt-3">Chưa có thảo luận nào. Hãy là người đầu tiên!</p>' +
+                    '<i class="bi bi-chat-question" style="font-size: 3rem; opacity: 0.3;"></i>' +
+                    '<p class="mt-3">Chưa có câu hỏi nào. Hãy là người đầu tiên đặt câu hỏi!</p>' +
                     '</div>';
                 return;
             }
 
             // Lấy đúng số lượng cần hiển thị
-            var visibleComments = allComments.slice(0, shownCount);
+            var visibleQuestions = allComments.slice(0, shownCount);
             var remaining = allComments.length - shownCount;
 
             var html = '';
-            visibleComments.forEach(function(c) {
-                var repliesHtml = '';
-                if (c.replies && c.replies.length > 0) {
-                    repliesHtml = '<div class="reply-list">';
-                    c.replies.forEach(function(r) {
-                        repliesHtml +=
-                            '<div style="margin-bottom:16px;">' +
-                            '<div class="comment-user">' + r.userName +
-                            '<span class="comment-time ms-2" style="font-weight:400;">' + formatDate(r.createdAt) + '</span>' +
+            visibleQuestions.forEach(function(q) {
+                // Badge status
+                var statusBadge = '';
+                if (q.status === 'PENDING') statusBadge = '<span class="badge bg-warning text-dark ms-2">Chờ trả lời</span>';
+                else if (q.status === 'ANSWERED') statusBadge = '<span class="badge bg-success ms-2">Đã giải đáp</span>';
+                else if (q.status === 'CLOSED') statusBadge = '<span class="badge bg-secondary ms-2">Đã đóng</span>';
+
+                // Render các câu trả lời
+                var answersHtml = '';
+                if (q.answers && q.answers.length > 0) {
+                    answersHtml = '<div class="reply-list mt-3">';
+                    q.answers.forEach(function(a) {
+                        answersHtml +=
+                            '<div style="margin-bottom:12px; background: #e8f4fd; border-radius:8px; padding:12px;">' +
+                            '<div class="comment-user"><i class="bi bi-person-badge-fill text-primary me-1"></i>' + (a.answererName || 'Giảng viên') +
+                            '<span class="comment-time ms-2" style="font-weight:400;">' + formatDate(a.createdAt) + '</span>' +
                             '</div>' +
-                            '<div class="comment-text" style="margin-top:4px;">' + r.content + '</div>' +
+                            '<div class="comment-text mt-1">' + a.content + '</div>' +
                             '</div>';
                     });
-                    repliesHtml += '</div>';
+                    answersHtml += '</div>';
+                }
+
+                // Nút đóng câu hỏi (chỉ hiện khi ANSWERED)
+                var closeBtn = '';
+                if (q.status === 'ANSWERED') {
+                    closeBtn = '<button class="btn btn-sm btn-outline-secondary ms-2" onclick="closeQuestion(' + q.questionId + ')">' +
+                               '<i class="bi bi-check-circle me-1"></i>Đánh dấu đã hiểu</button>';
                 }
 
                 html +=
                     '<div class="comment-card">' +
-                    '<div class="d-flex justify-content-between align-items-center">' +
-                    '<div class="comment-user">' + c.userName + '</div>' +
-                    '<span class="comment-time">' + formatDate(c.createdAt) + '</span>' +
+                    '<div class="d-flex justify-content-between align-items-start">' +
+                    '<div>' +
+                    '<div class="comment-user d-inline">' + (q.studentName || q.userName || 'Học viên') + '</div>' +
+                    statusBadge +
                     '</div>' +
-                    '<div class="comment-text">' + c.content + '</div>' +
-                    '<div class="mt-3">' +
-                    '<button class="reply-btn" onclick="toggleReplyBox(' + c.commentId + ')">' +
-                    '<i class="bi bi-reply-fill"></i> Trả lời' +
-                    '</button>' +
+                    '<span class="comment-time">' + formatDate(q.createdAt) + '</span>' +
                     '</div>' +
-                    '<div id="reply-box-' + c.commentId + '" style="display:none; margin-top:16px; background: var(--bg-main); padding: 16px; border-radius: 12px;">' +
-                    '<input type="text" class="form-control qa-textarea mb-2" placeholder="Nhập câu trả lời của bạn..." id="reply-input-' + c.commentId + '">' +
-                    '<div class="text-end">' +
-                    '<button class="btn btn-sm btn-qa-send text-white" onclick="submitReply(' + c.commentId + ')">Gửi trả lời</button>' +
-                    '</div>' +
-                    '</div>' +
-                    repliesHtml +
+                    (q.title ? '<div class="fw-bold mt-2">' + q.title + '</div>' : '') +
+                    '<div class="comment-text mt-1">' + q.content + '</div>' +
+                    answersHtml +
+                    '<div class="mt-2">' + closeBtn + '</div>' +
                     '</div>';
             });
 
-            // Nút "Xem thêm" nếu vẫn còn comment chưa hiển thị
+            // Nút "Xem thêm"
             if (remaining > 0) {
                 var loadMore = Math.min(remaining, LOAD_MORE_STEP);
                 html +=
@@ -678,7 +692,6 @@
                     '</button>' +
                     '</div>';
             } else if (allComments.length > 3) {
-                // Đã xem hết — hiện nút thu gọn
                 html +=
                     '<div style="text-align:center; margin-top: 8px;">' +
                     '<button onclick="collapseComments()" ' +
@@ -692,6 +705,16 @@
             }
 
             list.innerHTML = html;
+        }
+
+        function closeQuestion(questionId) {
+            fetch('/api/qna/close/' + questionId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', [CSRF_HEADER]: CSRF_TOKEN }
+            }).then(function(r) {
+                if (r.ok) { toastr.success('Đã đánh dấu câu hỏi là đã hiểu!'); loadComments(currentLessonId); }
+                else { toastr.error('Không thể đóng câu hỏi này.'); }
+            });
         }
 
         function loadMoreComments() {
@@ -721,33 +744,30 @@
         }
 
         function submitComment() {
+            var title = document.getElementById('qaTitleInput').value.trim();
             var content = document.getElementById('qaInput').value.trim();
-            if (!content) { toastr.warning('Vui lòng nhập câu hỏi!'); return; }
+            if (!title) { toastr.warning('Vui lòng nhập tiêu đề câu hỏi!'); return; }
+            if (!content) { toastr.warning('Vui lòng nhập nội dung câu hỏi!'); return; }
             if (!currentLessonId) { toastr.warning('Vui lòng chọn bài học trước!'); return; }
-            fetch('/api/learn/comments/' + currentLessonId, {
+            fetch('/api/qna/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', [CSRF_HEADER]: CSRF_TOKEN },
-                body: JSON.stringify({ content: content })
-            }).then(function() {
-                document.getElementById('qaInput').value = '';
-                toastr.success('Đã gửi câu hỏi');
-                loadComments(currentLessonId);
-            });
-        }
-
-        function submitReply(parentId) {
-            var input = document.getElementById('reply-input-' + parentId);
-            var content = input ? input.value.trim() : '';
-            if (!content || !currentLessonId) return;
-            fetch('/api/learn/comments/' + currentLessonId, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', [CSRF_HEADER]: CSRF_TOKEN },
-                body: JSON.stringify({ content: content, parentCommentId: parentId })
-            }).then(function() {
-                input.value = '';
-                toastr.success('Đã gửi trả lời');
-                loadComments(currentLessonId);
-            });
+                body: JSON.stringify({
+                    courseId: COURSE_ID,
+                    lessonId: currentLessonId,
+                    title: title,
+                    content: content
+                })
+            }).then(function(r) {
+                if (r.ok) {
+                    document.getElementById('qaTitleInput').value = '';
+                    document.getElementById('qaInput').value = '';
+                    toastr.success('Đã gửi câu hỏi! Giảng viên sẽ trả lời sớm.');
+                    loadComments(currentLessonId);
+                } else {
+                    r.text().then(function(msg) { toastr.error(msg || 'Gửi câu hỏi thất bại!'); });
+                }
+            }).catch(function() { toastr.error('Lỗi kết nối, vui lòng thử lại!'); });
         }
 
         // ===== ĐÁNH GIÁ =====

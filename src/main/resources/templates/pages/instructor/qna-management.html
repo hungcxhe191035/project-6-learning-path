@@ -133,13 +133,20 @@
         const questionId = form.querySelector('[name="questionId"]').value;
         const content = form.querySelector('[name="content"]').value;
 
+        // Lấy CSRF token từ meta tags
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+
         fetch('/api/qna/answer', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
             body: JSON.stringify({ questionId: parseInt(questionId), content: content })
         })
         .then(response => {
-            if (!response.ok) throw new Error("Gửi câu trả lời thất bại");
+            if (!response.ok) throw new Error("Gửi câu trả lời thất bại. Vui lòng thử lại!");
             return response.json();
         })
         .then(data => {
