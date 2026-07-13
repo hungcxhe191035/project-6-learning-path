@@ -82,7 +82,9 @@ public class InstructorVoucherController {
                 try {
                     java.util.List<org.swp.my_learning_path.entity.User> students = userRepository.findByRoleAndDeleteFlagFalse(org.swp.my_learning_path.constant.ERole.STUDENT);
                     String instName = userDetails.getUser().getFullName();
-                    String courseTitle = course.getCurrentPublishedVersion() != null ? course.getCurrentPublishedVersion().getTitle() : course.getTitle();
+                    String courseTitle = course.getCurrentPublishedVersion() != null 
+                        ? course.getCurrentPublishedVersion().getTitle() 
+                        : "Khóa học của " + instName;
                     for (org.swp.my_learning_path.entity.User student : students) {
                         if (student.getEmail() != null) {
                             emailService.sendVoucherPromotionEmail(
