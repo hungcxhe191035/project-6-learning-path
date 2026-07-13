@@ -25,6 +25,7 @@ public class InstructorVoucherController {
     private final CourseRepository courseRepository;
     private final org.swp.my_learning_path.repository.UserRepository userRepository;
     private final org.swp.my_learning_path.service.EmailService emailService;
+    private final org.swp.my_learning_path.repository.EnrollmentRepository enrollmentRepository;
 
     @GetMapping
     public String listVouchers(Model model) {
@@ -80,13 +81,20 @@ public class InstructorVoucherController {
             // Gửi email marketing chạy ngầm (Asynchronous) tránh lag UI
             new Thread(() -> {
                 try {
-                    java.util.List<org.swp.my_learning_path.entity.User> students = userRepository.findByRoleAndDeleteFlagFalse(org.swp.my_learning_path.constant.ERole.STUDENT);
+                    // Lấy danh sách Enrollments của các học viên đã mua khóa học của Giảng viên này
+                    java.util.List<org.swp.my_learning_path.entity.Enrollment> enrollments = 
+                        enrollmentRepository.findEnrollmentsByInstructorAndCourse(userDetails.getUser().getUserId(), null);
+                    
                     String instName = userDetails.getUser().getFullName();
-                    String courseTitle = course.getCurrentPublishedVersion() != null 
-                        ? course.getCurrentPublishedVersion().getTitle() 
-                        : "Khóa học của " + instName;
-                    for (org.swp.my_learning_path.entity.User student : students) {
-                        if (student.getEmail() != null) {
+                    String courseTitle = course.getCurrentPublishedVersion() != null ? course.getCurrentPublishedVersion().getTitle() : course.getTitle();
+                    
+                    // Lọc trùng học viên để tránh gửi nhiều email cho cùng 1 người nếu họ mua nhiều khóa
+                    java.util.Set<String> sentEmails = new java.util.HashSet<>();
+
+                    for (org.swp.my_learning_path.entity.Enrollment enrollment : enrollments) {
+                        org.swp.my_learning_path.entity.User student = enrollment.getStudent();
+                        if (student != null && student.getEmail() != null && !sentEmails.contains(student.getEmail())) {
+                            sentEmails.add(student.getEmail());
                             emailService.sendVoucherPromotionEmail(
                                 student.getEmail(),
                                 student.getFullName(),
