@@ -655,11 +655,28 @@
                     answersHtml += '</div>';
                 }
 
-                // Nút đóng câu hỏi (chỉ hiện khi ANSWERED)
-                var closeBtn = '';
-                if (q.status === 'ANSWERED') {
-                    closeBtn = '<button class="btn btn-sm btn-outline-secondary ms-2" onclick="closeQuestion(' + q.questionId + ')">' +
-                               '<i class="bi bi-check-circle me-1"></i>Đánh dấu đã hiểu</button>';
+                // Nút đóng câu hỏi (chỉ hiện khi ANSWERED) và Ô phản hồi nhanh cho học sinh nếu chưa CLOSED
+                var actionHtml = '';
+                if (q.status !== 'CLOSED') {
+                    var closeBtn = '';
+                    if (q.status === 'ANSWERED') {
+                        closeBtn = '<button class="btn btn-sm btn-outline-secondary me-2" onclick="closeQuestion(' + q.questionId + ')">' +
+                                   '<i class="bi bi-check-circle me-1"></i>Đánh dấu đã hiểu</button>';
+                    }
+                    
+                    actionHtml = 
+                        '<div class="mt-3">' +
+                        closeBtn +
+                        '<button class="btn btn-sm btn-light text-primary" onclick="toggleReplyBox(' + q.questionId + ')">' +
+                        '<i class="bi bi-reply-fill me-1"></i>Hỏi tiếp / Phản hồi' +
+                        '</button>' +
+                        '</div>' +
+                        '<div id="reply-box-' + q.questionId + '" style="display:none; margin-top:16px; background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px dashed var(--border-color);">' +
+                        '<input type="text" class="form-control qa-textarea mb-2" placeholder="Nhập thắc mắc tiếp theo của bạn..." id="reply-input-' + q.questionId + '">' +
+                        '<div class="text-end">' +
+                        '<button class="btn btn-sm btn-primary text-white" onclick="submitReply(' + q.questionId + ')">Gửi phản hồi</button>' +
+                        '</div>' +
+                        '</div>';
                 }
 
                 html +=
@@ -674,7 +691,7 @@
                     (q.title ? '<div class="fw-bold mt-2">' + q.title + '</div>' : '') +
                     '<div class="comment-text mt-1">' + q.content + '</div>' +
                     answersHtml +
-                    '<div class="mt-2">' + closeBtn + '</div>' +
+                    actionHtml +
                     '</div>';
             });
 
@@ -766,6 +783,28 @@
                     loadComments(currentLessonId);
                 } else {
                     r.text().then(function(msg) { toastr.error(msg || 'Gửi câu hỏi thất bại!'); });
+                }
+            }).catch(function() { toastr.error('Lỗi kết nối, vui lòng thử lại!'); });
+        }
+
+        function submitReply(questionId) {
+            var input = document.getElementById('reply-input-' + questionId);
+            var content = input ? input.value.trim() : '';
+            if (!content) { toastr.warning('Vui lòng nhập nội dung phản hồi!'); return; }
+            fetch('/api/qna/answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', [CSRF_HEADER]: CSRF_TOKEN },
+                body: JSON.stringify({
+                    questionId: questionId,
+                    content: content
+                })
+            }).then(function(r) {
+                if (r.ok) {
+                    input.value = '';
+                    toastr.success('Đã gửi phản hồi thành công!');
+                    loadComments(currentLessonId);
+                } else {
+                    r.text().then(function(msg) { toastr.error(msg || 'Gửi phản hồi thất bại!'); });
                 }
             }).catch(function() { toastr.error('Lỗi kết nối, vui lòng thử lại!'); });
         }
