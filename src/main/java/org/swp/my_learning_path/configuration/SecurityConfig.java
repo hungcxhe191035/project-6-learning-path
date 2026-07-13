@@ -63,7 +63,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**")
                         .hasRole("ADMIN")
                         // INSTRUCTOR routes: chỉ STUDENT mới cần nộp đơn, INSTRUCTOR xem trạng thái
-                        .requestMatchers("/instructor/courses/**").hasRole("INSTRUCTOR")
+                        .requestMatchers("/instructor/courses/**", "/instructor/course/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/instructor/vouchers/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/instructor/qna/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/instructor/apply").hasRole("STUDENT")

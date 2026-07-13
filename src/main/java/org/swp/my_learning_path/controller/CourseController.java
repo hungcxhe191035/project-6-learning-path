@@ -57,6 +57,16 @@ public class CourseController {
         return "pages/course-detail";
     }
 
+    @GetMapping({"/instructor/course/{courseId}", "/instructor/course/{courseId}/edit"})
+    public String redirectSingularEdit(@PathVariable Long courseId) {
+        return "redirect:/instructor/courses/" + courseId + "/edit";
+    }
+
+    @GetMapping("/instructor/course/{courseId}/preview")
+    public String redirectSingularPreview(@PathVariable Long courseId) {
+        return "redirect:/instructor/courses/" + courseId + "/preview";
+    }
+
     @GetMapping("/payment/{courseId}")
     public String paymentPage(@PathVariable Long courseId, Model model) {
         CourseDetailDTO course = courseService.getCourseDetail(courseId);

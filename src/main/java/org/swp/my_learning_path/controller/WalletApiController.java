@@ -105,7 +105,7 @@ public class WalletApiController {
             } else {
                 walletService.purchaseCart(userDetails.getUserId(), courseIds);
             }
-            return ResponseEntity.ok(Map.of("success", true, "redirect", "/my-learning-path"));
+            return ResponseEntity.ok(Map.of("success", true, "redirect", "/"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         }
