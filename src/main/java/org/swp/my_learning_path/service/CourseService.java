@@ -4,6 +4,7 @@ import org.swp.my_learning_path.dto.response.CourseDetailDTO;
 import java.util.List;
 public interface CourseService {
     List<CourseCardDTO> getTop5Courses(Long studentId);
+    List<CourseCardDTO> getTop5BestSellingCourses(Long studentId);
     List<CourseCardDTO> getCourses(Long studentId);
     CourseDetailDTO getCourseDetail(Long courseId); // Hàm mới thêm
     List<CourseCardDTO> searchCourses(String keyword, Long studentId, String sort, String priceRange); // Tìm kiếm khóa học

@@ -30,9 +30,13 @@ public class HomeController {
         
         model.addAttribute("username", username);
         model.addAttribute("pageTitle", "Trang chủ - My Learning Path");
-        // Lấy danh sách 5 khoá học
-        List<CourseCardDTO> courses = courseService.getTop5Courses(studentId);
-        model.addAttribute("courses", courses);
+        // Lấy danh sách 5 khoá học (Lĩnh vực đề xuất)
+        List<CourseCardDTO> recommendedCourses = courseService.getTop5Courses(studentId);
+        model.addAttribute("recommendedCourses", recommendedCourses);
+
+        // Lấy danh sách 5 khoá học bán chạy nhất
+        List<CourseCardDTO> bestSellingCourses = courseService.getTop5BestSellingCourses(studentId);
+        model.addAttribute("bestSellingCourses", bestSellingCourses);
         return "pages/home"; // → templates/pages/home.html
     }
 }
