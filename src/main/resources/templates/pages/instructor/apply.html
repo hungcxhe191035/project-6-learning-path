@@ -240,7 +240,7 @@
                                  th:style="${existingCvName != null} ? 'display: none;' : ''">
                                 <i class="bi bi-cloud-arrow-up upload-icon"></i>
                                 <h6 class="fw-bold mb-1">Nhấn để tải lên hoặc kéo thả file vào đây</h6>
-                                <p class="text-muted small mb-0">Hỗ trợ định dạng PDF, DOCX (Tối đa 10MB)</p>
+                                <p class="text-muted small mb-0">Hỗ trợ định dạng PDF (Tối đa 10MB)</p>
                             </div>
                             <input type="file" id="cvFile" name="cvFile" accept=".pdf" style="display: none;" onchange="handleCvSelect(this)">
 
@@ -518,7 +518,7 @@
         const isValidExt = allowedExtensions.some(ext => fileName.endsWith(ext));
 
         if (!isValidExt) {
-            alert('Định dạng file không hợp lệ. Vui lòng chọn file PDF hoặc DOC/DOCX.');
+            alert('Định dạng file không hợp lệ. Vui lòng chọn file PDF.');
             input.value = '';
             return;
         }
