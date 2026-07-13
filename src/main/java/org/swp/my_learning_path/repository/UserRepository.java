@@ -22,6 +22,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByRoleAndDeleteFlagFalse(ERole role);
 
+    java.util.List<User> findByRoleAndDeleteFlagFalse(ERole role);
+
     @Query("SELECT u FROM User u WHERE u.userId = :id AND u.deleteFlag = false")
     Optional<User> findByIdAndNotDeleted(@Param("id") Long id);
 

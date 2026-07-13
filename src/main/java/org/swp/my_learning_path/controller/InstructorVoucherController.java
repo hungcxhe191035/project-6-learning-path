@@ -23,6 +23,9 @@ public class InstructorVoucherController {
 
     private final VoucherService voucherService;
     private final CourseRepository courseRepository;
+    private final org.swp.my_learning_path.repository.UserRepository userRepository;
+    private final org.swp.my_learning_path.service.EmailService emailService;
+    private final org.swp.my_learning_path.repository.EnrollmentRepository enrollmentRepository;
 
     @GetMapping
     public String listVouchers(Model model) {
@@ -74,7 +77,40 @@ public class InstructorVoucherController {
                     .build();
 
             voucherService.createVoucher(voucher);
-            redirectAttributes.addFlashAttribute("successMessage", "Tạo mã giảm giá thành công!");
+            
+            // Gửi email marketing chạy ngầm (Asynchronous) tránh lag UI
+            new Thread(() -> {
+                try {
+                    // Lấy danh sách Enrollments của các học viên đã mua khóa học của Giảng viên này
+                    java.util.List<org.swp.my_learning_path.entity.Enrollment> enrollments = 
+                        enrollmentRepository.findEnrollmentsByInstructorAndCourse(userDetails.getUser().getUserId(), null);
+                    
+                    String instName = userDetails.getUser().getFullName();
+                    String courseTitle = course.getCurrentPublishedVersion() != null ? course.getCurrentPublishedVersion().getTitle() : course.getTitle();
+                    
+                    // Lọc trùng học viên để tránh gửi nhiều email cho cùng 1 người nếu họ mua nhiều khóa
+                    java.util.Set<String> sentEmails = new java.util.HashSet<>();
+
+                    for (org.swp.my_learning_path.entity.Enrollment enrollment : enrollments) {
+                        org.swp.my_learning_path.entity.User student = enrollment.getStudent();
+                        if (student != null && student.getEmail() != null && !sentEmails.contains(student.getEmail())) {
+                            sentEmails.add(student.getEmail());
+                            emailService.sendVoucherPromotionEmail(
+                                student.getEmail(),
+                                student.getFullName(),
+                                instName,
+                                courseTitle,
+                                voucher.getCode(),
+                                discountValue
+                            );
+                        }
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Lỗi gửi email quảng cáo voucher: " + ex.getMessage());
+                }
+            }).start();
+
+            redirectAttributes.addFlashAttribute("successMessage", "Tạo mã giảm giá thành công! Email quảng bá đã được gửi tới học viên.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi tạo voucher: " + e.getMessage());
         }

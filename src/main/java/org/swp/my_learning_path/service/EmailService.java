@@ -102,4 +102,44 @@ public class   EmailService {
             emailNotificationRepository.save(emailNotification);
         }
     }
+
+    @Transactional
+    public void sendVoucherPromotionEmail(String toEmail, String studentName, String instructorName, String courseTitle, String voucherCode, double discountValue) {
+        String subject = "Món quà đặc biệt từ Giảng viên " + instructorName + " - My Learning Path";
+        String content = "Xin chào " + studentName + ",\n\n"
+                + "Giảng viên " + instructorName + " vừa tạo một mã giảm giá đặc biệt cho khóa học mới của mình: \"" + courseTitle + "\".\n\n"
+                + "Nhập mã giảm giá sau tại trang thanh toán để được giảm ngay " + String.format("%,.0f", discountValue) + " đ:\n"
+                + "👉 MÃ GIẢM GIÁ: " + voucherCode + "\n\n"
+                + "Hãy nhanh tay đăng ký để tiếp tục con đường chinh phục kiến thức của bạn!\n\n"
+                + "Trân trọng,\nBan quản trị My Learning Path.";
+
+        User user = userRepository.findByEmail(toEmail).orElse(null);
+
+        EmailNotification emailNotification = EmailNotification.builder()
+                .user(user)
+                .recipientEmail(toEmail)
+                .subject(subject)
+                .content(content)
+                .status(EEmailStatus.PENDING)
+                .build();
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject(subject);
+            message.setText(content);
+            mailSender.send(message);
+
+            emailNotification.setStatus(EEmailStatus.SENT);
+            emailNotification.setSentAt(LocalDateTime.now());
+        } catch (Exception e) {
+            emailNotification.setStatus(EEmailStatus.FAILED);
+            emailNotification.setErrorMessage(e.getMessage());
+            emailNotification.setSentAt(LocalDateTime.now());
+            System.err.println("Gửi email marketing voucher thất bại: " + e.getMessage());
+        } finally {
+            emailNotificationRepository.save(emailNotification);
+        }
+    }
 }
