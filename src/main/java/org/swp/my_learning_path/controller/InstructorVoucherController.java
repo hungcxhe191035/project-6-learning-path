@@ -23,6 +23,8 @@ public class InstructorVoucherController {
 
     private final VoucherService voucherService;
     private final CourseRepository courseRepository;
+    private final org.swp.my_learning_path.repository.UserRepository userRepository;
+    private final org.swp.my_learning_path.service.EmailService emailService;
 
     @GetMapping
     public String listVouchers(Model model) {
@@ -74,7 +76,31 @@ public class InstructorVoucherController {
                     .build();
 
             voucherService.createVoucher(voucher);
-            redirectAttributes.addFlashAttribute("successMessage", "Tạo mã giảm giá thành công!");
+            
+            // Gửi email marketing chạy ngầm (Asynchronous) tránh lag UI
+            new Thread(() -> {
+                try {
+                    java.util.List<org.swp.my_learning_path.entity.User> students = userRepository.findByRoleAndDeleteFlagFalse(org.swp.my_learning_path.constant.ERole.STUDENT);
+                    String instName = userDetails.getUser().getFullName();
+                    String courseTitle = course.getCurrentPublishedVersion() != null ? course.getCurrentPublishedVersion().getTitle() : course.getTitle();
+                    for (org.swp.my_learning_path.entity.User student : students) {
+                        if (student.getEmail() != null) {
+                            emailService.sendVoucherPromotionEmail(
+                                student.getEmail(),
+                                student.getFullName(),
+                                instName,
+                                courseTitle,
+                                voucher.getCode(),
+                                discountValue
+                            );
+                        }
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Lỗi gửi email quảng cáo voucher: " + ex.getMessage());
+                }
+            }).start();
+
+            redirectAttributes.addFlashAttribute("successMessage", "Tạo mã giảm giá thành công! Email quảng bá đã được gửi tới học viên.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi tạo voucher: " + e.getMessage());
         }

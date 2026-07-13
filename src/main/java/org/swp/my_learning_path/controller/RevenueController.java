@@ -37,7 +37,7 @@ public class RevenueController {
         if ("ADMIN".equals(role)) {
             model.addAttribute("totalRevenue", revenueService.getAdminTotalRevenue());
             model.addAttribute("salesHistory", revenueService.getAdminSalesHistory());
-            // [MỚI] Truyền dữ liệu 12 tháng thật cho biểu đồ
+            // Truyền dữ liệu 12 tháng thật cho biểu đồ
             model.addAttribute("monthlyRevenue", revenueService.getAdminMonthlyRevenue(currentYear));
             model.addAttribute("isAdmin", true);
             return "pages/revenue";
@@ -45,7 +45,7 @@ public class RevenueController {
         } else if ("INSTRUCTOR".equals(role)) {
             model.addAttribute("totalRevenue", revenueService.getInstructorTotalRevenue(user.getUserId()));
             model.addAttribute("salesHistory", revenueService.getInstructorSalesHistory(user.getUserId()));
-            // [MỚI] Truyền dữ liệu 12 tháng thật cho biểu đồ
+            //Truyền dữ liệu 12 tháng thật cho biểu đồ
             model.addAttribute("monthlyRevenue", revenueService.getInstructorMonthlyRevenue(user.getUserId(), currentYear));
             model.addAttribute("isAdmin", false);
             return "pages/revenue";
