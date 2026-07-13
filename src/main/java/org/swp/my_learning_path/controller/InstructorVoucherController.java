@@ -86,7 +86,9 @@ public class InstructorVoucherController {
                         enrollmentRepository.findEnrollmentsByInstructorAndCourse(userDetails.getUser().getUserId(), null);
                     
                     String instName = userDetails.getUser().getFullName();
-                    String courseTitle = course.getCurrentPublishedVersion() != null ? course.getCurrentPublishedVersion().getTitle() : course.getTitle();
+                    String courseTitle = course.getCurrentPublishedVersion() != null 
+                        ? course.getCurrentPublishedVersion().getTitle() 
+                        : "Khóa học của " + instName;
                     
                     // Lọc trùng học viên để tránh gửi nhiều email cho cùng 1 người nếu họ mua nhiều khóa
                     java.util.Set<String> sentEmails = new java.util.HashSet<>();
