@@ -43,4 +43,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
            "ORDER BY c.createdAt DESC")
     List<Course> searchByKeyword(@Param("keyword") String keyword,
                                  @Param("status") ECourseStatus status);
+
+    @Query("SELECT c FROM Course c WHERE c.deleteFlag = false AND (c.isBlocked = false OR c.isBlocked IS NULL) AND c.currentPublishedVersion.status = :status ORDER BY c.totalStudents DESC")
+    List<Course> findTop5BestSelling(
+            @Param("status") ECourseStatus status,
+            org.springframework.data.domain.Pageable pageable
+    );
 }

@@ -2,6 +2,7 @@
 <html lang="vi"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/main-layout}">
 
 <head>
@@ -59,8 +60,33 @@
 
         /* ===== COURSES SECTION ===== */
         .courses-section {
-            padding: 52px 0 60px;
+            padding: 40px 0 48px;
             background: white;
+        }
+        .courses-section + .courses-section {
+            padding-top: 40px;
+            border-top: 2px solid #f3f4f6;
+        }
+        /* Tiêu đề section đồng nhất */
+        .section-heading {
+            font-family: inherit;
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        .section-desc {
+            font-size: 0.88rem;
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+        /* Badge riêng cho bán chạy */
+        .badge-top-seller {
+            background: #fde68a; color: #78350f;
+            border: 1px solid #fbbf24;
+            border-radius: 4px; font-size: 0.68rem;
+            font-weight: 700; padding: 2px 7px;
         }
         .course-card {
             border: 1px solid #e5e7eb;
@@ -227,24 +253,18 @@
         <img th:src="@{/image/logo.png}" alt="" class="hero-logo-bg">
     </section>
 
-    <!-- ===== KHOÁ HỌC ===== -->
-    <section class="courses-section">
+    <!-- ===== KHOÁ HỌC ĐỀ XUẤT ===== -->
+    <section class="courses-section pb-0">
         <div class="container">
-            <h2 class="section-title">Lĩnh vực sẽ học tiếp theo</h2>
-            <p class="section-sub">Được đề xuất cho bạn</p>
+            <h2 class="section-heading">Lĩnh vực đề xuất</h2>
+            <p class="section-desc">Dành riêng cho bạn</p>
 
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
-                <div class="col" th:each="course : ${courses}">
-
+                <div class="col" th:each="course : ${recommendedCourses}">
                     <div class="course-card" style="cursor: pointer;" th:onclick="|window.location.href='@{/course/{id}(id=${course.courseId})}'|">
-
                         <div class="thumb-wrap">
-                            <img th:if="${course.thumbnailUrl != null}"
-                                 th:src="${course.thumbnailUrl}"
-                                 th:alt="${course.title}"
-                                 class="course-thumbnail">
-                            <div th:unless="${course.thumbnailUrl != null}"
-                                 class="course-thumbnail-placeholder">
+                            <img th:if="${course.thumbnailUrl != null}" th:src="${course.thumbnailUrl}" th:alt="${course.title}" class="course-thumbnail">
+                            <div th:unless="${course.thumbnailUrl != null}" class="course-thumbnail-placeholder">
                                 <i class="bi bi-play-circle-fill"></i>
                             </div>
                         </div>
@@ -268,34 +288,84 @@
                                 <span class="badge-hot" th:if="${!course.isEnrolled}">Bán chạy 🔥</span>
                             </div>
 
-                            <!-- StopPropagation để chặn việc bấm giỏ hàng bị nhảy sang trang View khoá học -->
                             <div class="mt-3" onclick="event.stopPropagation()">
-
                                 <div class="d-flex gap-2 w-100" th:if="${course.isEnrolled}">
                                     <button class="btn btn-success w-100 fw-bold" th:onclick="|window.location.href='@{/course/{id}(id=${course.courseId})}'|">
                                         <i class="bi bi-play-circle me-1"></i> Vào học ngay
                                     </button>
-                                    <button sec:authorize="isAuthenticated()" class="btn btn-outline-secondary save-course-btn"
-                                            th:data-course-id="${course.courseId}"
-                                            title="Lưu khóa học">
+                                    <button sec:authorize="isAuthenticated()" class="btn btn-outline-secondary save-course-btn" th:data-course-id="${course.courseId}" title="Lưu khóa học">
                                         <i class="bi bi-bookmark"></i>
                                     </button>
                                 </div>
-
                                 <div class="d-flex gap-2 w-100" th:unless="${course.isEnrolled}">
-                                    <button class="btn btn-outline-primary add-cart-btn flex-grow-1"
-                                            th:data-course-id="${course.courseId}"
-                                            title="Thêm vào giỏ hàng">
+                                    <button class="btn btn-outline-primary add-cart-btn flex-grow-1" th:data-course-id="${course.courseId}" title="Thêm vào giỏ hàng">
                                         <i class="bi bi-cart-plus"></i>
                                     </button>
-                                    <button sec:authorize="isAuthenticated()" class="btn btn-outline-secondary save-course-btn"
-                                            th:data-course-id="${course.courseId}"
-                                            title="Lưu khóa học">
+                                    <button sec:authorize="isAuthenticated()" class="btn btn-outline-secondary save-course-btn" th:data-course-id="${course.courseId}" title="Lưu khóa học">
                                         <i class="bi bi-bookmark"></i>
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
+    <!-- ===== KHOÁ HỌC BÁN CHẠY NHẤT ===== -->
+    <section class="courses-section">
+        <div class="container">
+            <h2 class="section-heading">Khoá học bán chạy nhất</h2>
+            <p class="section-desc">Được nhiều người học quan tâm nhất</p>
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
+                <div class="col" th:each="course : ${bestSellingCourses}">
+                    <div class="course-card" style="cursor: pointer;" th:onclick="|window.location.href='@{/course/{id}(id=${course.courseId})}'|">
+                        <div class="thumb-wrap">
+                            <img th:if="${course.thumbnailUrl != null}" th:src="${course.thumbnailUrl}" th:alt="${course.title}" class="course-thumbnail">
+                            <div th:unless="${course.thumbnailUrl != null}" class="course-thumbnail-placeholder">
+                                <i class="bi bi-play-circle-fill"></i>
+                            </div>
+                        </div>
+
+                        <div class="course-body">
+                            <div class="course-title" th:text="${course.title}">Tên khoá học</div>
+                            <div class="course-instructor" th:text="${course.instructorName}">Giảng viên</div>
+
+                            <div class="star-row">
+                                <span class="star-score" th:text="${#numbers.formatDecimal(course.averageRating,1,1)}">4.8</span>
+                                <span class="stars">
+                                    <th:block th:with="r=${course.averageRating.intValue()}">
+                                        <i th:each="i : ${#numbers.sequence(1,5)}" th:class="${i<=r}?'bi bi-star-fill':'bi bi-star'"></i>
+                                    </th:block>
+                                </span>
+                                <span class="star-count" th:text="'('+${#numbers.formatInteger(course.totalReviews,1,'COMMA')}+')'">(1,250)</span>
+                            </div>
+
+                            <div class="price-row mt-2">
+                                <span class="course-price" th:text="${#numbers.formatInteger(course.price,1,'COMMA')}+' ₫'">259.000 ₫</span>
+                                <span class="badge-hot">TOP SELLER 🚀</span>
+                            </div>
+
+                            <div class="mt-3" onclick="event.stopPropagation()">
+                                <div class="d-flex gap-2 w-100" th:if="${course.isEnrolled}">
+                                    <button class="btn btn-success w-100 fw-bold" th:onclick="|window.location.href='@{/course/{id}(id=${course.courseId})}'|">
+                                        <i class="bi bi-play-circle me-1"></i> Vào học ngay
+                                    </button>
+                                    <button sec:authorize="isAuthenticated()" class="btn btn-outline-secondary save-course-btn" th:data-course-id="${course.courseId}" title="Lưu khóa học">
+                                        <i class="bi bi-bookmark"></i>
+                                    </button>
+                                </div>
+                                <div class="d-flex gap-2 w-100" th:unless="${course.isEnrolled}">
+                                    <button class="btn btn-outline-primary add-cart-btn flex-grow-1" th:data-course-id="${course.courseId}" title="Thêm vào giỏ hàng">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+                                    <button sec:authorize="isAuthenticated()" class="btn btn-outline-secondary save-course-btn" th:data-course-id="${course.courseId}" title="Lưu khóa học">
+                                        <i class="bi bi-bookmark"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

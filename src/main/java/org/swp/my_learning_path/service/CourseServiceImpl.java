@@ -57,6 +57,19 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<CourseCardDTO> getTop5BestSellingCourses(Long studentId) {
+        List<Course> courses = courseRepository.findTop5BestSelling(
+                ECourseStatus.APPROVED,
+                org.springframework.data.domain.PageRequest.of(0, 5)
+        );
+
+        return courses.stream()
+                .map(course -> chuyenDoiSangDTO(course, studentId))
+                .toList();
+    }
+
+    @Override
     public List<CourseCardDTO> getCourses(Long studentId) {
         // Lấy danh sách khoá học đã duyệt, không bị xoá
         List<Course> courses = courseRepository
