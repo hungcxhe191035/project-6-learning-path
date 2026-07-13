@@ -1,4 +1,23 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // SweetAlert2 Toast Helper
+    const Toast = typeof Swal !== 'undefined' ? Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+    }) : null;
+
+    const showSuccessToast = (msg) => {
+        if (Toast) Toast.fire({ icon: 'success', title: msg });
+        else alert(msg);
+    };
+
+    const showErrorToast = (msg) => {
+        if (Toast) Toast.fire({ icon: 'error', title: msg });
+        else alert(msg);
+    };
+
     const btnAddSection = document.getElementById("btnAddSection");
     const curriculumAccordion = document.getElementById("curriculumAccordion");
     const emptyState = document.getElementById("emptyCurriculumState");
@@ -9,6 +28,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const lessonModalElement = document.getElementById('lessonModal');
     const lessonModal = lessonModalElement ? new bootstrap.Modal(lessonModalElement) : null;
     const btnConfirmAddLesson = document.getElementById('btnConfirmAddLesson');
+
+    const sectionModalElement = document.getElementById('sectionModal');
+    const sectionModal = sectionModalElement ? new bootstrap.Modal(sectionModalElement) : null;
+    const btnConfirmSection = document.getElementById('btnConfirmSection');
 
     const btnSaveLessonContent = document.getElementById('btnSaveLessonContent');
     const btnCloseEditor = document.getElementById('btnCloseEditor');
@@ -176,13 +199,60 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function resetEditorIfLessonDeleted(deletedLessonId = null, deletedSectionNode = null) {
+        const editLessonIdInput = document.getElementById('editLessonId');
+        if (!editLessonIdInput) return;
+        const currentEditLessonId = editLessonIdInput.value;
+        if (!currentEditLessonId) return;
+
+        let shouldReset = false;
+        if (deletedLessonId && currentEditLessonId == deletedLessonId) {
+            shouldReset = true;
+        } else if (deletedSectionNode) {
+            const lessonInside = deletedSectionNode.querySelector(`.lesson-item[data-lesson-id="${currentEditLessonId}"]`);
+            if (lessonInside) shouldReset = true;
+        }
+
+        if (shouldReset) {
+            const lessonEditorPanel = document.getElementById('lessonEditorPanel');
+            const editorEmptyState = document.getElementById('editorEmptyState');
+            if (lessonEditorPanel) lessonEditorPanel.classList.add('d-none');
+            if (editorEmptyState) editorEmptyState.classList.remove('d-none');
+            editLessonIdInput.value = "";
+            const editLessonType = document.getElementById('editLessonType');
+            if (editLessonType) editLessonType.value = "";
+        }
+    }
+
     function attachLessonEvents(lessonNode, lessonId) {
         lessonNode.querySelector('.btn-delete-lesson').addEventListener('click', function() {
-            if(!confirm("Bạn có chắc muốn xóa bài giảng này không?")) return;
-            fetch(`/api/instructor/lessons/${lessonId}`, {
-                method: "DELETE",
-                headers: getHeaders()
-            }).then(() => lessonNode.remove());
+            const doDelete = () => {
+                fetch(`/api/instructor/lessons/${lessonId}`, {
+                    method: "DELETE",
+                    headers: getHeaders()
+                }).then(() => {
+                    resetEditorIfLessonDeleted(lessonId, null);
+                    lessonNode.remove();
+                    showSuccessToast("Đã xóa bài giảng!");
+                }).catch(() => showErrorToast("Lỗi khi xóa bài giảng!"));
+            };
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Xóa bài giảng?',
+                    text: 'Hành động này không thể hoàn tác!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Xóa bài giảng',
+                    cancelButtonText: 'Hủy'
+                }).then((res) => {
+                    if (res.isConfirmed) doDelete();
+                });
+            } else {
+                if (confirm("Bạn có chắc muốn xóa bài giảng này không?")) doDelete();
+            }
         });
 
         lessonNode.querySelector('.btn-edit-lesson').addEventListener('click', function() {
@@ -261,20 +331,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function attachSectionEvents(sectionNode, sectionId) {
         sectionNode.querySelector('.btn-delete-section').addEventListener('click', function() {
-            if(!confirm("Bạn có chắc muốn xóa Chương này không?")) return;
-            fetch(`/api/instructor/sections/${sectionId}`, { method: "DELETE", headers: getHeaders() })
-                .then(() => {
-                    sectionNode.remove();
-                    if (document.querySelectorAll(".section-item").length === 0 && emptyState) emptyState.style.display = "block";
+            const doDelete = () => {
+                fetch(`/api/instructor/sections/${sectionId}`, { method: "DELETE", headers: getHeaders() })
+                    .then(() => {
+                        resetEditorIfLessonDeleted(null, sectionNode);
+                        sectionNode.remove();
+                        if (document.querySelectorAll(".section-item").length === 0 && emptyState) emptyState.style.display = "block";
+                        showSuccessToast("Đã xóa chương!");
+                    }).catch(() => showErrorToast("Lỗi khi xóa chương!"));
+            };
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Xóa chương này?',
+                    text: 'Toàn bộ bài giảng trong chương cũng sẽ bị ảnh hưởng!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Xóa chương',
+                    cancelButtonText: 'Hủy'
+                }).then((res) => {
+                    if (res.isConfirmed) doDelete();
                 });
+            } else {
+                if(confirm("Bạn có chắc muốn xóa Chương này không?")) doDelete();
+            }
         });
 
         sectionNode.querySelector('.btn-edit-section').addEventListener('click', function() {
+            if(!sectionModal) return;
             const currentTitle = sectionNode.querySelector('.section-title').textContent;
-            const newTitle = prompt("Nhập Tên mới cho Chương:", currentTitle);
-            if(!newTitle) return;
-            fetch(`/api/instructor/sections/${sectionId}`, { method: "PUT", headers: getHeaders(), body: JSON.stringify({ title: newTitle, displayOrder: 1 }) })
-                .then(() => sectionNode.querySelector('.section-title').textContent = newTitle);
+            document.getElementById('modalEditSectionId').value = sectionId;
+            document.getElementById('modalSectionTitle').value = currentTitle;
+            document.getElementById('sectionModalTitle').textContent = "Chỉnh Sửa Tên Chương";
+            sectionModal.show();
         });
 
         sectionNode.querySelector('.btn-add-lesson').addEventListener('click', function() {
@@ -288,12 +379,54 @@ document.addEventListener("DOMContentLoaded", function () {
         sectionNode.querySelectorAll('.lesson-item').forEach(lessonItem => attachLessonEvents(lessonItem, lessonItem.dataset.lessonId));
     }
 
+    if(btnConfirmSection) {
+        btnConfirmSection.addEventListener("click", function() {
+            const editSectionId = document.getElementById('modalEditSectionId').value;
+            const title = document.getElementById('modalSectionTitle').value.trim();
+            if(!title) return showErrorToast("Vui lòng nhập tên chương!");
+
+            if(editSectionId) {
+                // Sửa tên chương cũ (PUT)
+                fetch(`/api/instructor/sections/${editSectionId}`, {
+                    method: "PUT", headers: getHeaders(),
+                    body: JSON.stringify({ title: title, displayOrder: 1 })
+                }).then(() => {
+                    const sectionNode = document.querySelector(`.section-item[data-section-id="${editSectionId}"]`);
+                    if(sectionNode) {
+                        sectionNode.querySelector('.section-title').textContent = title;
+                    }
+                    sectionModal.hide();
+                    showSuccessToast("Đã cập nhật tên chương!");
+                }).catch(err => showErrorToast("Lỗi cập nhật tên chương!"));
+            } else {
+                // Tạo chương mới (POST)
+                fetch(`/api/instructor/courses/${courseId}/sections`, {
+                    method: "POST", headers: getHeaders(),
+                    body: JSON.stringify({ title: title, displayOrder: document.querySelectorAll(".section-item").length + 1 })
+                }).then(res => res.json()).then(data => {
+                    if (emptyState) emptyState.style.display = "none";
+                    const newSectionNode = sectionTemplate.content.cloneNode(true);
+                    const sectionItem = newSectionNode.querySelector('.section-item');
+                    sectionItem.dataset.sectionId = data.sectionId;
+                    newSectionNode.querySelector('.section-title').textContent = title;
+                    newSectionNode.querySelector('.accordion-header').id = `heading-${data.sectionId}`;
+                    newSectionNode.querySelector('.accordion-collapse').id = `collapse-${data.sectionId}`;
+                    newSectionNode.querySelector('.accordion-button').dataset.bsTarget = `#collapse-${data.sectionId}`;
+                    attachSectionEvents(sectionItem, data.sectionId);
+                    curriculumAccordion.appendChild(newSectionNode);
+                    sectionModal.hide();
+                    showSuccessToast("Tạo chương mới thành công!");
+                }).catch(err => showErrorToast("Lỗi tạo chương mới!"));
+            }
+        });
+    }
+
     if(btnConfirmAddLesson) {
         btnConfirmAddLesson.addEventListener("click", function() {
             const sectionId = document.getElementById('modalTargetSectionId').value;
             const lessonTitle = document.getElementById('modalLessonTitle').value.trim();
             const lessonType = document.getElementById('modalLessonType').value;
-            if(!lessonTitle) return alert("Vui lòng nhập tên bài giảng!");
+            if(!lessonTitle) return showErrorToast("Vui lòng nhập tên bài giảng!");
 
             const sectionNode = document.querySelector(`.section-item[data-section-id="${sectionId}"]`);
             const lessonList = sectionNode.querySelector('.lesson-list');
@@ -314,7 +447,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 attachLessonEvents(lessonItem, lessonData.lessonId);
                 lessonList.appendChild(newLessonNode);
                 lessonModal.hide();
-            }).catch(err => alert("Lỗi tạo bài giảng!"));
+                showSuccessToast("Tạo bài giảng thành công!");
+            }).catch(err => showErrorToast("Lỗi tạo bài giảng!"));
         });
     }
 
@@ -322,74 +456,109 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (btnAddSection) {
         btnAddSection.addEventListener("click", function () {
-            const title = prompt("Nhập Tên Chương mới:");
-            if (!title) return;
-            fetch(`/api/instructor/courses/${courseId}/sections`, {
-                method: "POST", headers: getHeaders(),
-                body: JSON.stringify({ title: title, displayOrder: document.querySelectorAll(".section-item").length + 1 })
-            }).then(res => res.json()).then(data => {
-                if (emptyState) emptyState.style.display = "none";
-                const newSectionNode = sectionTemplate.content.cloneNode(true);
-                const sectionItem = newSectionNode.querySelector('.section-item');
-                sectionItem.dataset.sectionId = data.sectionId;
-                newSectionNode.querySelector('.section-title').textContent = title;
-                newSectionNode.querySelector('.accordion-header').id = `heading-${data.sectionId}`;
-                newSectionNode.querySelector('.accordion-collapse').id = `collapse-${data.sectionId}`;
-                newSectionNode.querySelector('.accordion-button').dataset.bsTarget = `#collapse-${data.sectionId}`;
-                attachSectionEvents(sectionItem, data.sectionId);
-                curriculumAccordion.appendChild(newSectionNode);
-            });
+            if(!sectionModal) return;
+            document.getElementById('modalEditSectionId').value = "";
+            document.getElementById('modalSectionTitle').value = "";
+            document.getElementById('sectionModalTitle').textContent = "Thêm Chương Mới";
+            sectionModal.show();
         });
     }
 
-    const videoFileInput = document.getElementById('videoFileInput');
-    if(videoFileInput) {
-        videoFileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if(!file) return;
+    function handleVideoUpload(file) {
+        if (!file) return;
+        const lessonId = document.getElementById('editLessonId').value;
+        if (!lessonId) {
+            showErrorToast("Vui lòng chọn bài giảng ở cột trái trước khi tải video!");
+            return;
+        }
 
-            const lessonId = document.getElementById('editLessonId').value;
-            const formData = new FormData();
-            formData.append("file", file);
+        const formData = new FormData();
+        formData.append("file", file);
 
-            document.getElementById('videoProgressBarContainer').classList.remove('d-none');
-            const progressBar = document.getElementById('videoProgressBar');
+        const progressBarContainer = document.getElementById('videoProgressBarContainer');
+        if (progressBarContainer) progressBarContainer.classList.remove('d-none');
+        
+        const progressBar = document.getElementById('videoProgressBar');
+        if (progressBar) {
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+        }
 
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", `/api/instructor/lessons/${lessonId}/video`, true);
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `/api/instructor/lessons/${lessonId}/video`, true);
 
-            const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
-            const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
-            if (csrfTokenMeta && csrfHeaderMeta) {
-                xhr.setRequestHeader(csrfHeaderMeta.content, csrfTokenMeta.content);
+        const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
+        const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+        if (csrfTokenMeta && csrfHeaderMeta) {
+            xhr.setRequestHeader(csrfHeaderMeta.content, csrfTokenMeta.content);
+        }
+
+        xhr.upload.onprogress = function(event) {
+            if (event.lengthComputable && progressBar) {
+                const percentComplete = Math.round((event.loaded / event.total) * 100);
+                progressBar.style.width = percentComplete + '%';
+                progressBar.textContent = percentComplete + '%';
             }
+        };
 
-            xhr.upload.onprogress = function(event) {
-                if (event.lengthComputable) {
-                    const percentComplete = Math.round((event.loaded / event.total) * 100);
-                    progressBar.style.width = percentComplete + '%';
-                    progressBar.textContent = percentComplete + '%';
-                }
-            };
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                showSuccessToast("Tải video lên S3 thành công!");
 
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    alert("Tải video lên S3 thành công!");
-
-                    const lessonItem = document.querySelector(`.lesson-item[data-lesson-id="${lessonId}"]`);
-                    if(lessonItem) {
-                        const badge = lessonItem.querySelector('.lesson-type-badge');
+                const lessonItem = document.querySelector(`.lesson-item[data-lesson-id="${lessonId}"]`);
+                if (lessonItem) {
+                    const badge = lessonItem.querySelector('.lesson-type-badge');
+                    if (badge) {
                         badge.classList.remove('bg-secondary-subtle', 'text-secondary');
                         badge.classList.add('bg-success-subtle', 'text-success', 'fw-bold');
                         badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>ĐÃ CÓ VIDEO';
                     }
-                } else {
-                    alert("Lỗi tải video: " + xhr.responseText);
                 }
-            };
+            } else {
+                showErrorToast("Lỗi tải video: " + xhr.responseText);
+            }
+        };
 
-            xhr.send(formData);
+        xhr.send(formData);
+    }
+
+    const videoFileInput = document.getElementById('videoFileInput');
+    if (videoFileInput) {
+        videoFileInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                handleVideoUpload(e.target.files[0]);
+            }
         });
+    }
+
+    const videoDropzone = document.getElementById('videoDropzone');
+    if (videoDropzone) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            videoDropzone.addEventListener(eventName, function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            videoDropzone.addEventListener(eventName, function() {
+                videoDropzone.classList.add('border-primary', 'bg-light');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            videoDropzone.addEventListener(eventName, function() {
+                videoDropzone.classList.remove('border-primary', 'bg-light');
+            }, false);
+        });
+
+        videoDropzone.addEventListener('drop', function(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files.length > 0) {
+                handleVideoUpload(files[0]);
+            }
+        }, false);
     }
 
     if(btnSaveLessonContent) {
@@ -406,7 +575,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     body: JSON.stringify({ content: htmlContent })
                 }).then(res => {
                     if(!res.ok) throw new Error("Lỗi lưu bài viết");
-                    alert("Lưu bài viết thành công rực rỡ!");
+                    showSuccessToast("Lưu bài viết thành công!");
 
                     const lessonItem = document.querySelector(`.lesson-item[data-lesson-id="${lessonId}"]`);
                     if(lessonItem) {
@@ -417,7 +586,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }).catch(err => {
                     console.error(err);
-                    alert("Lỗi khi lưu bài viết!");
+                    showErrorToast("Lỗi khi lưu bài viết!");
                 });
             } else if (lessonType.includes('QUIZ') || lessonType.includes('VIDEO')) {
                 const payload = [];
@@ -453,7 +622,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     body: JSON.stringify(payload)
                 }).then(res => {
                     if(!res.ok) throw new Error("Lỗi lưu trắc nghiệm");
-                    alert(lessonType.includes('VIDEO') ? "Lưu video và câu hỏi tương tác thành công!" : "Lưu trắc nghiệm thành công rực rỡ!");
+                    showSuccessToast(lessonType.includes('VIDEO') ? "Lưu video và câu hỏi tương tác thành công!" : "Lưu trắc nghiệm thành công!");
                     
                     const lessonItem = document.querySelector(`.lesson-item[data-lesson-id="${lessonId}"]`);
                     if(lessonItem) {
@@ -464,7 +633,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }).catch(err => {
                     console.error(err);
-                    alert("Lỗi khi lưu trắc nghiệm!");
+                    showErrorToast("Lỗi khi lưu trắc nghiệm!");
                 });
             }
         });

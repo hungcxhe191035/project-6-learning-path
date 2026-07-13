@@ -234,11 +234,11 @@
                                                 <div class="alert alert-info border-info bg-info-subtle text-info-emphasis rounded-4">
                                                     <i class="bi bi-info-circle-fill me-2"></i> Định dạng hỗ trợ: MP4. Dung lượng tối đa: 500MB.
                                                 </div>
-                                                <div class="mb-4 text-center border border-2 border-dashed rounded-4 p-4 upload-area" id="videoDropzone">
+                                                <div class="mb-4 text-center border border-2 border-dashed rounded-4 p-4 upload-area cursor-pointer" id="videoDropzone" style="cursor: pointer;" onclick="document.getElementById('videoFileInput').click()">
                                                     <i class="bi bi-cloud-arrow-up display-3 text-secondary mb-2"></i>
                                                     <h6 class="text-secondary fw-bold">Kéo thả hoặc nhấn vào đây để tải file Video</h6>
                                                     <input type="file" id="videoFileInput" accept="video/mp4,video/webm" class="d-none">
-                                                    <button type="button" class="btn btn-primary btn-sm mt-3 px-4 rounded-pill shadow-sm" onclick="document.getElementById('videoFileInput').click()">
+                                                    <button type="button" class="btn btn-primary btn-sm mt-3 px-4 rounded-pill shadow-sm" onclick="event.stopPropagation(); document.getElementById('videoFileInput').click()">
                                                         <i class="bi bi-folder2-open me-2"></i>Chọn File
                                                     </button>
                                                 </div>
@@ -378,6 +378,29 @@
         </div>
     </template>
 
+    <!-- ================= MODAL THÊM / SỬA CHƯƠNG ================= -->
+    <div class="modal fade" id="sectionModal" tabindex="-1" aria-labelledby="sectionModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow border-0">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="sectionModalTitle">Thêm Chương Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <input type="hidden" id="modalEditSectionId">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Tên chương <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg rounded-3" id="modalSectionTitle" placeholder="Vd: Chương 1: Giới thiệu tổng quan..." onkeypress="if(event.key === 'Enter') document.getElementById('btnConfirmSection').click()">
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnConfirmSection">Lưu Chương</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= MODAL THÊM BÀI GIẢNG VÀO CHƯƠNG ================= -->
     <div class="modal fade" id="lessonModal" tabindex="-1" aria-labelledby="lessonModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -411,7 +434,8 @@
 
     <!-- ĐÃ XÓA MODAL LESSON CONTENT ĐỂ DÙNG STUDIO LAYOUT -->
 
-    <!-- Nhúng Javascript và Thư viện CKEditor 5 -->
+    <!-- Nhúng Javascript, SweetAlert2 và Thư viện CKEditor 5 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
     <script th:src="@{/js/course-wizard.js}"></script>
     <script th:src="@{/js/curriculum.js}"></script>

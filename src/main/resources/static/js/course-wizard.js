@@ -13,6 +13,25 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     };
 
+    // SweetAlert2 Toast Helper
+    const Toast = typeof Swal !== 'undefined' ? Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+    }) : null;
+
+    const showSuccessToast = (msg) => {
+        if (Toast) Toast.fire({ icon: 'success', title: msg });
+        else alert(msg);
+    };
+
+    const showErrorToast = (msg) => {
+        if (Toast) Toast.fire({ icon: 'error', title: msg });
+        else alert(msg);
+    };
+
     //xử lý nút lưu ở tab 1 lúc tạo khóa học
     basicInfoForm.addEventListener("submit", function (e) {
         e.preventDefault(); // Ngăn trình duyệt tải lại trang khi bấm form
@@ -52,14 +71,15 @@ document.addEventListener("DOMContentLoaded", function () {
                         body: JSON.stringify(formData) // Gửi full mọi thứ bạn gõ trên form
                     }).then(res2 => {
                         if (!res2.ok) throw new Error("Lỗi khi cất thêm thông tin phụ");
-                        // Lưu thành công cả 2 nhịp rồi mới chuyển trang!
-                        alert("Tạo khóa học thành công! Hệ thống sẽ chuyển sang chế độ chỉnh sửa.");
-                        window.location.href = `/instructor/courses/${data.courseId}/edit`;
+                        showSuccessToast("Tạo khóa học thành công!");
+                        setTimeout(() => {
+                            window.location.href = `/instructor/courses/${data.courseId}/edit`;
+                        }, 1000);
                     });
                 })
                 .catch(error => {
                     console.error(error);
-                    alert("Có lỗi xảy ra khi tạo khóa học!");
+                    showErrorToast("Có lỗi xảy ra khi tạo khóa học!");
                 });
 
         } else {
@@ -74,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     return res.text();
                 })
                 .then(message => {
-                    alert("Đã lưu thông tin khóa học!");
+                    showSuccessToast("Đã lưu thông tin khóa học!");
 
                     const curriculumTabBtn = document.getElementById("curriculum-tab");
                     curriculumTabBtn.disabled = false;
@@ -84,13 +104,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .catch(error => {
                     console.error(error);
-                    alert("Có lỗi xảy ra khi lưu khóa học!");
+                    showErrorToast("Có lỗi xảy ra khi lưu khóa học!");
                 });
         }
     });
 
     // Logic cho nút Upload Ảnh (Phase 8)
-    const uploadArea = document.querySelector(".upload-area");
+    const uploadArea = document.querySelector(".cinematic-upload-area");
     const thumbnailUploadInput = document.getElementById("thumbnailUploadInput");
     const thumbnailFileIdInput = document.getElementById("thumbnailFileId");
     const thumbnailPreviewContainer = document.getElementById("thumbnailPreviewContainer");
@@ -134,10 +154,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 
                 thumbnailUploadPrompt.style.display = "none";
                 thumbnailPreviewContainer.style.display = "block";
+                showSuccessToast("Tải ảnh bìa thành công!");
             })
             .catch(err => {
                 console.error(err);
-                alert("Tải ảnh thất bại! Vui lòng thử lại.");
+                showErrorToast("Tải ảnh thất bại! Vui lòng thử lại.");
             })
             .finally(() => {
                 // Khôi phục giao diện
@@ -154,32 +175,68 @@ document.addEventListener("DOMContentLoaded", function () {
         btnPublishCourse.addEventListener("click", function() {
             const courseId = courseIdInput.value;
             if (!courseId) {
-                return alert("Vui lòng hoàn thành Thông tin cơ bản trước khi xuất bản!");
+                return showErrorToast("Vui lòng hoàn thành Thông tin cơ bản trước khi xuất bản!");
             }
 
-            if (confirm("Bạn có chắc chắn muốn Xuất bản khóa học này không? Khóa học sẽ được hiển thị ngay lập tức cho học viên!")) {
-                const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
-                const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
-                const headers = {};
-                if (csrfTokenMeta && csrfHeaderMeta) headers[csrfHeaderMeta.content] = csrfTokenMeta.content;
-
-                fetch(`/api/instructor/courses/${courseId}/publish`, {
-                    method: 'PUT',
-                    headers: headers
-                })
-                .then(res => {
-                    if (!res.ok) return res.text().then(text => { throw new Error(text) });
-                    return res.text();
-                })
-                .then(msg => {
-                    alert(msg);
-                    window.location.href = '/instructor/courses'; // Đá về danh sách khóa học
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert(err.message || "Có lỗi xảy ra khi xuất bản khóa học! Vui lòng kiểm tra lại nội dung.");
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Xuất bản khóa học?',
+                    text: 'Khóa học sẽ lập tức hiển thị công khai cho học viên!',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#198754',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="bi bi-send-fill me-1"></i> Xuất bản ngay',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        doPublishCourse(courseId);
+                    }
                 });
+            } else {
+                if (confirm("Bạn có chắc chắn muốn Xuất bản khóa học này không?")) {
+                    doPublishCourse(courseId);
+                }
             }
         });
+
+        function doPublishCourse(courseId) {
+            const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
+            const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+            const headers = {};
+            if (csrfTokenMeta && csrfHeaderMeta) headers[csrfHeaderMeta.content] = csrfTokenMeta.content;
+
+            fetch(`/api/instructor/courses/${courseId}/publish`, {
+                method: 'PUT',
+                headers: headers
+            })
+            .then(res => {
+                if (!res.ok) return res.text().then(text => { throw new Error(text) });
+                return res.text();
+            })
+            .then(msg => {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Thành công!',
+                        text: msg,
+                        icon: 'success',
+                        confirmButtonColor: '#198754'
+                    }).then(() => {
+                        window.location.href = '/instructor/courses';
+                    });
+                } else {
+                    alert(msg);
+                    window.location.href = '/instructor/courses';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire('Lỗi xuất bản!', err.message || "Có lỗi xảy ra khi xuất bản khóa học!", 'error');
+                } else {
+                    alert(err.message || "Có lỗi xảy ra khi xuất bản khóa học!");
+                }
+            });
+        }
     }
 });
