@@ -23,6 +23,8 @@ public class InstructorCourseService {
     private final org.swp.my_learning_path.repository.AppFileRepository appFileRepository;
     private final org.swp.my_learning_path.repository.TagRepository tagRepository;
     private final S3Service s3Service;
+    private final org.swp.my_learning_path.repository.CourseSectionRepository courseSectionRepository;
+    private final org.swp.my_learning_path.repository.LessonRepository lessonRepository;
 
     @Transactional
     public Long createDraftCourse(CreateCourseRequest request) {
@@ -108,9 +110,24 @@ public class InstructorCourseService {
         CourseVersion version = courseVersionRepository.findFirstByCourse_CourseIdOrderByCreatedAtDesc(courseId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy phiên bản để xuất bản!"));
 
-        // Validation sơ bộ: Phải có tiêu đề
+        // Validation:
+        // 1. Phải có tiêu đề
         if (version.getTitle() == null || version.getTitle().trim().isEmpty()) {
             throw new RuntimeException("Vui lòng điền Tiêu đề khóa học trước khi xuất bản!");
+        }
+
+        // 2. Kiểm tra điều kiện tiên quyết: Phải có ảnh bìa, ít nhất 1 chương và 1 bài học
+        boolean hasThumbnail = (version.getThumbnail() != null);
+
+        java.util.List<org.swp.my_learning_path.entity.CourseSection> sections = 
+                courseSectionRepository.findByCourseVersion_CourseVersionIdOrderByDisplayOrderAsc(version.getCourseVersionId());
+        boolean hasSections = (sections != null && !sections.isEmpty());
+
+        long lessonCount = lessonRepository.countByCourseVersionId(version.getCourseVersionId());
+        boolean hasLessons = (lessonCount > 0);
+
+        if (!hasThumbnail || !hasSections || !hasLessons) {
+            throw new RuntimeException("Khóa học phải có Ảnh bìa, ít nhất 1 Chương và 1 Bài học trước khi xuất bản!");
         }
 
         // Bỏ qua bước chờ Admin duyệt, Duyệt thẳng luôn!

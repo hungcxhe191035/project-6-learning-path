@@ -135,6 +135,21 @@ document.addEventListener("DOMContentLoaded", function () {
             const file = this.files[0];
             if (!file) return;
 
+            // Kiểm tra định dạng file (Chỉ cho phép ảnh)
+            const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/gif", "image/webp"];
+            if (!allowedTypes.includes(file.type)) {
+                showErrorToast("Chỉ cho phép tải lên file hình ảnh (PNG, JPG, JPEG, GIF, WEBP)!");
+                this.value = ""; // Clear input
+                return;
+            }
+
+            // Kiểm tra dung lượng file (Tối đa 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showErrorToast("Kích thước ảnh bìa không được vượt quá 5MB!");
+                this.value = ""; // Clear input
+                return;
+            }
+
             const formData = new FormData();
             formData.append("file", file);
 

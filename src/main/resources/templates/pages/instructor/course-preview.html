@@ -283,6 +283,16 @@
     const videoStates = {};
 
     document.addEventListener("DOMContentLoaded", function() {
+        // Lắng nghe sự kiện ẩn modal để dừng phát video
+        document.querySelectorAll('.modal').forEach(modalEl => {
+            modalEl.addEventListener('hide.bs.modal', function () {
+                const video = modalEl.querySelector('video');
+                if (video) {
+                    video.pause();
+                }
+            });
+        });
+
         document.querySelectorAll('.interactive-video').forEach(video => {
             const lessonId = video.closest('.video-container').dataset.lessonId;
             videoStates[lessonId] = { answeredQuestions: new Set(), quizzes: [] };
@@ -360,7 +370,11 @@
         const selectedRadio = document.querySelector(`input[name="video_quiz_answer_${lessonId}"]:checked`);
         
         if (!selectedRadio) {
-            alert("Vui lòng chọn một đáp án!");
+            if (typeof toastr !== 'undefined') {
+                toastr.warning("Vui lòng chọn một đáp án!");
+            } else {
+                alert("Vui lòng chọn một đáp án!");
+            }
             return;
         }
         
@@ -371,7 +385,11 @@
         const correctAns = question ? question.answers.find(a => a.isCorrect) : null;
         
         if (correctAns && correctAns.answerId === selectedAnswerId) {
-            alert("Chính xác!");
+            if (typeof toastr !== 'undefined') {
+                toastr.success("Chính xác!");
+            } else {
+                alert("Chính xác!");
+            }
             
             // Đánh dấu đã trả lời đúng
             videoStates[lessonId].answeredQuestions.add(questionId);
@@ -392,7 +410,11 @@
                 video.play();
             }
         } else {
-            alert("Sai rồi! Vui lòng chọn lại đáp án đúng để được xem tiếp.");
+            if (typeof toastr !== 'undefined') {
+                toastr.error("Sai rồi! Vui lòng chọn lại đáp án đúng để được xem tiếp.");
+            } else {
+                alert("Sai rồi! Vui lòng chọn lại đáp án đúng để được xem tiếp.");
+            }
         }
     }
     </script>
