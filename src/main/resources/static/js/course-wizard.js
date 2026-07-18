@@ -24,23 +24,21 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     };
 
-    // SweetAlert2 Toast Helper
-    const Toast = typeof Swal !== 'undefined' ? Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true
-    }) : null;
-
+    // Toastr Helper
     const showSuccessToast = (msg) => {
-        if (Toast) Toast.fire({ icon: 'success', title: msg });
-        else alert(msg);
+        if (typeof toastr !== 'undefined') {
+            toastr.success(msg);
+        } else {
+            alert(msg);
+        }
     };
 
     const showErrorToast = (msg) => {
-        if (Toast) Toast.fire({ icon: 'error', title: msg });
-        else alert(msg);
+        if (typeof toastr !== 'undefined') {
+            toastr.error(msg);
+        } else {
+            alert(msg);
+        }
     };
 
     //xử lý nút lưu ở tab 1 lúc tạo khóa học
