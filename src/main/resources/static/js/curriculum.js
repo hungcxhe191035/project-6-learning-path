@@ -470,6 +470,20 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        // Kiểm tra định dạng file (Chỉ cho phép MP4)
+        const allowedTypes = ["video/mp4"];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        if (!allowedTypes.includes(file.type) && fileExtension !== "mp4") {
+            showErrorToast("Chỉ cho phép tải lên file định dạng MP4!");
+            return;
+        }
+
+        // Kiểm tra dung lượng file (Tối đa 500MB)
+        if (file.size > 500 * 1024 * 1024) {
+            showErrorToast("Dung lượng video không được vượt quá 500MB!");
+            return;
+        }
+
         const formData = new FormData();
         formData.append("file", file);
 
