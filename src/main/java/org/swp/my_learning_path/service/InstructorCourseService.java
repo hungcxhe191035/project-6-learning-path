@@ -21,6 +21,7 @@ public class InstructorCourseService {
     private final UserRepository userRepository;
     // biến này dùng để truy vấn ảnh biìa
     private final org.swp.my_learning_path.repository.AppFileRepository appFileRepository;
+    private final org.swp.my_learning_path.repository.TagRepository tagRepository;
     private final S3Service s3Service;
 
     @Transactional
@@ -77,6 +78,14 @@ public class InstructorCourseService {
             org.swp.my_learning_path.entity.AppFile thumbnail = appFileRepository.findById(request.getThumbnailFileId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy file ảnh!"));
             version.setThumbnail(thumbnail);
+        }
+
+        // 5. Cập nhật Tags liên kết
+        if (request.getTagIds() != null) {
+            java.util.List<org.swp.my_learning_path.entity.Tag> tags = tagRepository.findAllById(request.getTagIds());
+            version.setTags(new java.util.HashSet<>(tags));
+        } else {
+            version.setTags(new java.util.HashSet<>());
         }
 
         courseVersionRepository.save(version);

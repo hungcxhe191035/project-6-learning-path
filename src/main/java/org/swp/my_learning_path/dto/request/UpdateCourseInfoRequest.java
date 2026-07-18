@@ -10,4 +10,5 @@ public class UpdateCourseInfoRequest {
     private String description;
     private BigDecimal price;
     private Long thumbnailFileId;
+    private java.util.List<Long> tagIds;
 }

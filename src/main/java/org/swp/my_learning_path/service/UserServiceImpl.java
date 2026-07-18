@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
     }
 
     // [MỚI] Cập nhật ảnh đại diện
-    // Luồng: upload file lên S3 → lấy URL → tạo AppFile → gán vào User.avatar → lưu DB
+    // Luồng: upload file lên S3 lấy URL tạo AppFile gán vào User.avatar lưu DB
     @Override
     @Transactional
     public void updateAvatar(Long userId, MultipartFile avatarFile) {
@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
 
         try {
-            // Bước 1: Upload ảnh lên S3 → nhận về URL công khai
+            // Bước 1: Upload ảnh lên S3 nhận về URL công khai
             String fileUrl = s3Service.uploadFile(avatarFile);
 
             // Bước 2: Lưu thông tin file vào bảng files
