@@ -32,6 +32,7 @@ public class InstructorUIController {
     private final LessonRepository lessonRepository;
     private final org.swp.my_learning_path.repository.QuizQuestionRepository quizQuestionRepository;
     private final org.swp.my_learning_path.repository.QuizAnswerRepository quizAnswerRepository;
+    private final org.swp.my_learning_path.repository.TagRepository tagRepository;
 
     @GetMapping
     public String showCourseList(Model model) {
@@ -52,6 +53,7 @@ public class InstructorUIController {
     @GetMapping("/create")
     public String createCoursePage(Model model) {
         model.addAttribute("pageTitle", "Tạo khóa học mới");
+        model.addAttribute("allTags", tagRepository.findByDeleteFlagFalseOrderByTagNameAsc());
         return "pages/instructor/course-wizard";
     }
 
@@ -87,6 +89,7 @@ public class InstructorUIController {
         model.addAttribute("draft", draftVersion);
         model.addAttribute("sections", sections);
         model.addAttribute("sectionLessonsMap", sectionLessonsMap);
+        model.addAttribute("allTags", tagRepository.findByDeleteFlagFalseOrderByTagNameAsc());
 
         return "pages/instructor/course-wizard";
     }
@@ -99,6 +102,11 @@ public class InstructorUIController {
         // Lấy phiên bản mới nhất để preview
         CourseVersion previewVersion = courseVersionRepository.findFirstByCourse_CourseIdOrderByCreatedAtDesc(courseId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy nội dung để xem trước!"));
+
+        // Eager load tags để tránh lỗi Lazy Loading ngoài Session của Hibernate
+        if (previewVersion.getTags() != null) {
+            previewVersion.getTags().size();
+        }
 
         List<CourseSection> sections = courseSectionRepository.findByCourseVersion_CourseVersionIdOrderByDisplayOrderAsc(previewVersion.getCourseVersionId());
         Map<Long, List<Lesson>> sectionLessonsMap = new HashMap<>();

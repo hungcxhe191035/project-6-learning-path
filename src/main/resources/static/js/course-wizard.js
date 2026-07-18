@@ -2,14 +2,25 @@ document.addEventListener("DOMContentLoaded", function () {
     const basicInfoForm = document.getElementById("basicInfoForm");
     const courseIdInput = document.getElementById("courseId");
 
+    // Khởi tạo Select2 cho tags
+    if (typeof $ !== 'undefined' && $('#courseTags').length) {
+        $('#courseTags').select2({
+            placeholder: "Chọn thẻ chủ đề cho khóa học...",
+            allowClear: true
+        });
+    }
+
     // Lấy thông tin từ Form
     const getFormData = () => {
+        const selectedTags = $('#courseTags').val() || [];
+        const tagIds = selectedTags.map(id => parseInt(id));
         return {
             title: document.getElementById("courseTitle").value.trim(),
             subtitle: document.getElementById("courseSubtitle").value.trim(),
             description: document.getElementById("courseDescription").value.trim(),
             price: parseFloat(document.getElementById("coursePrice").value) || 0,
-            thumbnailFileId: document.getElementById("thumbnailFileId").value || null // Dành cho upload ảnh sau này
+            thumbnailFileId: document.getElementById("thumbnailFileId").value || null,
+            tagIds: tagIds
         };
     };
 

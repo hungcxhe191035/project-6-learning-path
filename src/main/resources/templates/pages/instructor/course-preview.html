@@ -69,6 +69,13 @@
                 <div class="col-lg-8">
                     <h1 class="course-title" th:text="${version.title}">Tiêu đề khóa học</h1>
                     <p class="course-subtitle" th:text="${version.subtitle}">Phụ đề khóa học mô tả ngắn gọn</p>
+                    <!-- Hiển thị danh sách tag của khóa học dạng nhãn Badge -->
+                    <div class="d-flex flex-wrap gap-2 mb-3" th:if="${version.tags != null and not #lists.isEmpty(version.tags)}">
+                        <span th:each="tag : ${version.tags}" 
+                              class="badge bg-white bg-opacity-10 text-light border border-secondary-subtle rounded-pill px-3 py-2 fw-normal">
+                            <i class="bi bi-tag-fill text-warning me-1"></i>[[${tag.tagName}]]
+                        </span>
+                    </div>
                     <div class="d-flex align-items-center mb-3 text-warning">
                         <i class="bi bi-star-fill me-1"></i>
                         <i class="bi bi-star-fill me-1"></i>
