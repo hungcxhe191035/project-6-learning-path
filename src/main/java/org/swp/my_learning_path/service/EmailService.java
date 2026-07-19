@@ -44,12 +44,14 @@ public class   EmailService {
                 .build();
 
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject(subject);
-            message.setText(content);
-            mailSender.send(message);
+            jakarta.mail.internet.MimeMessage mimeMessage = mailSender.createMimeMessage();
+            org.springframework.mail.javamail.MimeMessageHelper helper = 
+                new org.springframework.mail.javamail.MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(content, false);
+            mailSender.send(mimeMessage);
 
             emailNotification.setStatus(EEmailStatus.SENT);
             emailNotification.setSentAt(LocalDateTime.now());
@@ -167,12 +169,14 @@ public class   EmailService {
                 .build();
 
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject(subject);
-            message.setText(content);
-            mailSender.send(message);
+            jakarta.mail.internet.MimeMessage mimeMessage = mailSender.createMimeMessage();
+            org.springframework.mail.javamail.MimeMessageHelper helper = 
+                new org.springframework.mail.javamail.MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(content, false);
+            mailSender.send(mimeMessage);
 
             emailNotification.setStatus(EEmailStatus.SENT);
             emailNotification.setSentAt(LocalDateTime.now());
