@@ -54,7 +54,15 @@ public class LearningPathServiceImpl
                         if (firstCourse != null && 
                             firstCourse.getCurrentPublishedVersion() != null && 
                             firstCourse.getCurrentPublishedVersion().getThumbnail() != null) {
-                            thumbnailUrl = firstCourse.getCurrentPublishedVersion().getThumbnail().getFileUrl();
+                                                        if (firstCourse.getCurrentPublishedVersion() != null
+                                && firstCourse.getCurrentPublishedVersion().getThumbnail() != null) {
+
+                                thumbnailUrl = firstCourse.getCurrentPublishedVersion()
+                                                        .getThumbnail()
+                                                        .getFileUrl();
+                                } else {
+                                        thumbnailUrl = null; // hoặc "/images/default-course.png"
+                                }
                         }
                     }
 
@@ -165,7 +173,15 @@ public class LearningPathServiceImpl
                         if (firstCourse != null && 
                             firstCourse.getCurrentPublishedVersion() != null && 
                             firstCourse.getCurrentPublishedVersion().getThumbnail() != null) {
-                            thumbnailUrl = firstCourse.getCurrentPublishedVersion().getThumbnail().getFileUrl();
+                            if (firstCourse.getCurrentPublishedVersion() != null
+                                && firstCourse.getCurrentPublishedVersion().getThumbnail() != null) {
+
+                                thumbnailUrl = firstCourse.getCurrentPublishedVersion()
+                                                        .getThumbnail()
+                                                        .getFileUrl();
+                                } else {
+                                thumbnailUrl = null; // hoặc "/images/default-course.png"
+                                }
                         }
                     }
 
@@ -215,11 +231,11 @@ public class LearningPathServiceImpl
                                                     .getCurrentPublishedVersion()
                                                     .getTitle()
                                     )
-                                    .thumbnailUrl(
-                                            course
-                                                    .getCurrentPublishedVersion()
-                                                    .getThumbnail().getFileUrl()
-                                    )
+                                .thumbnailUrl(
+                                        course.getCurrentPublishedVersion().getThumbnail() != null
+                                                ? course.getCurrentPublishedVersion().getThumbnail().getFileUrl()
+                                                : null
+                                        )
                                     .shortDescription(
                                             course
                                                     .getCurrentPublishedVersion()
