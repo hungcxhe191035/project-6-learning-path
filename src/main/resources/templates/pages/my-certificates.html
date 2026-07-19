@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chứng chỉ của tôi</title>
+    <style>
+        /* ===== HERO SECTION ===== */
+        .cert-hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4c1d95 100%);
+            padding: 56px 0 52px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .cert-hero::before {
+            content: '';
+            position: absolute;
+            width: 480px;
+            height: 480px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            top: -180px;
+            right: -120px;
+        }
+        .cert-hero::after {
+            content: '';
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            bottom: -80px;
+            left: 40%;
+        }
+        .hero-title {
+            font-size: 2.6rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+        .hero-subtitle {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+
+        /* ===== CERTIFICATE CARD ===== */
+        .cert-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #fff;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+        .cert-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(164, 53, 240, 0.12);
+            border-color: #d8b4fe;
+        }
+        .cert-img-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 ratio */
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+        .cert-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .cert-card:hover .cert-img {
+            transform: scale(1.05);
+        }
+        .cert-fallback-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 16px;
+            text-align: center;
+        }
+        .cert-fallback-icon {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            opacity: 0.9;
+            animation: pulse 2s infinite;
+        }
+        .cert-fallback-title {
+            font-weight: 700;
+            font-size: 13px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .cert-body {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .cert-course-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 44px;
+        }
+        .cert-meta {
+            font-size: 12.5px;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+        .cert-meta i {
+            color: #a435f0;
+            margin-right: 4px;
+        }
+        .cert-code-wrapper {
+            background-color: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #475569;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            margin-top: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cert-btn {
+            background-color: #a435f0;
+            border-color: #a435f0;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            width: 100%;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+        }
+        .cert-btn:hover {
+            background-color: #8710d8;
+            border-color: #8710d8;
+            color: white;
+            box-shadow: 0 4px 12px rgba(164, 53, 240, 0.2);
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            border: 1px dashed #e2e8f0;
+            max-width: 600px;
+            margin: 40px auto;
+        }
+        .empty-icon-wrap {
+            width: 100px;
+            height: 100px;
+            background-color: rgba(164, 53, 240, 0.06);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px auto;
+        }
+        .empty-icon {
+            font-size: 3rem;
+            color: #a435f0;
+        }
+        .empty-title {
+            font-weight: 800;
+            font-size: 22px;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        .empty-desc {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+        .empty-cta {
+            background: linear-gradient(135deg, #a435f0, #7b2ff2);
+            color: white;
+            font-weight: 700;
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(164, 53, 240, 0.25);
+        }
+        .empty-cta:hover {
+            color: white;
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(164, 53, 240, 0.35);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.08); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.9; }
+        }
+    </style>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <!-- ===== HERO ===== -->
+    <section class="cert-hero mb-5">
+        <div class="container position-relative" style="z-index:2">
+            <div>
+                <h1 class="hero-title m-0">Chứng chỉ của tôi</h1>
+                <p class="hero-subtitle mt-2">Nơi lưu trữ những thành tựu học tập xuất sắc của bạn.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="container pb-5">
+        
+        <!-- Case 1: Empty Certificates -->
+        <div th:if="${certificates == null or certificates.isEmpty()}" class="empty-state">
+            <div class="empty-icon-wrap">
+                <i class="bi bi-patch-check-fill empty-icon"></i>
+            </div>
+            <h3 class="empty-title">Bạn chưa có chứng chỉ nào</h3>
+            <p class="empty-desc">
+                Bạn sẽ nhận được chứng chỉ sau khi hoàn thành toàn bộ bài học và kiểm tra của khoá học. Hãy tiếp tục học tập và gặt hái những chứng chỉ cho riêng mình nhé!
+            </p>
+            <a href="/courses" class="empty-cta">
+                <i class="bi bi-compass me-2"></i> Khám phá các khóa học
+            </a>
+        </div>
+
+        <!-- Case 2: Has Certificates -->
+        <div th:unless="${certificates == null or certificates.isEmpty()}" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            
+            <div class="col" th:each="cert : ${certificates}">
+                <div class="cert-card">
+                    <!-- Thumbnail -->
+                    <div class="cert-img-wrapper">
+                        <!-- Use thumbnail if available -->
+                        <img th:if="${cert.enrollment.course.currentPublishedVersion.thumbnail != null}"
+                             th:src="${cert.enrollment.course.currentPublishedVersion.thumbnail.fileUrl}"
+                             class="cert-img"
+                             alt="Course Thumbnail">
+                        <!-- Fallback template -->
+                        <div th:if="${cert.enrollment.course.currentPublishedVersion.thumbnail == null}" class="cert-fallback-img">
+                            <i class="bi bi-award-fill cert-fallback-icon"></i>
+                            <div class="cert-fallback-title" th:text="${cert.enrollment.course.currentPublishedVersion.title}">Tên khoá học</div>
+                        </div>
+                    </div>
+
+                    <!-- Details -->
+                    <div class="cert-body">
+                        <div>
+                            <h5 class="cert-course-title" th:text="${cert.enrollment.course.currentPublishedVersion.title}">Tên khoá học</h5>
+                            
+                            <div class="cert-meta">
+                                <i class="bi bi-person-fill"></i>
+                                Giảng viên: <span th:text="${cert.enrollment.course.instructor.fullName}">Tên giảng viên</span>
+                            </div>
+                            
+                            <div class="cert-meta">
+                                <i class="bi bi-calendar-check-fill"></i>
+                                Cấp ngày: <span th:text="${#temporals.format(cert.createdAt, 'dd/MM/yyyy')}">24/06/2026</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="cert-code-wrapper">
+                                <span>MÃ:</span>
+                                <span th:text="${cert.certificateCode}">CERT-XXXX</span>
+                            </div>
+                            
+                            <a th:href="@{/certificates/{id}(id=${cert.certificateId})}" class="cert-btn">
+                                <i class="bi bi-eye-fill me-2"></i>Xem chứng chỉ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
