@@ -13,6 +13,7 @@ import org.swp.my_learning_path.repository.LessonRepository;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -34,6 +35,11 @@ public class CertificateServiceImpl implements CertificateService {
         return certificateRepository
                 .findCertificate(userId, courseId)
                 .orElse(null);
+    }
+
+    @Override
+    public List<Certificate> getCertificatesByUserId(Long userId) {
+        return certificateRepository.findByUserId(userId);
     }
 
     /**
