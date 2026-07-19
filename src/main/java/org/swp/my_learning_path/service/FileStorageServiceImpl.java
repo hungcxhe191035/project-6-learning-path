@@ -1,34 +1,32 @@
 package org.swp.my_learning_path.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.*;
 import java.util.UUID;
 
 @Service
 @Slf4j
 public class FileStorageServiceImpl implements FileStorageService {
 
-    private static final String UPLOAD_DIR = "uploads/cv";
+    @Autowired
+    private S3Client s3Client;
 
-    private final Path uploadPath;
-
-    public FileStorageServiceImpl() {
-        this.uploadPath = Paths.get(UPLOAD_DIR).toAbsolutePath().normalize();
-        try {
-            Files.createDirectories(this.uploadPath);
-            log.info("CV upload directory ready: {}", this.uploadPath);
-        } catch (IOException e) {
-            throw new RuntimeException("Không thể tạo thư mục lưu trữ CV: " + UPLOAD_DIR, e);
-        }
-    }
+    @Value("${aws.s3.bucket-name}")
+    private String bucketName;
 
     @Override
     public String storeCvFile(MultipartFile file) {
@@ -44,16 +42,21 @@ public class FileStorageServiceImpl implements FileStorageService {
         // Sanitize tên file để an toàn trên Windows/Linux File System (bỏ dấu tiếng Việt, ký tự ?, khoảng trắng, v.v.)
         String safeOriginalName = sanitizeFilename(originalName);
 
-        // Tạo tên file unique với UUID prefix
-        String storedName = UUID.randomUUID() + "_" + safeOriginalName;
-        Path targetPath = this.uploadPath.resolve(storedName);
+        // Tạo tên file unique với UUID prefix làm key trên S3
+        String storedName = UUID.randomUUID().toString() + "_" + safeOriginalName;
 
         try {
-            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-            log.info("Stored CV file: {}", storedName);
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(storedName)
+                    .contentType(file.getContentType())
+                    .build();
+            s3Client.putObject(putObjectRequest,
+                    RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            log.info("Stored CV file on S3: {}", storedName);
             return storedName;
         } catch (IOException e) {
-            throw new RuntimeException("Không thể lưu file CV: " + originalName, e);
+            throw new RuntimeException("Không thể lưu file CV lên S3: " + originalName, e);
         }
     }
 
@@ -77,17 +80,19 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Override
     public Resource loadCvAsResource(String storedFileName) {
         try {
-            Path filePath = this.uploadPath.resolve(storedFileName).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
-            if (resource.exists() && resource.isReadable()) {
-                return resource;
-            } else {
-                throw new RuntimeException("Không tìm thấy hoặc không thể đọc file: " + storedFileName);
-            }
-        } catch (InvalidPathException e) {
-            throw new RuntimeException("Tên file chứa ký tự không hợp lệ trên hệ thống: " + storedFileName, e);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Đường dẫn file không hợp lệ: " + storedFileName, e);
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(storedFileName)
+                    .build();
+            byte[] bytes = s3Client.getObject(getObjectRequest, ResponseTransformer.toBytes()).asByteArray();
+            return new ByteArrayResource(bytes) {
+                @Override
+                public String getFilename() {
+                    return storedFileName;
+                }
+            };
+        } catch (Exception e) {
+            throw new RuntimeException("Không thể tải file CV từ S3: " + storedFileName, e);
         }
     }
 
@@ -95,15 +100,14 @@ public class FileStorageServiceImpl implements FileStorageService {
     public void deleteCvFile(String storedFileName) {
         if (storedFileName == null || storedFileName.isBlank()) return;
         try {
-            Path filePath = this.uploadPath.resolve(storedFileName).normalize();
-            boolean deleted = Files.deleteIfExists(filePath);
-            if (deleted) {
-                log.info("Deleted old CV file: {}", storedFileName);
-            }
-        } catch (InvalidPathException e) {
-            log.warn("Tên file cũ chứa ký tự không hợp lệ trên hệ thống, bỏ qua việc xóa: {}", storedFileName, e);
-        } catch (IOException e) {
-            log.warn("Không thể xóa file CV cũ: {}", storedFileName, e);
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(storedFileName)
+                    .build();
+            s3Client.deleteObject(deleteObjectRequest);
+            log.info("Deleted CV file from S3: {}", storedFileName);
+        } catch (Exception e) {
+            log.error("Lỗi khi xóa file CV từ S3: {}", storedFileName, e);
         }
     }
 }

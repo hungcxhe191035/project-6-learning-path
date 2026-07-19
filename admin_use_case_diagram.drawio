@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mxfile host="Electron" modified="2026-07-12T15:45:00.000Z" agent="5.0" version="20.0.0" type="device">
+  <diagram id="diagram_usecase" name="Admin Use Case Diagram">
+    <mxGraphModel dx="1200" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="1150" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- System Boundary Box -->
+        <mxCell id="boundary" value="My Learning Path System (System Boundary)" style="shape=rect;html=1;whiteSpace=wrap;align=center;verticalAlign=top;fillColor=none;strokeColor=#000000;strokeWidth=2;fontStyle=1;fontSize=16;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="180" y="30" width="940" height="1020" as="geometry" />
+        </mxCell>
+        
+        <!-- Primary Actor: Admin -->
+        <mxCell id="actor_admin" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=none;strokeColor=#000000;strokeWidth=2;fontStyle=1;fontSize=12;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="60" y="500" width="40" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Supporting Actor: Applicant -->
+        <mxCell id="actor_applicant" value="Applicant (Student)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=none;strokeColor=#000000;strokeWidth=2;fontStyle=1;fontSize=12;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="460" width="40" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Cases: General Dashboard -->
+        <mxCell id="UC_Dashboard" value="View Dashboard &amp; Statistics" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="70" width="180" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Cases: User Management Module -->
+        <mxCell id="UC_UserList" value="Search &amp; Filter Users" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="160" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_UserCreate" value="Create User Account" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="160" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_UserDetail" value="View User Details" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="250" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_UserRole" value="Assign User Role" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="250" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_UserLock" value="Lock/Unlock Account" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="200" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases: Duyệt Đơn Giảng Viên Module -->
+        <mxCell id="UC_AppList" value="View Instructor Applications" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="360" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_AppDetail" value="View Application Details" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="450" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_AppReview" value="Review Application" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="450" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_AppApprove" value="Approve Application" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="400" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_AppReject" value="Reject Application" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="500" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_UpdateRole" value="Update Role to INSTRUCTOR" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="350" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_SendNotif" value="Send Notification &amp; Email" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="450" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_RejectReason" value="Require Rejection Reason" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="550" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases: Quản lý Khóa học Module -->
+        <mxCell id="UC_CourseList" value="Search &amp; Filter Courses" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="620" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_CourseDetail" value="View Course Details" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="720" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_CourseBlock" value="Block Course" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="670" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_BlockReason" value="Enter Block Reason" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="670" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_CourseUnblock" value="Unblock Course" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="750" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_CourseDelete" value="Delete Course" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="590" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases: Quản lý Nhãn (Tag) -->
+        <mxCell id="UC_TagList" value="View Tag List" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="840" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_TagCreate" value="Create Tag" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="800" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_TagEdit" value="Update Tag" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="880" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_TagDelete" value="Delete Tag" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="840" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Use Cases: Quản lý Voucher -->
+        <mxCell id="UC_VoucherList" value="View Voucher List" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="960" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_VoucherCreate" value="Create Voucher" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="960" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="UC_VoucherDelete" value="Delete Voucher" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="960" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES: Primary Actor Associations -->
+        <mxCell id="edge_admin_dash" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;exitX=1;exitY=0.33;exitDx=0;exitDy=0;exitPerimeter=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor_admin" target="UC_Dashboard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_admin_users" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;exitX=1;exitY=0.33;exitDx=0;exitDy=0;exitPerimeter=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor_admin" target="UC_UserList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_admin_ucreate" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;exitX=1;exitY=0.33;exitDx=0;exitDy=0;exitPerimeter=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor_admin" target="UC_UserCreate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_admin_apps" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;exitX=1;exitY=0.33;exitDx=0;exitDy=0;exitPerimeter=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor_admin" target="UC_AppList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_admin_courses" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;exitX=1;exitY=0.33;exitDx=0;exitDy=0;exitPerimeter=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor_admin" target="UC_CourseList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_admin_tags" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;exitX=1;exitY=0.33;exitDx=0;exitDy=0;exitPerimeter=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor_admin" target="UC_TagList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_admin_vouchers" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;exitX=1;exitY=0.33;exitDx=0;exitDy=0;exitPerimeter=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor_admin" target="UC_VoucherList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES: User Management Relationships -->
+        <mxCell id="edge_udetail_list" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_UserDetail" target="UC_UserList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_urole_detail" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_UserRole" target="UC_UserDetail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_ulock_list" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_UserLock" target="UC_UserList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_ulock_detail" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_UserLock" target="UC_UserDetail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES: Duyệt đơn Giảng viên Relationships -->
+        <mxCell id="edge_adetail_list" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_AppDetail" target="UC_AppList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_areview_detail" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_AppReview" target="UC_AppDetail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Generalizations (Hollow triangle pointing to UC_AppReview) -->
+        <mxCell id="edge_approve_review" value="" style="endArrow=block;endSize=12;endFill=0;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_AppApprove" target="UC_AppReview">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_reject_review" value="" style="endArrow=block;endSize=12;endFill=0;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;exitX=0;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_AppReject" target="UC_AppReview">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Includes for Approval -->
+        <mxCell id="edge_approve_role" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_AppApprove" target="UC_UpdateRole">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_approve_notif" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_AppApprove" target="UC_SendNotif">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Includes for Rejection -->
+        <mxCell id="edge_reject_reason" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_AppReject" target="UC_RejectReason">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_reject_notif" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_AppReject" target="UC_SendNotif">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Secondary Actor Link -->
+        <mxCell id="edge_notif_applicant" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.33;entryDx=0;entryDy=0;entryPerimeter=1;" edge="1" parent="1" source="UC_SendNotif" target="actor_applicant">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES: Course Management Relationships -->
+        <mxCell id="edge_cdetail_list" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_CourseDetail" target="UC_CourseList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_cblock_detail" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_CourseBlock" target="UC_CourseDetail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_cblock_reason" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_CourseBlock" target="UC_BlockReason">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_cunblock_detail" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_CourseUnblock" target="UC_CourseDetail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_cdelete_detail" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.1;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_CourseDelete" target="UC_CourseDetail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES: Tag Management Relationships -->
+        <mxCell id="edge_tcreate_list" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_TagCreate" target="UC_TagList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_tedit_list" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_TagEdit" target="UC_TagList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_tdelete_list" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_TagDelete" target="UC_TagList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES: Voucher Management Relationships -->
+        <mxCell id="edge_vcreate_list" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_VoucherCreate" target="UC_VoucherList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_vdelete_list" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=8;dashed=1;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=10;verticalAlign=bottom;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UC_VoucherDelete" target="UC_VoucherList">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

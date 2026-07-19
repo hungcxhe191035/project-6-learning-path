@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mxfile host="Electron" modified="2026-07-12T16:39:00.000Z" agent="5.0" version="20.0.0" type="device">
+  <diagram id="diagram_context" name="System Context Diagram">
+    <mxGraphModel dx="1200" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Center System Process -->
+        <mxCell id="system" value="0.0&#xa;My Learning Path System" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=3;fontColor=#000000;fontStyle=1;fontSize=14;align=center;" vertex="1" parent="1">
+          <mxGeometry x="425" y="300" width="250" height="250" as="geometry" />
+        </mxCell>
+        
+        <!-- Left Entities (Users) -->
+        <!-- Student -->
+        <mxCell id="entity_student" value="Student" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="160" height="80" as="geometry" />
+        </mxCell>
+        <!-- Instructor -->
+        <mxCell id="entity_instructor" value="Instructor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="385" width="160" height="80" as="geometry" />
+        </mxCell>
+        <!-- Admin -->
+        <mxCell id="entity_admin" value="Admin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="670" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Right Entities (External Systems) -->
+        <!-- VNPAY Payment Gateway -->
+        <mxCell id="entity_vnpay" value="&lt;b&gt;&lt;i&gt;&amp;lt;&amp;lt;External System&amp;gt;&amp;gt;&lt;/i&gt;&lt;/b&gt;&#xa;VNPAY Payment Gateway" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="860" y="100" width="160" height="80" as="geometry" />
+        </mxCell>
+        <!-- AWS S3 Storage -->
+        <mxCell id="entity_s3" value="&lt;b&gt;&lt;i&gt;&amp;lt;&amp;lt;External System&amp;gt;&amp;gt;&lt;/i&gt;&lt;/b&gt;&#xa;AWS S3 Storage Service" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="860" y="385" width="160" height="80" as="geometry" />
+        </mxCell>
+        <!-- Gmail SMTP -->
+        <mxCell id="entity_mail" value="&lt;b&gt;&lt;i&gt;&amp;lt;&amp;lt;External System&amp;gt;&amp;gt;&lt;/i&gt;&lt;/b&gt;&#xa;Gmail SMTP Mail Server" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="860" y="670" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Flows: Student <-> System -->
+        <mxCell id="flow_student_to_system" value="1. Register / Login credentials&#xa;2. Profile updates&#xa;3. Search courses &amp; learning paths&#xa;4. Course purchase request&#xa;5. Lesson feedback &amp; Q&amp;A questions&#xa;6. Quiz answers" style="edgeStyle=orthogonalEdgeStyle;rounded=1;curved=1;html=1;endArrow=block;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0.15;entryY=0.15;entryDx=0;entryDy=0;" edge="1" parent="1" source="entity_student" target="system">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_system_to_student" value="1. Account status &amp; activation link&#xa;2. Course catalog &amp; learning path details&#xa;3. Lesson content &amp; progress updates&#xa;4. Quiz results &amp; feedback&#xa;5. Completion certificate (PDF)&#xa;6. Applied discount vouchers" style="edgeStyle=orthogonalEdgeStyle;rounded=1;curved=1;html=1;endArrow=block;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;exitX=0.05;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="system" target="entity_student">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Flows: Instructor <-> System -->
+        <mxCell id="flow_instructor_to_system" value="1. Registration &amp; application details&#xa;2. Upload/Update course content&#xa;3. Configure lessons &amp; quizzes&#xa;4. Create course-specific vouchers&#xa;5. Respond to student Q&amp;A questions&#xa;6. Withdrawal request" style="edgeStyle=orthogonalEdgeStyle;rounded=1;curved=1;html=1;endArrow=block;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0.0;entryY=0.45;entryDx=0;entryDy=0;" edge="1" parent="1" source="entity_instructor" target="system">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_system_to_instructor" value="1. Application &amp; course approval status&#xa;2. Course revenue &amp; wallet details&#xa;3. Student progress &amp; enrollment statistics&#xa;4. Notifications of new Q&amp;A questions&#xa;5. Withdrawal transaction status" style="edgeStyle=orthogonalEdgeStyle;rounded=1;curved=1;html=1;endArrow=block;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;exitX=0.0;exitY=0.55;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="system" target="entity_instructor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Flows: Admin <-> System -->
+        <mxCell id="flow_admin_to_system" value="1. Admin login credentials&#xa;2. Review instructor applications&#xa;3. Course approval / rejection decision&#xa;4. System configuration &amp; global vouchers&#xa;5. User account management (block/unblock)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;curved=1;html=1;endArrow=block;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0.15;entryY=0.85;entryDx=0;entryDy=0;" edge="1" parent="1" source="entity_admin" target="system">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_system_to_admin" value="1. Pending applications &amp; courses&#xa;2. Revenue reports &amp; user statistics&#xa;3. System audit logs" style="edgeStyle=orthogonalEdgeStyle;rounded=1;curved=1;html=1;endArrow=block;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;exitX=0.05;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="system" target="entity_admin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Flows: System <-> VNPAY -->
+        <mxCell id="flow_system_to_vnpay" value="Payment request&#xa;(Order ID, Amount, Callback URL)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;curved=1;html=1;endArrow=block;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;exitX=0.85;exitY=0.15;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="system" target="entity_vnpay">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_vnpay_to_system" value="Payment transaction status&#xa;(Transaction ID, IPN/Callback data)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;curved=1;html=1;endArrow=block;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0.95;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="entity_vnpay" target="system">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Flows: System <-> AWS S3 -->
+        <mxCell id="flow_system_to_s3" value="Upload media files&#xa;(Videos, Avatars, Documents)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;curved=1;html=1;endArrow=block;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;exitX=1;exitY=0.45;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="system" target="entity_s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_s3_to_system" value="Secure file access URLs&#xa;/ Download streams" style="edgeStyle=orthogonalEdgeStyle;rounded=1;curved=1;html=1;endArrow=block;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.55;entryDx=0;entryDy=0;" edge="1" parent="1" source="entity_s3" target="system">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Flows: System -> Gmail SMTP -->
+        <mxCell id="flow_system_to_mail" value="Send email request&#xa;(OTP, Password reset link, Notifications)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;curved=1;html=1;endArrow=block;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=10;exitX=0.85;exitY=0.85;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="system" target="entity_mail">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

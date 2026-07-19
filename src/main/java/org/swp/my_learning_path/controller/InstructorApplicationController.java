@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.List;
 
@@ -33,7 +34,10 @@ public class InstructorApplicationController {
     // FORM NỘP ĐƠN XIN TRỞ THÀNH GIẢNG VIÊN
     // =============================================
     @GetMapping("/apply")
-    public String applyForm(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+    public String applyForm(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(value = "resubmit", required = false) Boolean resubmit,
+            Model model) {
         // Nếu đã là INSTRUCTOR → chuyển đến trang status
         if (userDetails.getUser().getRole() == ERole.INSTRUCTOR) {
             return "redirect:/instructor/apply/status";
@@ -43,18 +47,21 @@ public class InstructorApplicationController {
         Optional<InstructorApplication> latestApp =
                 applicationService.getMyLatestApplication(userDetails.getUser().getUserId());
 
-        // Nếu có đơn đang PENDING → chuyển đến status
+        // Nếu có đơn đang PENDING: chuyển hướng nếu chưa quá 30 giây HOẶC (đã quá 30 giây nhưng không chủ động bấm gửi lại)
         if (latestApp.isPresent() &&
-                latestApp.get().getStatus().name().equals("PENDING")) {
-            return "redirect:/instructor/apply/status";
+                latestApp.get().getStatus() == EApplicationStatus.PENDING) {
+            LocalDateTime tenDaysAgo = LocalDateTime.now().minusDays(10);
+            if (latestApp.get().getCreatedAt().isAfter(tenDaysAgo) || !Boolean.TRUE.equals(resubmit)) {
+                return "redirect:/instructor/apply/status";
+            }
         }
 
-        // Nếu đơn trước REJECTED và có CV → hiển thị CV cũ để người dùng biết
+        // Nếu đơn trước REJECTED hoặc PENDING (đã quá 10 ngày) và có CV → hiển thị thông tin cũ để người dùng sửa đổi
         String existingCvName = null;
         SubmitApplicationRequest form = new SubmitApplicationRequest();
         if (latestApp.isPresent()) {
             InstructorApplication app = latestApp.get();
-            if (app.getStatus() == EApplicationStatus.REJECTED) {
+            if (app.getStatus() == EApplicationStatus.REJECTED || app.getStatus() == EApplicationStatus.PENDING) {
                 form.setHeadline(app.getHeadline());
                 form.setBio(app.getBio());
                 form.setMotivation(app.getMotivation());
@@ -86,6 +93,10 @@ public class InstructorApplicationController {
             @RequestParam(value = "cvFile", required = false) MultipartFile cvFile,
             Model model,
             RedirectAttributes redirectAttributes) {
+
+        if (userDetails.getUser().getRole() == ERole.INSTRUCTOR) {
+            return "redirect:/instructor/apply/status";
+        }
 
         if (bindingResult.hasErrors()) {
             populateExistingCvName(userDetails, model);
@@ -147,7 +158,21 @@ public class InstructorApplicationController {
         Optional<InstructorApplication> latestApp =
                 applicationService.getMyLatestApplication(userDetails.getUser().getUserId());
 
+        boolean canResubmit = false;
+        if (latestApp.isPresent()) {
+            InstructorApplication app = latestApp.get();
+            if (app.getStatus() == EApplicationStatus.REJECTED) {
+                canResubmit = true;
+            } else if (app.getStatus() == EApplicationStatus.PENDING) {
+                LocalDateTime tenDaysAgo = LocalDateTime.now().minusDays(10);
+                if (!app.getCreatedAt().isAfter(tenDaysAgo)) {
+                    canResubmit = true;
+                }
+            }
+        }
+
         model.addAttribute("instructorApp", latestApp.orElse(null));
+        model.addAttribute("canResubmit", canResubmit);
         model.addAttribute("currentUser", userDetails.getUser());
         model.addAttribute("pageTitle", "Trạng thái đơn đăng ký Giảng viên");
         return "pages/instructor/apply-status";

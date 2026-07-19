@@ -197,29 +197,35 @@
                     <div class="section-card">
                         <h3 class="section-title"><i class="bi bi-person-vcard"></i>Hồ sơ chuyên môn</h3>
 
-                        <div class="mb-4">
-                            <label for="headline" class="form-label">
-                                Tiêu đề nghề nghiệp<span class="required-mark">*</span>
-                            </label>
-                            <input type="text" id="headline" th:field="*{headline}"
-                                   class="form-control" th:classappend="${#fields.hasErrors('headline')} ? 'is-invalid'"
-                                   placeholder="VD: Senior Data Scientist | Chuyên gia Machine Learning" maxlength="255" required aria-describedby="headlineHelp">
-                            <div class="form-text" id="headlineHelp">Hãy mô tả ngắn gọn chuyên môn nổi bật của bạn.</div>
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('headline')}" th:errors="*{headline}"></div>
-                            <div class="char-count"><span id="headlineCount">0</span>/255</div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="bio" class="form-label">
-                                Giới thiệu bản thân<span class="required-mark">*</span>
-                            </label>
-                            <textarea id="bio" th:field="*{bio}" rows="5"
-                                      class="form-control" th:classappend="${#fields.hasErrors('bio')} ? 'is-invalid'"
-                                      placeholder="Mô tả chi tiết kinh nghiệm làm việc, nền tảng học vấn và các thành tựu..." maxlength="2000" required aria-describedby="bioHelp"></textarea>
-                            <div class="form-text" id="bioHelp">Học viên rất muốn biết trình độ chuyên môn và lý do họ nên học từ bạn.</div>
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}"></div>
-                            <div class="char-count"><span id="bioCount">0</span>/2000</div>
-                        </div>
+                         <div class="mb-4">
+                             <label for="headline" class="form-label">
+                                 Tiêu đề nghề nghiệp<span class="required-mark">*</span>
+                             </label>
+                             <input type="text" id="headline" th:field="*{headline}"
+                                    class="form-control" th:classappend="${#fields.hasErrors('headline')} ? 'is-invalid'"
+                                    placeholder="VD: Senior Data Scientist | Chuyên gia Machine Learning" maxlength="255" required aria-describedby="headlineHelp">
+                             <div class="invalid-feedback">
+                                 <span th:if="${#fields.hasErrors('headline')}" th:errors="*{headline}">Tiêu đề nghề nghiệp không được để trống.</span>
+                                 <span th:unless="${#fields.hasErrors('headline')}">Tiêu đề nghề nghiệp không được để trống.</span>
+                             </div>
+                             <div class="form-text" id="headlineHelp">Hãy mô tả ngắn gọn chuyên môn nổi bật của bạn.</div>
+                             <div class="char-count"><span id="headlineCount">0</span>/255</div>
+                         </div>
+ 
+                         <div class="mb-4">
+                             <label for="bio" class="form-label">
+                                 Giới thiệu bản thân<span class="required-mark">*</span>
+                             </label>
+                             <textarea id="bio" th:field="*{bio}" rows="5"
+                                       class="form-control" th:classappend="${#fields.hasErrors('bio')} ? 'is-invalid'"
+                                       placeholder="Mô tả chi tiết kinh nghiệm làm việc, nền tảng học vấn và các thành tựu..." maxlength="2000" required aria-describedby="bioHelp"></textarea>
+                             <div class="invalid-feedback">
+                                 <span th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}">Giới thiệu bản thân không được để trống.</span>
+                                 <span th:unless="${#fields.hasErrors('bio')}">Giới thiệu bản thân không được để trống.</span>
+                             </div>
+                             <div class="form-text" id="bioHelp">Học viên rất muốn biết trình độ chuyên môn và lý do họ nên học từ bạn.</div>
+                             <div class="char-count"><span id="bioCount">0</span>/2000</div>
+                         </div>
 
                         <div class="mb-4">
                             <label for="linkedinUrl" class="form-label">Hồ sơ LinkedIn</label>
@@ -227,9 +233,13 @@
                                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-linkedin" style="color: #0A66C2;"></i></span>
                                 <input type="url" id="linkedinUrl" th:field="*{linkedinUrl}"
                                        class="form-control border-start-0 ps-0" th:classappend="${#fields.hasErrors('linkedinUrl')} ? 'is-invalid'"
-                                       placeholder="https://linkedin.com/in/your-profile" maxlength="500">
+                                       placeholder="https://linkedin.com/in/your-profile" maxlength="500"
+                                       pattern="^(https?:\/\/(www\.)?([a-z]{2,3}\.)?linkedin\.com\/.*)?$">
                             </div>
                             <div class="form-text">Bổ sung profile LinkedIn giúp tăng độ tin cậy của hồ sơ.</div>
+                            <div class="text-danger small mt-2" id="linkedinError" style="display: none; font-weight: 500;">
+                                <i class="bi bi-exclamation-circle me-1"></i> Đường dẫn LinkedIn không đúng định dạng (VD: https://linkedin.com/in/your-profile).
+                            </div>
                             <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('linkedinUrl')}" th:errors="*{linkedinUrl}"></div>
                         </div>
 
@@ -297,23 +307,30 @@
                                     </label>
                                 </div>
                             </div>
+                            <div class="text-danger small mt-2" id="tagError" style="display: none; font-weight: 500;">
+                                <i class="bi bi-exclamation-circle me-1"></i> Vui lòng chọn ít nhất một lĩnh vực chuyên môn.
+                            </div>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('tagIds')}" th:errors="*{tagIds}"></div>
                         </div>
                     </div>
 
                     <div class="section-card">
                         <h3 class="section-title"><i class="bi bi-lightbulb"></i>Đề xuất ý tưởng về khóa học</h3>
 
-                        <div class="mb-2">
-                            <label for="motivation" class="form-label">
-                                Kế hoạch và mục tiêu giảng dạy <span class="required-mark">*</span>
-                            </label>
-                            <textarea id="motivation" th:field="*{motivation}" rows="6"
-                                      class="form-control" th:classappend="${#fields.hasErrors('motivation')} ? 'is-invalid'"
-                                      placeholder="1. Bạn dự định tạo khóa học về chủ đề gì?&#10;2. Đối tượng học viên bạn nhắm đến là ai?&#10;3. Học viên sẽ đạt được kỹ năng gì sau khi hoàn thành?" maxlength="2000" required aria-describedby="motivationHelp"></textarea>
-                            <div class="form-text" id="motivationHelp">Phác thảo lộ trình rõ ràng giúp hồ sơ của bạn được duyệt nhanh chóng hơn.</div>
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('motivation')}" th:errors="*{motivation}"></div>
-                            <div class="char-count"><span id="motivationCount">0</span>/2000</div>
-                        </div>
+                         <div class="mb-2">
+                             <label for="motivation" class="form-label">
+                                 Kế hoạch và mục tiêu giảng dạy <span class="required-mark">*</span>
+                             </label>
+                             <textarea id="motivation" th:field="*{motivation}" rows="6"
+                                       class="form-control" th:classappend="${#fields.hasErrors('motivation')} ? 'is-invalid'"
+                                       placeholder="1. Bạn dự định tạo khóa học về chủ đề gì?&#10;2. Đối tượng học viên bạn nhắm đến là ai?&#10;3. Học viên sẽ đạt được kỹ năng gì sau khi hoàn thành?" maxlength="2000" required aria-describedby="motivationHelp"></textarea>
+                             <div class="invalid-feedback">
+                                 <span th:if="${#fields.hasErrors('motivation')}" th:errors="*{motivation}">Kế hoạch và mục tiêu giảng dạy không được để trống.</span>
+                                 <span th:unless="${#fields.hasErrors('motivation')}">Kế hoạch và mục tiêu giảng dạy không được để trống.</span>
+                             </div>
+                             <div class="form-text" id="motivationHelp">Phác thảo lộ trình rõ ràng giúp hồ sơ của bạn được duyệt nhanh chóng hơn.</div>
+                             <div class="char-count"><span id="motivationCount">0</span>/2000</div>
+                         </div>
                     </div>
 
                     <div class="section-card bg-light border-0">
@@ -446,13 +463,56 @@
                 if (dropZone) dropZone.style.borderColor = '';
             }
 
-            if (!form.checkValidity() || !isCvValid) {
+            // Validate Lĩnh vực chuyên môn (tagIds)
+            const tagCheckboxes = document.querySelectorAll('input[name="tagIds"]');
+            let isTagValid = true;
+            if (tagCheckboxes.length > 0) {
+                isTagValid = Array.from(tagCheckboxes).some(cb => cb.checked);
+                const tagError = document.getElementById('tagError');
+                if (!isTagValid) {
+                    if (tagError) tagError.style.display = 'block';
+                } else {
+                    if (tagError) tagError.style.display = 'none';
+                }
+            }
+
+            // Validate LinkedIn URL
+            const linkedinUrlInput = document.getElementById('linkedinUrl');
+            let isLinkedinValid = true;
+            if (linkedinUrlInput && linkedinUrlInput.value.trim() !== "") {
+                const linkedinPattern = /^(https?:\/\/(www\.)?([a-z]{2,3}\.)?linkedin\.com\/.*)?$/;
+                isLinkedinValid = linkedinPattern.test(linkedinUrlInput.value.trim());
+                const linkedinError = document.getElementById('linkedinError');
+                if (!isLinkedinValid) {
+                    if (linkedinError) linkedinError.style.display = 'block';
+                    linkedinUrlInput.classList.add('is-invalid');
+                } else {
+                    if (linkedinError) linkedinError.style.display = 'none';
+                    linkedinUrlInput.classList.remove('is-invalid');
+                }
+            } else {
+                const linkedinError = document.getElementById('linkedinError');
+                if (linkedinError) linkedinError.style.display = 'none';
+                if (linkedinUrlInput) linkedinUrlInput.classList.remove('is-invalid');
+            }
+
+            if (!form.checkValidity() || !isCvValid || !isTagValid || !isLinkedinValid) {
                 event.preventDefault();
                 event.stopPropagation();
+                
                 // Cuộn tới lỗi đầu tiên
                 if (!isCvValid) {
                     if (dropZone) {
                         dropZone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                } else if (!isTagValid) {
+                    const tagGrid = document.querySelector('.tag-grid');
+                    if (tagGrid) {
+                        tagGrid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                } else if (!isLinkedinValid) {
+                    if (linkedinUrlInput) {
+                        linkedinUrlInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 } else {
                     const firstInvalid = form.querySelector(':invalid');
@@ -463,6 +523,37 @@
             }
             form.classList.add('was-validated');
         }, false);
+
+        // Real-time error hiding for checkboxes & LinkedIn
+        const tagCheckboxes = document.querySelectorAll('input[name="tagIds"]');
+        tagCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function () {
+                const isAnyChecked = Array.from(tagCheckboxes).some(c => c.checked);
+                const tagError = document.getElementById('tagError');
+                if (isAnyChecked) {
+                    if (tagError) tagError.style.display = 'none';
+                }
+            });
+        });
+
+        const linkedinUrlInput = document.getElementById('linkedinUrl');
+        if (linkedinUrlInput) {
+            linkedinUrlInput.addEventListener('input', function () {
+                if (linkedinUrlInput.value.trim() === "") {
+                    const linkedinError = document.getElementById('linkedinError');
+                    if (linkedinError) linkedinError.style.display = 'none';
+                    linkedinUrlInput.classList.remove('is-invalid');
+                } else {
+                    const linkedinPattern = /^(https?:\/\/(www\.)?([a-z]{2,3}\.)?linkedin\.com\/.*)?$/;
+                    const isValid = linkedinPattern.test(linkedinUrlInput.value.trim());
+                    const linkedinError = document.getElementById('linkedinError');
+                    if (isValid) {
+                        if (linkedinError) linkedinError.style.display = 'none';
+                        linkedinUrlInput.classList.remove('is-invalid');
+                    }
+                }
+            });
+        }
 
         // Accessibility for Tag Cards (Enter/Space to check)
         const tagLabels = document.querySelectorAll('.tag-card-label');

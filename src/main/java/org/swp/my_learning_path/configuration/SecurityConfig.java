@@ -4,6 +4,7 @@ package org.swp.my_learning_path.configuration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.config.Customizer;
@@ -14,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
 @Configuration
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -66,7 +68,7 @@ public class SecurityConfig {
                         .requestMatchers("/instructor/courses/**", "/instructor/course/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/instructor/vouchers/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/instructor/qna/**").hasRole("INSTRUCTOR")
-                        .requestMatchers("/instructor/apply").hasRole("STUDENT")
+                        .requestMatchers("/instructor/apply").hasAnyRole("STUDENT", "INSTRUCTOR")
                         .requestMatchers("/instructor/apply/status").hasAnyRole("STUDENT", "INSTRUCTOR")
                         // API Security: Khóa bảo mật API soạn khóa học và S3
                         .requestMatchers("/api/instructor/**").hasRole("INSTRUCTOR")

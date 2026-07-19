@@ -16,4 +16,10 @@ public interface NotificationService {
 
     // Đánh dấu thông báo đã đọc
     void markAsRead(Long notificationId);
+
+    // Đánh dấu tất cả thông báo của user đã đọc
+    void markAllAsRead(Long userId);
+
+    // Xoá tất cả thông báo của user
+    void clearAllNotifications(Long userId);
 }

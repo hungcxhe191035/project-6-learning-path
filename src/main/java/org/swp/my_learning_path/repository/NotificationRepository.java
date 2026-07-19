@@ -10,4 +10,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     
     // Đếm số thông báo CHƯA đọc để hiển thị badge số đỏ trên quả chuông 🔔
     long countByUserUserIdAndIsReadFalse(Long userId);
+
+    // Lấy tất cả thông báo chưa đọc của user
+    List<Notification> findByUserUserIdAndIsReadFalse(Long userId);
+
+    // Lấy tất cả thông báo của user
+    List<Notification> findByUserUserId(Long userId);
 }

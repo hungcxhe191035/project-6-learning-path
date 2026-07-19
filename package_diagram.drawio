@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mxfile host="Electron" modified="2026-07-11T17:31:00.000Z" agent="5.0" version="20.0.0" type="device">
+  <diagram id="diagram_1" name="Package Diagram">
+    <mxGraphModel dx="1200" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Column 1 (Left): Target Core Packages (Black & White, drop shadow) -->
+        <mxCell id="entity" value="entity" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;tabPosition=left;tabWidth=50;tabHeight=15;align=center;verticalAlign=top;spacingTop=20;fontStyle=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="80" width="160" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="dto" value="dto" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;tabPosition=left;tabWidth=50;tabHeight=15;align=center;verticalAlign=middle;fontStyle=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="420" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="constant" value="constant" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;tabPosition=left;tabWidth=50;tabHeight=15;align=center;verticalAlign=middle;fontStyle=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="540" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Column 2 (Middle): Processing Layer (Black & White, drop shadow) -->
+        <mxCell id="controller" value="controller" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;tabPosition=left;tabWidth=50;tabHeight=15;align=center;verticalAlign=middle;fontStyle=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="80" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="service" value="service" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;tabPosition=left;tabWidth=50;tabHeight=15;align=center;verticalAlign=middle;fontStyle=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="220" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="security" value="security" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;tabPosition=left;tabWidth=50;tabHeight=15;align=center;verticalAlign=middle;fontStyle=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="360" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="repository" value="repository" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;tabPosition=left;tabWidth=50;tabHeight=15;align=center;verticalAlign=middle;fontStyle=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="500" width="140" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Column 3 (Right): Standalone / Utility (Black & White, drop shadow) -->
+        <mxCell id="configuration" value="configuration" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;tabPosition=left;tabWidth=50;tabHeight=15;align=center;verticalAlign=middle;fontStyle=1;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="80" width="140" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Edges (Standard Black-and-White dashed/solid dependencies without labels) -->
+        <!-- controller -> entity (Straight line) -->
+        <mxCell id="e_c_e" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.15;entryDx=0;entryDy=0;" edge="1" parent="1" source="controller" target="entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- controller -> service (Straight line) -->
+        <mxCell id="e_c_s" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="controller" target="service">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- controller -> dto (Straight line) -->
+        <mxCell id="e_c_d" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="controller" target="dto">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- controller -> security (Orthogonal - routes around service) -->
+        <mxCell id="e_c_sec" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="controller" target="security">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- controller -> constant (Straight line) -->
+        <mxCell id="e_c_con" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="controller" target="constant">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- controller -> repository (Direct access shortcut: solid line) -->
+        <mxCell id="e_c_repo" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=0;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=2;fontColor=#000000;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="controller" target="repository">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- service -> entity (Straight line) -->
+        <mxCell id="e_s_e" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.45;entryDx=0;entryDy=0;" edge="1" parent="1" source="service" target="entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- service -> repository (Orthogonal - routes around security) -->
+        <mxCell id="e_s_repo" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="service" target="repository">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- service -> dto (Straight line) -->
+        <mxCell id="e_s_dto" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="service" target="dto">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- service -> security (Straight line) -->
+        <mxCell id="e_s_sec" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="service" target="security">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- service -> constant (Straight line) -->
+        <mxCell id="e_s_con" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="service" target="constant">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- security -> entity (Straight line) -->
+        <mxCell id="e_sec_e" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="security" target="entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- security -> repository (Straight line) -->
+        <mxCell id="e_sec_repo" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="security" target="repository">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- repository -> entity (Straight line) -->
+        <mxCell id="e_r_e" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.9;entryDx=0;entryDy=0;" edge="1" parent="1" source="repository" target="entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- repository -> constant (Straight line) -->
+        <mxCell id="e_r_con" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="repository" target="constant">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- dto -> entity (Straight vertical line) -->
+        <mxCell id="e_d_e" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="dto" target="entity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- dto -> constant (Straight vertical line) -->
+        <mxCell id="e_d_con" value="" style="html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="dto" target="constant">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- entity -> constant (Orthogonal - routes around dto on the left side) -->
+        <mxCell id="e_ent_con" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endSize=12;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="entity" target="constant">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

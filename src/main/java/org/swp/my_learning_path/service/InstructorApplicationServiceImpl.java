@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -47,12 +48,20 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
             throw new RuntimeException("Tài khoản Admin không thể nộp đơn.");
         }
 
-        // Nếu có đơn PENDING → không cho nộp thêm
-        if (applicationRepository.existsByUserAndStatus(user, EApplicationStatus.PENDING)) {
-            throw new RuntimeException("Bạn đang có một đơn đang chờ xét duyệt. Vui lòng chờ phản hồi.");
-        }
-
         Optional<InstructorApplication> latestApp = applicationRepository.findTopByUserOrderByCreatedAtDesc(user);
+        boolean isUpdateInPlace = false;
+        InstructorApplication applicationToUpdate = null;
+
+        // Nếu có đơn PENDING → kiểm tra xem đã quá 10 ngày chưa
+        if (latestApp.isPresent() && latestApp.get().getStatus() == EApplicationStatus.PENDING) {
+            LocalDateTime tenDaysAgo = LocalDateTime.now().minusDays(10);
+            if (latestApp.get().getCreatedAt().isAfter(tenDaysAgo)) {
+                throw new RuntimeException("Bạn đang có một đơn đang chờ xét duyệt. Vui lòng chờ phản hồi.");
+            } else {
+                isUpdateInPlace = true;
+                applicationToUpdate = latestApp.get();
+            }
+        }
 
         // Xử lý upload CV
         String cvFileName = null;
@@ -62,7 +71,7 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
         if (hasNewFile) {
             // Nếu tải lên file mới -> Tiến hành xóa file cũ trên đĩa
             latestApp.ifPresent(old -> {
-                if (old.getStatus() == EApplicationStatus.REJECTED && old.getCvFilePath() != null) {
+                if ((old.getStatus() == EApplicationStatus.REJECTED || old.getStatus() == EApplicationStatus.PENDING) && old.getCvFilePath() != null) {
                     fileStorageService.deleteCvFile(old.getCvFilePath());
                 }
             });
@@ -74,10 +83,10 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
             cvFilePath = fileStorageService.storeCvFile(cvFile);
             cvFileName = StringUtils.getFilename(originalName);
         } else {
-            // Nếu không chọn file mới -> Giữ lại thông tin file cũ từ đơn bị từ chối
+            // Nếu không chọn file mới -> Giữ lại thông tin file cũ từ đơn bị từ chối hoặc đơn cũ đang PENDING
             if (latestApp.isPresent()) {
                 InstructorApplication old = latestApp.get();
-                if (old.getStatus() == EApplicationStatus.REJECTED) {
+                if (old.getStatus() == EApplicationStatus.REJECTED || old.getStatus() == EApplicationStatus.PENDING) {
                     cvFileName = old.getCvFileName();
                     cvFilePath = old.getCvFilePath();
                 }
@@ -90,25 +99,40 @@ public class InstructorApplicationServiceImpl implements InstructorApplicationSe
         }
 
         // Resolve tags từ tagIds
-        Set<Tag> teachingTags = new HashSet<>();
-        if (request.getTagIds() != null && !request.getTagIds().isEmpty()) {
-            List<Tag> tags = tagRepository.findAllById(request.getTagIds());
-            teachingTags.addAll(tags);
+        if (request.getTagIds() == null || request.getTagIds().isEmpty()) {
+            throw new RuntimeException("Vui lòng chọn ít nhất một lĩnh vực chuyên môn.");
         }
+        Set<Tag> teachingTags = new HashSet<>();
+        List<Tag> tags = tagRepository.findAllById(request.getTagIds());
+        teachingTags.addAll(tags);
 
-        InstructorApplication application = InstructorApplication.builder()
-                .user(user)
-                .headline(request.getHeadline())
-                .bio(request.getBio())
-                .motivation(request.getMotivation())
-                .linkedinUrl(StringUtils.hasText(request.getLinkedinUrl()) ? request.getLinkedinUrl().trim() : null)
-                .cvFileName(cvFileName)
-                .cvFilePath(cvFilePath)
-                .teachingTags(teachingTags)
-                .status(EApplicationStatus.PENDING)
-                .build();
+        if (isUpdateInPlace) {
+            applicationToUpdate.setHeadline(request.getHeadline());
+            applicationToUpdate.setBio(request.getBio());
+            applicationToUpdate.setMotivation(request.getMotivation());
+            applicationToUpdate.setLinkedinUrl(StringUtils.hasText(request.getLinkedinUrl()) ? request.getLinkedinUrl().trim() : null);
+            applicationToUpdate.setCvFileName(cvFileName);
+            applicationToUpdate.setCvFilePath(cvFilePath);
+            applicationToUpdate.getTeachingTags().clear();
+            applicationToUpdate.getTeachingTags().addAll(teachingTags);
 
-        applicationRepository.save(application);
+            applicationRepository.save(applicationToUpdate);
+            applicationRepository.updateCreatedAtAndResetReviewNote(applicationToUpdate.getApplicationId(), LocalDateTime.now());
+        } else {
+            InstructorApplication application = InstructorApplication.builder()
+                    .user(user)
+                    .headline(request.getHeadline())
+                    .bio(request.getBio())
+                    .motivation(request.getMotivation())
+                    .linkedinUrl(StringUtils.hasText(request.getLinkedinUrl()) ? request.getLinkedinUrl().trim() : null)
+                    .cvFileName(cvFileName)
+                    .cvFilePath(cvFilePath)
+                    .teachingTags(teachingTags)
+                    .status(EApplicationStatus.PENDING)
+                    .build();
+
+            applicationRepository.save(application);
+        }
     }
 
     @Override

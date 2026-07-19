@@ -1,6 +1,8 @@
 package org.swp.my_learning_path.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -31,9 +33,11 @@ public class SubmitApplicationRequest {
     String motivation;
 
     @Size(max = 500, message = "LinkedIn URL không được vượt quá 500 ký tự")
+    @Pattern(regexp = "^(https?:\\/\\/(www\\.)?([a-z]{2,3}\\.)?linkedin\\.com\\/.*)?$", message = "Đường dẫn LinkedIn không đúng định dạng (VD: https://linkedin.com/in/your-profile)")
     String linkedinUrl;
 
-    // Danh sách tag IDs được chọn (không giới hạn số lượng, có thể rỗng)
+    // Danh sách tag IDs được chọn (phải có ít nhất 1 chuyên môn được chọn)
+    @NotEmpty(message = "Vui lòng chọn ít nhất một lĩnh vực chuyên môn")
     List<Long> tagIds;
 }
 
