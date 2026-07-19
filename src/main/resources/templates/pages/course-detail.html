@@ -713,7 +713,7 @@
                                     <i class="bi bi-search blog-search-icon"></i>
                                     <input type="text" class="blog-search-input" id="blogSearchInput" placeholder="Tìm kiếm bài viết...">
                                 </div>
-                                <!-- Chỉ hiển thị nếu học viên đã đăng ký khoá học hoặc giảng viên -->
+                                <!-- Chỉ hiển thị nếu học viên đã đăng ký khoá học -->
                                 <button class="btn-write-blog" id="btnWriteBlog" style="display: none;">
                                     <i class="bi bi-pencil-square me-1"></i>Viết bài chia sẻ
                                 </button>
@@ -1389,22 +1389,6 @@
                     const idx = allBlogs.findIndex(b => b.blogId === blogId);
                     if (idx !== -1) allBlogs[idx] = updated;
                     toastr.success(newStatus === 'APPROVED' ? '✔ Đã phê duyệt bài viết.' : '✖ Đã từ chối bài viết.');
-                    renderBlogs();
-                    updatePendingCount();
-                } catch (e) { toastr.error('Lỗi kết nối.'); }
-            };
-
-            // Delete blog
-            window.deleteBlog = async function(blogId) {
-                if (!confirm('Bạn có chắc chắn muốn xoá bài viết này?')) return;
-                try {
-                    const res = await fetch(`/api/blogs/${blogId}`, {
-                        method: 'DELETE',
-                        headers: { [csrfHeader]: csrfToken }
-                    });
-                    if (!res.ok) { toastr.error('Lỗi khi xoá.'); return; }
-                    allBlogs = allBlogs.filter(b => b.blogId !== blogId);
-                    toastr.error('✖ Đã xoá bài viết.');
                     renderBlogs();
                     updatePendingCount();
                 } catch (e) { toastr.error('Lỗi kết nối.'); }

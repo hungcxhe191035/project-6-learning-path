@@ -100,11 +100,11 @@ public class CartServiceImpl
                                             .getCurrentPublishedVersion()
                                             .getTitle()
                             )
-                            .thumbnailUrl(
-                                    course
-                                            .getCurrentPublishedVersion()
-                                            .getThumbnail().getFileUrl()
-                            )
+                        .thumbnailUrl(
+                                course.getCurrentPublishedVersion().getThumbnail() != null
+                                        ? course.getCurrentPublishedVersion().getThumbnail().getFileUrl()
+                                        : null
+                                )
                             .price(
                                     course
                                             .getCurrentPublishedVersion()

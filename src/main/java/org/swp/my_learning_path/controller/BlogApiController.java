@@ -62,7 +62,7 @@ public class BlogApiController {
 
     /**
      * POST /api/courses/{courseId}/blogs
-     * Học viên / Giảng viên tạo bài viết mới (multipart/form-data).
+     * Học viên tạo bài viết mới (multipart/form-data).
      */
     @PostMapping("/courses/{courseId}/blogs")
     public ResponseEntity<BlogDTO> createBlog(
