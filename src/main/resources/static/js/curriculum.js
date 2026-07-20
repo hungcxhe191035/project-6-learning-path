@@ -170,9 +170,31 @@ document.addEventListener("DOMContentLoaded", function () {
     if (quizQuestionsList) {
         quizQuestionsList.addEventListener('click', function(e) {
             if(e.target.closest('.btn-remove-question')) {
-                if(confirm('Xóa câu hỏi này?')) {
-                    e.target.closest('.question-block').remove();
-                    document.querySelectorAll('.question-block .q-index').forEach((el, idx) => el.textContent = idx + 1);
+                const questionBlock = e.target.closest('.question-block');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Xác nhận xóa?',
+                        text: 'Bạn có chắc chắn muốn xóa câu hỏi tương tác này không?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Đồng ý xóa',
+                        cancelButtonText: 'Hủy',
+                        customClass: {
+                            popup: 'rounded-4 shadow-lg border-0'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            questionBlock.remove();
+                            document.querySelectorAll('.question-block .q-index').forEach((el, idx) => el.textContent = idx + 1);
+                        }
+                    });
+                } else {
+                    if(confirm('Xóa câu hỏi này?')) {
+                        questionBlock.remove();
+                        document.querySelectorAll('.question-block .q-index').forEach((el, idx) => el.textContent = idx + 1);
+                    }
                 }
             }
             if(e.target.closest('.btn-remove-answer')) {

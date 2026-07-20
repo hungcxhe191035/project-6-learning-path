@@ -70,7 +70,7 @@
                 <table class="table table-borderless align-middle mb-0">
                     <thead style="background-color: #f1f5f9; border-bottom: 2px solid #e2e8f0;">
                     <tr>
-                        <th class="ps-4 py-3 text-muted">ID Khóa học</th>
+                        <th class="ps-4 py-3 text-muted">STT</th>
                         <th class="py-3 text-muted">Trạng thái</th>
                         <th class="py-3 text-muted">Ngày tạo</th>
                         <th class="py-3 text-end pe-4 text-muted">Thao tác</th>
@@ -78,8 +78,8 @@
                     </thead>
                     <tbody>
                     <!-- Lặp danh sách khóa học -->
-                    <tr th:each="course : ${courses}" class="course-row border-bottom">
-                        <td class="ps-4 py-4 fw-bold" th:text="'#' + ${course.courseId}">#1</td>
+                    <tr th:each="course, status : ${courses}" class="course-row border-bottom">
+                        <td class="ps-4 py-4 fw-bold" th:text="'#' + ${courses.size() - status.index}">#1</td>
                         <td>
                             <span th:if="${course.isBlocked}" class="badge rounded-pill bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2">
                                 <i class="bi bi-x-circle me-1"></i> Bị Khóa
@@ -126,39 +126,75 @@
         </div>
     </div>
 
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
-        const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
-        
-        const headers = {};
-        if (csrfTokenMeta && csrfHeaderMeta) {
-            headers[csrfHeaderMeta.content] = csrfTokenMeta.content;
-        }
+    <th:block layout:fragment="scripts">
+        <!-- Nhúng thư viện SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
+            const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+            
+            const headers = {};
+            if (csrfTokenMeta && csrfHeaderMeta) {
+                headers[csrfHeaderMeta.content] = csrfTokenMeta.content;
+            }
 
-        document.querySelectorAll('.btn-delete-course').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const courseId = this.dataset.courseId;
-                if (confirm('Bạn có chắc chắn muốn XÓA VĨNH VIỄN khóa học nháp này không? Hành động này không thể hoàn tác!')) {
-                    fetch(`/api/instructor/courses/${courseId}`, {
-                        method: 'DELETE',
-                        headers: headers
-                    })
-                    .then(res => {
-                        if (!res.ok) throw new Error("Lỗi khi xóa khóa học");
-                        return res.text();
-                    })
-                    .then(msg => {
-                        alert(msg);
-                        location.reload(); // Tải lại trang để cập nhật danh sách
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        alert("Có lỗi xảy ra khi xóa khóa học!");
+            document.querySelectorAll('.btn-delete-course').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const courseId = this.dataset.courseId;
+                    
+                    Swal.fire({
+                        title: 'Xác nhận xóa?',
+                        text: 'Bạn có chắc chắn muốn XÓA VĨNH VIỄN khóa học nháp này không? Hành động này không thể hoàn tác!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Đồng ý xóa',
+                        cancelButtonText: 'Hủy',
+                        customClass: {
+                            popup: 'rounded-4 shadow-lg border-0'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(`/api/instructor/courses/${courseId}`, {
+                                method: 'DELETE',
+                                headers: headers
+                            })
+                            .then(res => {
+                                if (!res.ok) throw new Error("Lỗi khi xóa khóa học");
+                                return res.text();
+                            })
+                            .then(msg => {
+                                Swal.fire({
+                                    title: 'Đã xóa!',
+                                    text: msg,
+                                    icon: 'success',
+                                    confirmButtonColor: '#4c1d95',
+                                    customClass: {
+                                        popup: 'rounded-4'
+                                    }
+                                }).then(() => {
+                                    location.reload(); // Tải lại trang để cập nhật danh sách
+                                });
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                Swal.fire({
+                                    title: 'Thất bại!',
+                                    text: 'Có lỗi xảy ra khi xóa khóa học!',
+                                    icon: 'error',
+                                    confirmButtonColor: '#ef4444',
+                                    customClass: {
+                                        popup: 'rounded-4'
+                                    }
+                                });
+                            });
+                        }
                     });
-                }
+                });
             });
         });
-    });
-    </script>
+        </script>
+    </th:block>
 </main>
