@@ -49,4 +49,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             @Param("status") ECourseStatus status,
             org.springframework.data.domain.Pageable pageable
     );
+
+    @Query("SELECT c FROM Course c WHERE c.deleteFlag = false AND (c.isBlocked = false OR c.isBlocked IS NULL) AND c.currentPublishedVersion.status = :status ORDER BY c.averageRating DESC, c.totalReviews DESC, c.createdAt DESC")
+    List<Course> findTop5HighestRated(
+            @Param("status") ECourseStatus status,
+            org.springframework.data.domain.Pageable pageable
+    );
 }

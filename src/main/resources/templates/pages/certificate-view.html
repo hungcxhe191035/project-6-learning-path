@@ -291,13 +291,22 @@
             }
             .cert-course-title {
                 font-size: 24px !important;
-            }
         }
     </style>
 </head>
 
 <body>
 <main layout:fragment="content">
+
+    <!-- Top Back Navigation Bar (Ẩn khi in chứng chỉ) -->
+    <div class="no-print container py-3 mb-2 d-flex justify-content-between align-items-center" style="max-width: 960px;">
+        <a th:href="@{/learn/{id}(id=${certificate.enrollment.course.courseId})}" class="btn rounded-pill px-4 py-2 fw-bold shadow-sm" style="background: #7c3aed; color: #fff; text-decoration: none;">
+            <i class="bi bi-arrow-left me-2"></i> Quay lại trang bài học
+        </a>
+        <a th:href="@{/}" class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm" style="text-decoration: none;">
+            <i class="bi bi-house-door me-2"></i> Quay lại trang chủ
+        </a>
+    </div>
     
     <!-- Outer wrapper to limit width and frame shadow -->
     <div class="cert-outer-wrapper">
@@ -361,9 +370,15 @@
     </div>
 
     <!-- Certification Action Panel -->
-    <div class="cert-actions-section">
-        <div class="d-flex gap-2">
-            <button class="btn-cert-action btn-cert-share" onclick="window.print()">
+    <div class="cert-actions-section no-print">
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            <a th:href="@{/learn/{id}(id=${certificate.enrollment.course.courseId})}" class="btn-cert-action" style="background: #6d28d9; color: white; border: none; text-decoration: none;">
+                <i class="bi bi-arrow-left me-1"></i> Quay lại trang bài học
+            </a>
+            <a th:href="@{/}" class="btn-cert-action" style="background: #1e293b; color: white; border: none; text-decoration: none;">
+                <i class="bi bi-house-door me-1"></i> Quay lại trang chủ
+            </a>
+            <button class="btn-cert-action btn-cert-download" onclick="window.print()">
                 <i class="bi bi-printer"></i> In chứng chỉ
             </button>
         </div>

@@ -42,16 +42,13 @@ public class CourseServiceImpl implements CourseService {
     @Override
     @Transactional(readOnly = true)
     public List<CourseCardDTO> getTop5Courses(Long studentId) {
-        // Lấy danh sách khoá học đã duyệt, không bị xoá
-        List<Course> courses = courseRepository
-                .findByDeleteFlagFalseAndCurrentPublishedVersion_StatusOrderByCreatedAtDesc(
-                        ECourseStatus.APPROVED
-                );
+        // Lấy 5 khoá học có đánh giá cao nhất (averageRating DESC)
+        List<Course> courses = courseRepository.findTop5HighestRated(
+                ECourseStatus.APPROVED,
+                org.springframework.data.domain.PageRequest.of(0, 5)
+        );
 
-        // Giới hạn 5 khoá học đầu tiên
-        // rồi chuyển từng Course sang CourseCardDTO
         return courses.stream()
-                .limit(5)
                 .map(course -> chuyenDoiSangDTO(course, studentId))
                 .toList();
     }
@@ -214,6 +211,10 @@ public class CourseServiceImpl implements CourseService {
                         .build())
                 .toList();
 
+        // Đếm số học viên thực tế từ bảng Enrollment
+        long actualCount = enrollmentRepository.countByCourse_CourseId(course.getCourseId());
+        int realTotalStudents = Math.max(course.getTotalStudents() != null ? course.getTotalStudents() : 0, (int) actualCount);
+
         // 6. Trả về CourseDetailDTO
         return CourseDetailDTO.builder()
                 .courseId(course.getCourseId())
@@ -225,7 +226,7 @@ public class CourseServiceImpl implements CourseService {
                 .thumbnailUrl(thumbnailUrl)
                 .averageRating(course.getAverageRating())
                 .totalReviews(course.getTotalReviews())
-                .totalStudents(course.getTotalStudents())
+                .totalStudents(realTotalStudents)
                 .instructorName(course.getInstructor().getFullName())
                 .courseVersionId(version.getCourseVersionId())
                 .sections(sectionDTOs)
@@ -251,17 +252,22 @@ public class CourseServiceImpl implements CourseService {
             isEnrolled = enrollmentRepository.existsByStudent_UserIdAndCourse_CourseId(studentId, course.getCourseId());
         }
 
+        List<String> tagNames = (phienBan != null && phienBan.getTags() != null)
+                ? phienBan.getTags().stream().map(org.swp.my_learning_path.entity.Tag::getTagName).toList()
+                : new ArrayList<>();
+
         // Trả về DTO với các thông tin cần hiển thị
         return CourseCardDTO.builder()
                 .courseId(course.getCourseId())
-                .title(phienBan.getTitle())
-                .subtitle(phienBan.getSubtitle())
-                .instructorName(course.getInstructor().getFullName())
-                .price(phienBan.getPrice())
+                .title(phienBan != null ? phienBan.getTitle() : "Khoá học")
+                .subtitle(phienBan != null ? phienBan.getSubtitle() : "")
+                .instructorName(course.getInstructor() != null ? course.getInstructor().getFullName() : "Giảng viên")
+                .price(phienBan != null ? phienBan.getPrice() : BigDecimal.ZERO)
                 .averageRating(course.getAverageRating())
                 .totalReviews(course.getTotalReviews())
                 .thumbnailUrl(anhThumbnail)
                 .isEnrolled(isEnrolled)
+                .tags(tagNames)
                 .build();
     }
 }

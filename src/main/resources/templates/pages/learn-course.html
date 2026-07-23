@@ -111,7 +111,7 @@
         .star-rating label:hover, .star-rating label:hover ~ label, .star-rating input:checked ~ label { color: #fbbf24; transform: scale(1.15); text-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
 
         /* ===== VIDEO QUIZ POPUP ===== */
-        .video-quiz-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center; z-index: 100; backdrop-filter: blur(8px); }
+        .video-quiz-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.88); display:flex; align-items:center; justify-content:center; z-index: 2147483647; backdrop-filter: blur(8px); }
         .video-quiz-popup { background: var(--bg-card); border-radius: 24px; padding: 40px; max-width: 550px; width: 90%; border: 1px solid var(--border-color); box-shadow: 0 25px 50px -12px rgba(124,58,237,0.25); animation: popupIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popupIn { from { transform: scale(0.8) translateY(30px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
 
@@ -343,16 +343,23 @@
         let shownTimestamps = new Set();
         let activeVideoQuizzes = [];
         let currentlyShowingQuiz = null;
+        let wasVideoFullscreenBeforeQuiz = false;
 
         window.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
             const queryLessonId = urlParams.get('lessonId');
             const targetLessonId = queryLessonId || firstLessonId;
+            if (urlParams.get('showCert') === 'true') {
+                toastr.success('Chúc mừng bạn đã hoàn thành xuất sắc khoá học và nhận Chứng chỉ!', '🏆 Trao Chứng Chỉ Hoàn Thành', { timeOut: 10000 });
+            }
             if (targetLessonId) {
                 var el = document.getElementById('lesson-item-' + targetLessonId);
                 if (el) {
                     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    el.click();
+                    var lessonId = parseInt(el.dataset.lessonId);
+                    var type = el.dataset.lessonType || 'VIDEO';
+                    // Tải bài học nhưng không tự động redirect sang quiz nếu là tự động chọn khi load trang
+                    selectLesson(lessonId, type, false);
                 }
             }
         });
@@ -383,17 +390,21 @@
             if (el.dataset.locked === 'true') return;
             var lessonId = parseInt(el.dataset.lessonId);
             var type = el.dataset.lessonType || 'VIDEO';
-            selectLesson(lessonId, type);
+            selectLesson(lessonId, type, true); // true = click trực tiếp từ người dùng
         }
 
-        function selectLesson(lessonId, type) {
+        function selectLesson(lessonId, type, isUserClick) {
             currentLessonId = lessonId;
             document.querySelectorAll('.lesson-item').forEach(function(el) { el.classList.remove('active'); });
             var activeEl = document.getElementById('lesson-item-' + lessonId);
             if (activeEl) activeEl.classList.add('active');
 
             if (type === 'QUIZ') {
-                window.location.href = '/learn/' + COURSE_ID + '/quiz/' + lessonId;
+                if (isUserClick) {
+                    window.location.href = '/learn/' + COURSE_ID + '/quiz/' + lessonId;
+                } else {
+                    loadQuizPreview(lessonId);
+                }
             } else if (type === 'VIDEO') {
                 loadVideoLesson(lessonId);
             } else {
@@ -403,6 +414,26 @@
             if (typeof loadLearningBlogs === 'function') {
                 loadLearningBlogs(lessonId);
             }
+        }
+
+        function loadQuizPreview(lessonId) {
+            fetch('/api/learn/lesson/' + lessonId)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var area = document.getElementById('lessonContentArea');
+                    area.innerHTML =
+                        '<div class="video-container d-flex flex-column align-items-center justify-content-center text-center p-4" style="background: linear-gradient(135deg, #1e1b4b, #312e81); color: white; min-height: 380px; border-radius: 16px;">' +
+                        '<div style="font-size: 3.5rem; margin-bottom: 12px;">📝</div>' +
+                        '<h3 style="font-weight: 900; margin-bottom: 8px;">' + (data.title || 'Bài Trắc Nghiệm') + '</h3>' +
+                        '<p style="color: rgba(255,255,255,0.85); max-width: 580px; font-size: 1.05rem; margin-bottom: 24px; line-height: 1.6;">' +
+                        'Bài học này là bài kiểm tra trắc nghiệm. Bạn có thể chọn bất kỳ video/bài đọc nào ở danh sách bên phải để ôn tập lại kiến thức trước khi làm bài, hoặc nhấn nút bên dưới để bắt đầu làm bài Quiz.' +
+                        '</p>' +
+                        '<a href="/learn/' + COURSE_ID + '/quiz/' + lessonId + '" class="btn text-white fw-bold" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); border-radius: 12px; padding: 12px 32px; font-size: 1.05rem; box-shadow: 0 8px 20px rgba(124,58,237,0.4);">' +
+                        '<i class="bi bi-pencil-square me-2"></i> Bắt đầu làm bài Quiz ngay' +
+                        '</a>' +
+                        '</div>';
+                    document.getElementById('overviewContent').innerHTML = '<h4>' + (data.title || '') + '</h4><br/>' + (data.articleContent ? data.articleContent : 'Chọn bài học ở danh sách bên phải để ôn tập video hoặc click "Bắt đầu làm bài Quiz ngay".');
+                }).catch(function() {});
         }
 
         // ===== LOAD VIDEO =====
@@ -476,8 +507,24 @@
         }
 
         function showVideoQuizPopup(quiz) {
-            var wrapper = document.getElementById('videoWrapper');
-            if (!wrapper) return;
+            // Kiểm tra xem học viên có đang xem ở chế độ Fullscreen hay không
+            var isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+            if (isFs) {
+                wasVideoFullscreenBeforeQuiz = true;
+                try {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen().catch(function(e){});
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                } catch(e) {}
+            }
+
+            var wrapper = document.getElementById('videoWrapper') || document.body;
 
             var answersHtml = quiz.answers.map(function(a) {
                 return '<button class="vq-answer" onclick="checkVideoAnswer(this,' + a.answerId + ',' + quiz.questionId + ',' + a.isCorrect + ')">' +
@@ -562,6 +609,22 @@
                     currentlyShowingQuiz = nextQuiz;
                     showVideoQuizPopup(nextQuiz);
                 } else {
+                    // Tự động khôi phục chế độ Toàn màn hình (Fullscreen) nếu trước đó học viên đang xem ở chế độ này!
+                    if (wasVideoFullscreenBeforeQuiz) {
+                        wasVideoFullscreenBeforeQuiz = false;
+                        var target = document.getElementById('videoWrapper') || video;
+                        try {
+                            if (target.requestFullscreen) {
+                                target.requestFullscreen().catch(function(e){});
+                            } else if (target.webkitRequestFullscreen) {
+                                target.webkitRequestFullscreen();
+                            } else if (target.mozRequestFullScreen) {
+                                target.mozRequestFullScreen();
+                            } else if (target.msRequestFullscreen) {
+                                target.msRequestFullscreen();
+                            }
+                        } catch(e) {}
+                    }
                     video.play();
                 }
             }

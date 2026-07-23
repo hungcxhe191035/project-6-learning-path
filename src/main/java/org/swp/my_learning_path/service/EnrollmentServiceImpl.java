@@ -64,8 +64,11 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .student(student)
                 .course(course)
                 .build();
-
         enrollmentRepository.save(enrollment);
+
+        // 6. Cập nhật số lượng học viên của khoá học
+        course.setTotalStudents((course.getTotalStudents() != null ? course.getTotalStudents() : 0) + 1);
+        courseRepository.save(course);
     }
 }
 
