@@ -508,7 +508,7 @@
                         </div>
                         <div class="price-row">
                             <span class="course-price" th:text="${#numbers.formatInteger(course.price,1,'COMMA')}+' ₫'">259.000 ₫</span>
-                            <span class="badge-hot" th:if="${!course.isEnrolled}"><i class="bi bi-lightning-fill"></i> NỔI BẬT</span>
+                            <span class="badge-hot" th:if="${course.averageRating != null and course.averageRating >= 4.5}"><i class="bi bi-lightning-fill"></i> NỔI BẬT</span>
                         </div>
                         <div class="action-btns" onclick="event.stopPropagation()">
                             <th:block th:if="${course.isEnrolled}">

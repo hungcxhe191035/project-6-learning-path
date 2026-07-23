@@ -536,7 +536,7 @@
             <div class="section-header-wrap">
                 <span class="section-badge"><i class="bi bi-stars"></i> Gợi ý riêng</span>
                 <h2 class="section-heading">Lĩnh vực đề xuất</h2>
-                <p class="section-desc">Các khoá học được tuyển chọn phù hợp nhất cho định hướng của bạn</p>
+                <p class="section-desc">Các khoá học chất lượng cao được cộng đồng học viên đánh giá cao nhất</p>
             </div>
 
             <!-- Lưới khoá học: 5 ô thẳng hàng trên 1 dòng chuẩn cân đối -->
@@ -566,6 +566,7 @@
                             </div>
                             <div class="price-row">
                                 <span class="course-price" th:text="${#numbers.formatInteger(course.price,1,'COMMA')}+' ₫'">259.000 ₫</span>
+                                <span class="badge-hot"><i class="bi bi-lightning-fill"></i> NỔI BẬT</span>
                             </div>
                             <div class="action-btns" onclick="event.stopPropagation()">
                                 <th:block th:if="${course.isEnrolled}">
