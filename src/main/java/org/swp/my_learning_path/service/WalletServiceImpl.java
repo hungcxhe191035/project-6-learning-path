@@ -204,6 +204,10 @@ public class WalletServiceImpl implements WalletService {
         enrollment.setDeleteFlag(false);
         enrollmentRepository.save(enrollment);
 
+        // Cập nhật số lượng học viên khoá học
+        course.setTotalStudents((course.getTotalStudents() != null ? course.getTotalStudents() : 0) + 1);
+        courseRepository.save(course);
+
         // Chia sẻ doanh thu cho Giảng viên & Admin
         User admin = userRepository.findByEmail("admin@fcourse.vn")
                 .orElseGet(() -> userRepository.findAll().stream()
@@ -366,6 +370,10 @@ public class WalletServiceImpl implements WalletService {
                     .build();
             enrollment.setDeleteFlag(false);
             enrollmentRepository.save(enrollment);
+
+            // Cập nhật số lượng học viên khoá học
+            course.setTotalStudents((course.getTotalStudents() != null ? course.getTotalStudents() : 0) + 1);
+            courseRepository.save(course);
 
             // Chia sẻ doanh thu cho giảng viên & Admin
             if (price.compareTo(BigDecimal.ZERO) > 0) {

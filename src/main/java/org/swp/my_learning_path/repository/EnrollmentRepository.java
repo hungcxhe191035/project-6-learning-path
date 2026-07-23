@@ -28,6 +28,9 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     // Kiểm tra học viên đã đăng ký khoá học chưa
     boolean existsByStudent_UserIdAndCourse_CourseId(Long studentId, Long courseId);
 
+    // Đếm số lượng học viên thực tế đã đăng ký khoá học
+    long countByCourse_CourseId(Long courseId);
+
     // Lấy tất cả khoá học đã đăng ký của học viên
     List<Enrollment> findByStudent_UserId(Long studentId);
 

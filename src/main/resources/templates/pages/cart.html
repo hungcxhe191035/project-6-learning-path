@@ -1,87 +1,273 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/main-layout}">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Giỏ hàng của tôi | fCourse</title>
     <style>
-        .cart-card { border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 16px; overflow: hidden; }
-        .cart-img { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; }
-        .summary-box {
-            background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 16px;
-            padding: 24px; position: sticky; top: 20px;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        /* ========== GLOBAL ========== */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
         }
+
+        /* ========== HERO BANNER GIỎ HÀNG ========== */
+        .cart-hero-header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+            padding: 52px 0 46px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 -12px 35px rgba(0,0,0,0.18);
+            margin-bottom: 32px;
+        }
+        .cart-hero-header::before {
+            content: '';
+            position: absolute;
+            width: 450px; height: 450px; border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            top: -180px; right: -80px;
+        }
+
+        .cart-pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(12px);
+            color: #f5f3ff;
+            font-size: 0.82rem;
+            font-weight: 800;
+            padding: 5px 16px;
+            border-radius: 99px;
+            margin-bottom: 14px;
+            letter-spacing: 0.5px;
+        }
+        .cart-header-title {
+            font-size: 2.6rem;
+            font-weight: 900;
+            margin-bottom: 6px;
+            letter-spacing: -0.8px;
+            text-shadow: 0 4px 18px rgba(0,0,0,0.2);
+        }
+        .cart-header-sub {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* Nút quay lại trang trước */
+        .btn-back-prev {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1.5px solid rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(12px);
+            color: #f5f3ff;
+            font-size: 0.88rem;
+            font-weight: 700;
+            padding: 7px 18px;
+            border-radius: 99px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            text-decoration: none;
+            margin-bottom: 16px;
+        }
+        .btn-back-prev:hover {
+            background: rgba(255, 255, 255, 0.24);
+            color: #ffffff;
+            transform: translateX(-4px);
+        }
+
+        /* ========== CART CARD & ITEMS ========== */
+        .cart-select-bar {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .cart-item-card {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 18px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.03);
+        }
+        .cart-item-card:hover {
+            border-color: #c4b5fd;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(124, 58, 237, 0.12);
+        }
+
+        .cart-img-thumb {
+            width: 140px;
+            height: 95px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .cart-item-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        .cart-item-instructor {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .cart-item-price {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #6d28d9;
+            letter-spacing: -0.4px;
+        }
+
+        /* ========== ORDER SUMMARY BOX ========== */
+        .summary-box {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 28px;
+            position: sticky;
+            top: 90px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.05);
+        }
+        .summary-title {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .wallet-widget {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+        }
+
         .btn-checkout {
             background: linear-gradient(135deg, #7c3aed, #6d28d9);
-            color: white; border: none; border-radius: 12px;
-            font-weight: 700; width: 100%; padding: 14px;
-            transition: all 0.2s;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            width: 100%;
+            padding: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+            cursor: pointer;
         }
         .btn-checkout:hover {
-            background: linear-gradient(135deg, #6d28d9, #5b21b6);
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(124, 58, 237, 0.4);
+            color: white;
+        }
+
+        /* GIỎ HÀNG TRỐNG */
+        .empty-cart-card {
+            background: #ffffff;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 20px;
+            padding: 60px 20px;
+            text-align: center;
         }
     </style>
 </head>
-<body>
 
+<body>
 <div layout:fragment="content">
-    <div class="container py-5" th:with="totalPrice=${cartItems != null and !cartItems.isEmpty() ? #aggregates.sum(cartItems.![price]) : 0}">
-        
-        <h2 class="mb-4 fw-bold"><i class="bi bi-cart3 me-2 text-primary"></i>Giỏ hàng của tôi</h2>
+
+    <!-- ===== HERO BANNER GIỎ HÀNG ===== -->
+    <section class="cart-hero-header">
+        <div class="container-fluid px-4 px-lg-5">
+            <button onclick="history.back()" class="btn-back-prev">
+                <i class="bi bi-arrow-left"></i> Quay lại trang trước
+            </button>
+            <br>
+            <span class="cart-pill-badge"><i class="bi bi-bag-check-fill text-warning"></i> Giỏ Hàng Của Bạn</span>
+            <h1 class="cart-header-title">Quản lý khoá học đã chọn</h1>
+            <p class="cart-header-sub">Kiểm tra thông tin chi tiết và tiến hành thanh toán nhanh chóng qua Ví fCourse</p>
+        </div>
+    </section>
+
+    <!-- ===== MAIN CONTENT CONTAINER ===== -->
+    <div class="container-fluid px-4 px-lg-5 pb-5" th:with="totalPrice=${cartItems != null and !cartItems.isEmpty() ? #aggregates.sum(cartItems.![price]) : 0}">
 
         <!-- GIỎ HÀNG TRỐNG -->
-        <div th:if="${cartItems == null || cartItems.isEmpty()}" class="text-center py-5">
-            <div class="fs-1 text-muted mb-3"><i class="bi bi-cart-x"></i></div>
-            <h4 class="fw-semibold text-muted">Giỏ hàng của bạn đang trống</h4>
-            <p class="text-muted small mb-4">Hãy khám phá các khóa học hấp dẫn của chúng tôi và thêm chúng vào giỏ hàng.</p>
-            <a th:href="@{/courses}" class="btn btn-primary px-4 py-2" style="border-radius: 8px; font-weight:600;">
-                Khám phá khóa học ngay
+        <div th:if="${cartItems == null || cartItems.isEmpty()}" class="empty-cart-card">
+            <div style="font-size: 4rem; color: #a78bfa;" class="mb-3"><i class="bi bi-cart-x-fill"></i></div>
+            <h3 class="fw-extrabold text-dark mb-2" style="font-weight: 900;">Giỏ hàng của bạn đang trống</h3>
+            <p class="text-muted mb-4" style="font-size: 1.05rem;">Hãy khám phá các khoá học hấp dẫn của chúng tôi và chọn khoá học ưng ý nhất.</p>
+            <a th:href="@{/courses}" class="btn text-white fw-bold px-4 py-3" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); border-radius: 12px; box-shadow: 0 6px 18px rgba(124,58,237,0.35);">
+                <i class="bi bi-compass me-2"></i> Khám phá khoá học ngay
             </a>
         </div>
-        
+
         <!-- GIỎ HÀNG CÓ SẢN PHẨM -->
         <div th:unless="${cartItems == null || cartItems.isEmpty()}" class="row g-4">
-            
-            <!-- Danh sách khóa học -->
+
+            <!-- Cột Trái: Danh sách khóa học -->
             <div class="col-lg-8">
-                <!-- Chọn tất cả & Hành động -->
-                <div class="d-flex align-items-center justify-content-between p-3 mb-3 bg-light rounded-3 border">
-                    <div class="form-check d-flex align-items-center">
-                        <input class="form-check-input" type="checkbox" id="selectAllCart" checked onchange="toggleSelectAll(this)" style="width: 1.25rem; height: 1.25rem; cursor: pointer;">
-                        <label class="form-check-label fw-bold text-dark ms-2 mb-0" for="selectAllCart" style="cursor: pointer;">
-                            Chọn tất cả (<span id="selectedCount">0</span>/<span th:text="${cartItems.size()}">0</span> khóa học)
+                <!-- Thanh chọn tất cả & Hành động -->
+                <div class="cart-select-bar d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="form-check d-flex align-items-center mb-0">
+                        <input class="form-check-input" type="checkbox" id="selectAllCart" checked onchange="toggleSelectAll(this)" style="width: 1.3rem; height: 1.3rem; cursor: pointer; accent-color: #7c3aed;">
+                        <label class="form-check-label fw-bold text-dark ms-2 mb-0" for="selectAllCart" style="cursor: pointer; font-size: 1rem;">
+                            Chọn tất cả (<span id="selectedCount">0</span>/<span th:text="${cartItems.size()}">0</span> khoá học)
                         </label>
                     </div>
-                    <button class="btn btn-outline-danger btn-sm border-0 fw-semibold" onclick="removeSelectedCartItems()" id="btnDeleteSelected" style="display: none;">
-                        <i class="bi bi-trash me-1"></i>Xóa đã chọn
+                    <button class="btn btn-outline-danger btn-sm border-0 fw-bold" onclick="removeSelectedCartItems()" id="btnDeleteSelected" style="display: none; border-radius: 8px;">
+                        <i class="bi bi-trash-fill me-1"></i>Xoá các khoá đã chọn
                     </button>
                 </div>
 
-                <div class="card cart-card shadow-sm" th:each="item : ${cartItems}">
-                    <div class="card-body p-3">
+                <!-- Thẻ từng sản phẩm -->
+                <div class="cart-item-card" th:each="item : ${cartItems}">
+                    <div class="p-3 p-md-4">
                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                             <div class="d-flex align-items-center gap-3">
                                 <!-- Checkbox chọn lẻ -->
-                                <div class="form-check">
+                                <div class="form-check mb-0">
                                     <input class="form-check-input cart-item-check" type="checkbox" checked
                                            th:id="'check-item-' + ${item.courseId}"
                                            th:data-course-id="${item.courseId}"
                                            th:data-price="${item.price}"
                                            onchange="updateCartSummary()"
-                                           style="width: 1.25rem; height: 1.25rem; cursor: pointer;">
+                                           style="width: 1.3rem; height: 1.3rem; cursor: pointer; accent-color: #7c3aed;">
                                 </div>
-                                <img th:src="${item.thumbnailUrl}" class="cart-img" alt="Thumbnail">
+                                <img th:src="${item.thumbnailUrl}" class="cart-img-thumb" alt="Thumbnail">
                                 <div>
-                                    <h6 class="fw-bold text-dark mb-1" th:text="${item.courseTitle}">Tên khóa học</h6>
-                                    <span class="text-muted small" th:text="'Giảng viên: ' + ${item.instructorName}">Giảng viên</span>
+                                    <h5 class="cart-item-title" th:text="${item.courseTitle}">Tên khóa học</h5>
+                                    <span class="cart-item-instructor"><i class="bi bi-person-fill text-primary"></i> <span th:text="${item.instructorName}">Giảng viên</span></span>
                                 </div>
                             </div>
                             <div class="d-flex align-items-center gap-4 ms-auto">
-                                <strong class="fs-5 text-purple" th:text="${#numbers.formatInteger(item.price, 1, 'COMMA')} + ' ₫'">0 ₫</strong>
-                                <button class="btn btn-outline-danger btn-sm border-0" th:data-course-id="${item.courseId}" onclick="removeCartItem(this)">
-                                    <i class="bi bi-trash fs-5"></i>
+                                <strong class="cart-item-price" th:text="${#numbers.formatInteger(item.price, 1, 'COMMA')} + ' ₫'">0 ₫</strong>
+                                <button class="btn btn-outline-danger btn-sm border-0" th:data-course-id="${item.courseId}" onclick="removeCartItem(this)" title="Xoá khỏi giỏ">
+                                    <i class="bi bi-trash-fill fs-5"></i>
                                 </button>
                             </div>
                         </div>
@@ -89,30 +275,30 @@
                 </div>
             </div>
 
-            <!-- Tổng kết & Thanh toán -->
+            <!-- Cột Phải: Tổng kết & Thanh toán -->
             <div class="col-lg-4">
-                <div class="summary-box shadow-sm">
-                    <h5 class="fw-bold mb-4">Thông tin đơn hàng</h5>
-                    
-                    <div class="d-flex justify-content-between mb-2">
+                <div class="summary-box">
+                    <h5 class="summary-title"><i class="bi bi-receipt me-2 text-primary"></i>Thông tin đơn hàng</h5>
+
+                    <div class="d-flex justify-content-between mb-3" style="font-size: 1rem;">
                         <span class="text-muted">Tạm tính:</span>
                         <strong class="text-dark" id="subtotalPrice">0 ₫</strong>
                     </div>
-                    <hr>
+                    <hr style="border-color: #e2e8f0;">
                     <div class="d-flex justify-content-between mb-4">
                         <span class="fw-bold fs-5 text-dark">Tổng tiền:</span>
-                        <strong class="fs-5 text-purple" id="totalPrice">0 ₫</strong>
+                        <strong class="fs-4 text-purple" style="color:#6d28d9; font-weight:900;" id="totalPrice">0 ₫</strong>
                     </div>
 
-                    <!-- Thông tin ví cá nhân -->
-                    <div class="bg-white p-3 border rounded-3 mb-4" style="font-size: 0.9rem;">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="text-muted"><i class="bi bi-wallet2 me-1"></i>Số dư ví của bạn:</span>
-                            <strong class="text-success" th:data-balance="${walletBalance != null ? walletBalance : 0}" id="walletBalanceVal" th:text="${#numbers.formatInteger(walletBalance != null ? walletBalance : 0, 1, 'COMMA')} + ' ₫'">0 ₫</strong>
+                    <!-- Widget ví cá nhân -->
+                    <div class="wallet-widget">
+                        <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 0.92rem;">
+                            <span class="text-muted font-weight-bold"><i class="bi bi-wallet2 me-1 text-success"></i>Số dư ví của bạn:</span>
+                            <strong class="text-success fw-bold fs-6" th:data-balance="${walletBalance != null ? walletBalance : 0}" id="walletBalanceVal" th:text="${#numbers.formatInteger(walletBalance != null ? walletBalance : 0, 1, 'COMMA')} + ' ₫'">0 ₫</strong>
                         </div>
                     </div>
 
-                    <!-- Nút thanh toán và cảnh báo sẽ render động -->
+                    <!-- Vùng hiển thị nút thanh toán -->
                     <div id="paymentArea"></div>
                 </div>
             </div>
@@ -139,7 +325,6 @@
                 }
             });
 
-            // Đồng bộ trạng thái "Chọn tất cả"
             if (checks.length > 0 && selectAllCheck) {
                 selectAllCheck.checked = (selectedCount === checks.length);
             }
@@ -148,7 +333,6 @@
                 selectedCountEl.innerText = selectedCount;
             }
 
-            // Format hiển thị tiền
             const formattedPrice = new Intl.NumberFormat('vi-VN').format(totalPrice) + ' ₫';
             const subtotalPriceEl = document.getElementById('subtotalPrice');
             if (subtotalPriceEl) {
@@ -159,13 +343,11 @@
                 totalPriceEl.innerText = formattedPrice;
             }
 
-            // Ẩn/hiện nút "Xóa đã chọn"
             const btnDeleteSelected = document.getElementById('btnDeleteSelected');
             if (btnDeleteSelected) {
                 btnDeleteSelected.style.display = selectedCount > 0 ? 'inline-block' : 'none';
             }
 
-            // Kiểm tra ví tiền và hiển thị nút tương ứng
             const walletBalanceElement = document.getElementById('walletBalanceVal');
             const paymentArea = document.getElementById('paymentArea');
             if (walletBalanceElement && paymentArea) {
@@ -173,25 +355,25 @@
 
                 if (selectedCount === 0) {
                     paymentArea.innerHTML = `
-                        <div class="alert alert-warning small mb-3 py-2" role="alert">
+                        <div class="alert alert-warning small mb-3 py-2 fw-semibold" role="alert">
                             Vui lòng chọn ít nhất một khóa học để thanh toán.
                         </div>
-                        <button class="btn-checkout py-3" disabled style="opacity: 0.6; cursor: not-allowed;">
+                        <button class="btn-checkout" disabled style="opacity: 0.6; cursor: not-allowed;">
                             <i class="bi bi-shield-check me-2"></i>Thanh toán bằng ví fCourse
                         </button>
                     `;
                 } else if (walletBalance >= totalPrice) {
                     paymentArea.innerHTML = `
-                        <button class="btn-checkout py-3" onclick="checkoutCart(this)">
+                        <button class="btn-checkout" onclick="checkoutCart(this)">
                             <i class="bi bi-shield-check me-2"></i>Thanh toán bằng ví fCourse
                         </button>
                     `;
                 } else {
                     paymentArea.innerHTML = `
-                        <div class="alert alert-danger small mb-3 py-2" role="alert">
+                        <div class="alert alert-danger small mb-3 py-2 fw-semibold" role="alert">
                             Số dư ví không đủ để thanh toán. Vui lòng nạp thêm tiền.
                         </div>
-                        <a href="/wallet" class="btn w-100 py-3 text-white fw-bold" style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; text-decoration: none; text-align: center; display: block;">
+                        <a href="/wallet" class="btn w-100 py-3 text-white fw-bold" style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 14px; text-decoration: none; text-align: center; display: block; box-shadow: 0 4px 14px rgba(16,185,129,0.35);">
                             <i class="bi bi-plus-circle me-2"></i>Nạp thêm tiền vào ví
                         </a>
                     `;
@@ -209,16 +391,12 @@
 
         async function removeCartItem(btn){
             const courseId = btn.dataset.courseId;
-            if(!confirm("Xóa khóa học khỏi giỏ hàng?")){
+            if(!confirm("Xoá khóa học này khỏi giỏ hàng?")){
                 return;
             }
-
-            const response = await fetch("/api/cart/" + courseId, {
-                method: "DELETE"
-            });
-
+            const response = await fetch("/api/cart/" + courseId, { method: "DELETE" });
             if(response.ok){
-                toastr.success("Đã xóa khỏi giỏ hàng");
+                toastr.success("Đã xoá khỏi giỏ hàng");
                 location.reload();
             }
         }
@@ -226,24 +404,17 @@
         async function removeSelectedCartItems() {
             const checkedBoxes = document.querySelectorAll('.cart-item-check:checked');
             if (checkedBoxes.length === 0) return;
-
-            if (!confirm(`Xóa ${checkedBoxes.length} khóa học đã chọn khỏi giỏ hàng?`)) {
-                return;
-            }
+            if (!confirm(`Xoá ${checkedBoxes.length} khóa học đã chọn khỏi giỏ hàng?`)) return;
 
             let successCount = 0;
             for (let cb of checkedBoxes) {
                 const courseId = cb.dataset.courseId;
-                const response = await fetch("/api/cart/" + courseId, {
-                    method: "DELETE"
-                });
-                if (response.ok) {
-                    successCount++;
-                }
+                const response = await fetch("/api/cart/" + courseId, { method: "DELETE" });
+                if (response.ok) successCount++;
             }
 
             if (successCount > 0) {
-                toastr.success(`Đã xóa ${successCount} khóa học khỏi giỏ hàng`);
+                toastr.success(`Đã xoá ${successCount} khóa học khỏi giỏ hàng`);
                 location.reload();
             }
         }
@@ -255,9 +426,7 @@
                 return;
             }
 
-            if(!confirm("Bạn có chắc chắn muốn dùng ví tiền để thanh toán các khóa học đã chọn?")) {
-                return;
-            }
+            if(!confirm("Bạn có chắc chắn muốn dùng ví tiền để thanh toán các khóa học đã chọn?")) return;
 
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý đơn hàng...';
@@ -290,6 +459,5 @@
         }
     </script>
 </div>
-
 </body>
 </html>

@@ -18,5 +18,5 @@ public class CourseCardDTO {
     Integer totalReviews;   // Tổng số đánh giá
     String thumbnailUrl;    // Đường dẫn ảnh thumbnail
     Boolean isEnrolled;     // Đã mua khoá học hay chưa
-
+    java.util.List<String> tags; // Danh sách các nhãn tag của khoá học
 }

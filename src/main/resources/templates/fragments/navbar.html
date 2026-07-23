@@ -84,6 +84,33 @@
             font-weight: 700;
             font-size: 24px;
         }
+        /* Chuẩn hoá 100% tất cả chữ trên Navbar thành chữ đen in đậm to bản như Đăng nhập */
+        .nav-link-bold,
+        .navbar .nav-custom-link,
+        .navbar .btn-login,
+        .navbar .btn-register,
+        .navbar a.text-dark {
+            font-size: 1.05rem !important;
+            font-weight: 800 !important;
+            color: #1c1d1f !important;
+            text-decoration: none !important;
+            border: none !important;
+            background: transparent !important;
+            padding: 6px 14px !important;
+            transition: color 0.2s ease, transform 0.2s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+        }
+        .nav-link-bold:hover,
+        .navbar .nav-custom-link:hover,
+        .navbar .btn-login:hover,
+        .navbar .btn-register:hover,
+        .navbar a.text-dark:hover {
+            color: #6d28d9 !important;
+            text-decoration: none !important;
+            transform: translateY(-1px) !important;
+        }
+
         .dropdown-item:hover {
             background-color: #f7f9fa !important;
             color: #5624d0 !important;
@@ -96,31 +123,47 @@
         th:fragment="navbar"
         class="navbar navbar-expand-lg bg-white border-bottom py-2"
 >
+    <!-- Thẻ style đặt trực tiếp bên trong Nav fragment để Thymeleaf nạp 100% khi th:replace -->
+    <style>
+        .navbar .nav-link-bold,
+        .navbar .nav-custom-link,
+        .navbar a.nav-link-bold,
+        .navbar a.nav-custom-link,
+        .navbar a.btn-login,
+        .navbar a.btn-register,
+        .navbar a.text-dark {
+            font-size: 0.95rem !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            text-decoration: none !important;
+            border: none !important;
+            background: transparent !important;
+            padding: 6px 12px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            letter-spacing: -0.2px !important;
+        }
+        .navbar a:hover,
+        .navbar .nav-link-bold:hover,
+        .navbar a.nav-link-bold:hover {
+            color: #6d28d9 !important;
+            text-decoration: none !important;
+        }
+    </style>
+
     <div class="container-fluid px-4">
         <!-- Logo -->
-        <a
-                class="navbar-brand d-flex align-items-center"
-                th:href="@{/}"
-        >
-            <img
-                    th:src="@{/image/logo.png}"
-                    alt="My Learning Path Logo"
-                    style="height: 50px; width: auto;"
-            >
+        <a class="navbar-brand d-flex align-items-center" th:href="@{/}">
+            <img th:src="@{/image/logo.png}" alt="My Learning Path Logo" style="height: 50px; width: auto;">
         </a>
 
         <!-- Search -->
         <div class="d-none d-md-flex flex-grow-1 mx-4">
             <form action="/search" method="get" class="d-flex align-items-center"
                   style="width: 100%; max-width: 450px; border: 1px solid #ced4da; border-radius: 999px; overflow: hidden; background-color: #fff;">
-
                 <input type="text" name="q" placeholder="Tìm kiếm nội dung bất kỳ"
                        style="border: none; outline: none; flex: 1; padding: 10px 20px; font-size: 15px; background: transparent;">
-
-                <!-- Vạch kẻ dọc ngăn cách -->
                 <div style="width: 1px; height: 24px; background-color: #ced4da;"></div>
-
-                <!-- Nút kính lúp -->
                 <button type="submit"
                         style="background: transparent; border: none; padding: 0 20px; cursor: pointer; color: #1c1d1f; display: flex; align-items: center; justify-content: center;">
                     <i class="bi bi-search" style="font-size: 18px;"></i>
@@ -130,55 +173,53 @@
 
         <!-- Right -->
         <div class="d-flex align-items-center gap-3">
-            <!-- Instructor Link -->
-            <a
-                    sec:authorize="hasRole('INSTRUCTOR')"
-                    th:href="@{/instructor/courses}"
-                    class="text-dark text-decoration-none d-none d-xl-block"
-            >
-                Tạo khoá học
-            </a>
-
             <!-- Student Links -->
-            <a
-                    th:href="@{/home}"
-                    class="text-dark text-decoration-none d-none d-xl-block"
-            >
+            <a th:href="@{/home}"
+               class="nav-link-bold d-none d-xl-block"
+               style="font-size: 0.95rem !important; font-weight: 600 !important; color: #1e293b !important; text-decoration: none !important;">
                 Trang chủ
             </a>
-            <a
-                    th:href="@{/courses}"
-                    class="text-dark text-decoration-none d-none d-xl-block"
-            >
+            <a th:href="@{/courses}"
+               class="nav-link-bold d-none d-xl-block"
+               style="font-size: 0.95rem !important; font-weight: 600 !important; color: #1e293b !important; text-decoration: none !important;">
                 Khoá học
             </a>
 
+            <!-- Menu Dropdown Quản lý dành cho Giảng viên / Admin -->
+            <div sec:authorize="hasAnyRole('INSTRUCTOR', 'ADMIN')" class="dropdown d-none d-lg-block">
+                <button class="btn nav-link-bold dropdown-toggle border-0 p-0 shadow-none d-flex align-items-center gap-1"
+                        type="button" id="instructorManageMenu" data-bs-toggle="dropdown" aria-expanded="false"
+                        style="font-size: 0.95rem !important; font-weight: 700 !important; color: #6d28d9 !important; background: transparent;">
+                    <i class="bi bi-briefcase-fill me-1"></i> Kênh Giảng Viên
+                </button>
+                <ul class="dropdown-menu shadow-lg border-0 rounded-3 mt-2 py-2" aria-labelledby="instructorManageMenu" style="min-width: 235px; width: max-content; white-space: nowrap; z-index: 1060;">
+                    <li><a class="dropdown-item py-2.5 px-3 fw-semibold text-secondary" th:href="@{/instructor/courses}" style="white-space: nowrap;"><i class="bi bi-journal-plus me-2 text-primary"></i> Quản lý khoá học</a></li>
+                    <li><a class="dropdown-item py-2.5 px-3 fw-semibold text-secondary" th:href="@{/instructor/students}" style="white-space: nowrap;"><i class="bi bi-people me-2 text-info"></i> Quản lý học viên</a></li>
+                    <li><a class="dropdown-item py-2.5 px-3 fw-semibold text-secondary" th:href="@{/instructor/vouchers}" style="white-space: nowrap;"><i class="bi bi-ticket-perforated me-2 text-warning"></i> Quản lý Voucher</a></li>
+                    <li><a class="dropdown-item py-2.5 px-3 fw-semibold text-secondary" th:href="@{/instructor/qna}" style="white-space: nowrap;"><i class="bi bi-chat-dots me-2 text-success"></i> Hỏi đáp học viên</a></li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item py-2.5 px-3 fw-bold text-purple" th:href="@{/revenue}" style="white-space: nowrap;"><i class="bi bi-graph-up-arrow me-2 text-purple"></i> Báo cáo doanh thu</a></li>
+                    <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item py-2.5 px-3 fw-bold text-danger" th:href="@{/admin/dashboard}" style="white-space: nowrap;"><i class="bi bi-speedometer2 me-2 text-danger"></i> Admin Dashboard</a></li>
+                </ul>
+            </div>
+
             <!-- Chưa login -->
-            <div
-                    sec:authorize="isAnonymous()"
-                    class="d-flex align-items-center gap-2"
-            >
-                <a
-                        th:href="@{/login}"
-                        class="btn btn-login"
-                >
+            <div sec:authorize="isAnonymous()" class="d-flex align-items-center gap-2">
+                <a th:href="@{/login}"
+                   class="nav-link-bold btn-login"
+                   style="font-size: 0.95rem !important; font-weight: 600 !important; color: #1e293b !important; text-decoration: none !important;">
                     Đăng nhập
                 </a>
-                <a
-                        th:href="@{/register}"
-                        class="btn btn-register"
-                >
+                <a th:href="@{/register}"
+                   class="nav-link-bold btn-register"
+                   style="font-size: 0.95rem !important; font-weight: 600 !important; color: #1e293b !important; text-decoration: none !important;">
                     Đăng ký
                 </a>
             </div>
 
             <!-- Đã login -->
             <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-3">
-                <a th:href="@{/profile}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Học tập</a>
-                <a sec:authorize="hasRole('INSTRUCTOR')" th:href="@{/instructor/students}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Học viên</a>
-                <a sec:authorize="hasRole('INSTRUCTOR')" th:href="@{/instructor/vouchers}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Voucher</a>
-                <a sec:authorize="hasRole('INSTRUCTOR')" th:href="@{/instructor/qna}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Hỏi đáp</a>
-                <a sec:authorize="hasAnyRole('INSTRUCTOR', 'ADMIN')" th:href="@{/revenue}" class="text-dark text-decoration-none d-none d-lg-block" style="font-size: 14px;">Doanh thu</a>
+                <a th:href="@{/profile}" class="nav-link-bold d-none d-lg-block" style="font-size: 0.95rem !important; font-weight: 600 !important; color: #1e293b !important; text-decoration: none !important;">Học tập</a>
                 
                 <!-- Giỏ hàng -->
                 <a th:href="@{/cart}" class="btn position-relative d-none d-lg-flex align-items-center text-dark px-2" style="outline: none;">

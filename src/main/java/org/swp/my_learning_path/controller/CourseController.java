@@ -29,6 +29,7 @@ public class CourseController {
     private final CourseService courseService;
     private final EnrollmentService enrollmentService;
     private final CertificateService certificateService;
+    private final org.swp.my_learning_path.service.TagService tagService;
 
     @GetMapping("/course/{id}")
     public String courseDetail(@PathVariable Long id, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -75,12 +76,50 @@ public class CourseController {
     }
 
     @GetMapping("/courses")
-    public String courses(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public String courses(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "tag", defaultValue = "") String selectedTag,
+            Model model,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
         Long studentId = (userDetails != null) ? userDetails.getUserId() : null;
-        model.addAttribute(
-                "courses",
-                courseService.getCourses(studentId)
-        );
+        List<CourseCardDTO> allCourses = courseService.getCourses(studentId);
+
+        // Lọc theo tag nếu có chọn
+        if (selectedTag != null && !selectedTag.trim().isEmpty()) {
+            String filterTag = selectedTag.trim().toLowerCase();
+            allCourses = allCourses.stream()
+                    .filter(c -> {
+                        if (c.getTags() != null && !c.getTags().isEmpty()) {
+                            return c.getTags().stream().anyMatch(t -> t.toLowerCase().contains(filterTag) || filterTag.contains(t.toLowerCase()));
+                        }
+                        // Fallback match với tiêu đề khoá học nếu tag chưa được tạo đầy đủ
+                        return c.getTitle() != null && c.getTitle().toLowerCase().contains(filterTag);
+                    })
+                    .toList();
+        }
+
+        // Phân trang 10 khoá học / trang (2 hàng x 5 ô)
+        int pageSize = 10;
+        int totalItems = allCourses.size();
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        if (totalPages < 1) totalPages = 1;
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+
+        int fromIndex = (page - 1) * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, totalItems);
+        List<CourseCardDTO> pagedCourses = (fromIndex < totalItems) ? allCourses.subList(fromIndex, toIndex) : List.of();
+
+        // Lấy danh sách tất cả các tag hệ thống
+        List<org.swp.my_learning_path.entity.Tag> tags = tagService.getAllTags();
+
+        model.addAttribute("courses", pagedCourses);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalItems", totalItems);
+        model.addAttribute("selectedTag", selectedTag);
+        model.addAttribute("tags", tags);
         return "pages/course-list";
     }
 

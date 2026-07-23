@@ -27,37 +27,98 @@
             border-color: #3b82f6 !important;
             transform: translateY(-1px);
         }
-        /* ===== HERO ===== */
+        /* ===== HERO SYNC WITH HOME ===== */
         .course-hero {
-            background: linear-gradient(135deg, #0f0c29, #1e1b4b, #312e81);
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
             color: white;
-            padding: 48px 0 40px;
+            padding: 38px 0 34px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 -12px 35px rgba(0,0,0,0.18);
+        }
+        .course-hero::before {
+            content: '';
+            position: absolute;
+            width: 500px; height: 500px; border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            top: -200px; right: -100px;
+        }
+
+        /* Nút quay lại trang chủ gọn gàng */
+        .btn-back-prev {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1.5px solid rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(12px);
+            color: #f5f3ff;
+            font-size: 0.84rem;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 99px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn-back-prev:hover {
+            background: rgba(255, 255, 255, 0.24);
+            color: #ffffff;
+            transform: translateX(-4px);
+        }
+
+        /* Logo In Chìm Mờ Góc Phải Banner */
+        .hero-right-logo {
+            max-height: 250px;
+            width: auto;
+            filter: brightness(0) invert(1);
+            opacity: 0.15;
+            pointer-events: none;
+            user-select: none;
+            transition: all 0.4s ease;
         }
         .badge-bestseller {
-            background: #fef3c7; color: #92400e;
-            border-radius: 4px; font-size: 0.75rem;
-            font-weight: 700; padding: 3px 10px;
-            display: inline-block; margin-right: 6px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+            border-radius: 6px; font-size: 0.75rem;
+            font-weight: 800; padding: 4px 10px;
+            display: inline-block;
+            box-shadow: 0 3px 8px rgba(245, 158, 11, 0.3);
         }
         .badge-tophighest {
-            background: #d1fae5; color: #065f46;
-            border-radius: 4px; font-size: 0.75rem;
-            font-weight: 700; padding: 3px 10px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+            border-radius: 6px; font-size: 0.75rem;
+            font-weight: 800; padding: 4px 10px;
             display: inline-block;
+            box-shadow: 0 3px 8px rgba(16, 185, 129, 0.3);
         }
-        .hero-title { font-size: 1.9rem; font-weight: 800; line-height: 1.3; }
-        .hero-subtitle { font-size: 1.05rem; color: rgba(255,255,255,0.8); margin-top: 10px; }
-        .hero-rating-score { color: #f59e0b; font-weight: 700; }
-        .hero-stars { color: #f59e0b; }
-        .hero-meta { font-size: 0.88rem; color: rgba(255,255,255,0.75); margin-top: 10px; }
+        .hero-title { font-size: 2.3rem; font-weight: 900; line-height: 1.25; letter-spacing: -0.6px; text-shadow: 0 4px 18px rgba(0,0,0,0.25); margin-bottom: 6px; }
+        .hero-subtitle { font-size: 1.08rem; color: rgba(255,255,255,0.85); margin-bottom: 14px; line-height: 1.45; font-weight: 500; }
+        .hero-rating-score { color: #fbbf24; font-weight: 900; font-size: 1.05rem; }
+        .hero-stars { color: #fbbf24; font-size: 0.95rem; }
+        .hero-meta { font-size: 0.88rem; color: rgba(255,255,255,0.85); font-weight: 500; }
+        .hero-mini-feature {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.16);
+            padding: 5px 13px;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.9);
+        }x; font-weight: 500; }
 
         /* ===== SIDEBAR ===== */
         .course-sidebar {
             position: sticky;
-            top: 80px;
+            top: 90px;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+            border-radius: 20px;
+            border: 1.5px solid #e2e8f0;
+            box-shadow: 0 20px 50px rgba(124, 58, 237, 0.16), 0 6px 16px rgba(0,0,0,0.06);
             overflow: hidden;
         }
         .sidebar-thumbnail {
@@ -481,47 +542,61 @@
 
     <!-- ===== HERO SECTION ===== -->
     <section class="course-hero">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8">
-                    <!-- Badges -->
-                    <div class="mb-3">
-                        <span class="badge-bestseller">🔥 Bán chạy nhất</span>
-                        <span class="badge-tophighest">⭐ Xếp hạng cao nhất</span>
-                    </div>
+        <div class="container-fluid px-4 px-lg-5 position-relative" style="z-index:2;">
+            <!-- Top bar: Nút quay lại trang chủ + các nhãn Nổi bật nằm cùng 1 hàng gọn gàng -->
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                <a th:href="@{/}" class="btn-back-prev">
+                    <i class="bi bi-house-door-fill"></i> Quay lại trang chủ
+                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge-bestseller"><i class="bi bi-lightning-fill"></i> Bán chạy nhất</span>
+                    <span class="badge-tophighest"><i class="bi bi-star-fill"></i> Xếp hạng cao nhất</span>
+                </div>
+            </div>
 
+            <div class="row align-items-center g-4">
+                <div class="col-lg-7">
                     <!-- Tên khoá học -->
                     <h1 class="hero-title" th:text="${course.title}">Tên khoá học</h1>
 
                     <!-- Mô tả ngắn -->
                     <p class="hero-subtitle" th:text="${course.subtitle}">Subtitle khoá học</p>
 
-                    <!-- Rating -->
-                    <div class="d-flex align-items-center gap-2 mt-3">
-                        <span class="hero-rating-score"
-                              th:text="${#numbers.formatDecimal(course.averageRating, 1, 1)}">4.8</span>
-                        <span class="hero-stars">
-                            <th:block th:with="rating=${course.averageRating.intValue()}">
-                                <i th:each="i : ${#numbers.sequence(1, 5)}"
-                                   th:class="${i <= rating} ? 'bi bi-star-fill' : 'bi bi-star'"></i>
-                            </th:block>
-                        </span>
-                        <span style="color:rgba(255,255,255,0.7); font-size:0.88rem"
-                              th:text="'(' + ${#numbers.formatInteger(course.totalReviews, 1, 'COMMA')} + ' xếp hạng)'">
-                            (1,250 xếp hạng)
-                        </span>
-                        <span style="color:rgba(255,255,255,0.7); font-size:0.88rem"
-                              th:text="${#numbers.formatInteger(course.totalStudents, 1, 'COMMA')} + ' học viên'">
-                            3,400 học viên
-                        </span>
+                    <!-- Rating + Số học viên + Giảng viên (Dàn đều 1 dòng) -->
+                    <div class="d-flex align-items-center gap-3 flex-wrap hero-meta">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="hero-rating-score" th:text="${#numbers.formatDecimal(course.averageRating, 1, 1)}">4.8</span>
+                            <span class="hero-stars">
+                                <th:block th:with="rating=${course.averageRating.intValue()}">
+                                    <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                       th:class="${i <= rating} ? 'bi bi-star-fill' : 'bi bi-star'"></i>
+                                </th:block>
+                            </span>
+                            <span style="color:rgba(255,255,255,0.7); font-size:0.84rem"
+                                  th:text="'(' + ${#numbers.formatInteger(course.totalReviews, 1, 'COMMA')} + ' xếp hạng)'"></span>
+                        </div>
+                        <div style="color:rgba(255,255,255,0.4);">•</div>
+                        <div>
+                            <i class="bi bi-people-fill text-warning me-1"></i>
+                            <span th:text="${#numbers.formatInteger(course.totalStudents, 1, 'COMMA')} + ' học viên'">3,400 học viên</span>
+                        </div>
+                        <div style="color:rgba(255,255,255,0.4);">•</div>
+                        <div>
+                            Tác giả: <span th:text="${course.instructorName}" style="color:#a5b4fc; font-weight:700;">Giảng viên</span>
+                        </div>
                     </div>
 
-                    <!-- Giảng viên -->
-                    <div class="hero-meta mt-2">
-                        Được tạo bởi:
-                        <span th:text="${course.instructorName}"
-                              style="color:#a5b4fc; font-weight:600;">Giảng viên</span>
+                    <!-- Các thẻ tính năng nổi bật mini dàn đều -->
+                    <div class="d-flex flex-wrap gap-2 mt-3 pt-1">
+                        <span class="hero-mini-feature"><i class="bi bi-play-circle-fill text-warning"></i> Bài Giảng Chuẩn</span>
+                        <span class="hero-mini-feature"><i class="bi bi-shield-check-fill text-info"></i> Học Trọn Đời</span>
+                        <span class="hero-mini-feature"><i class="bi bi-patch-check-fill text-success"></i> Cấp Chứng Chỉ</span>
                     </div>
+                </div>
+
+                <!-- Cột góc phải: Logo in chìm mờ hoành tráng phóng to -->
+                <div class="col-lg-5 text-center text-lg-end">
+                    <img th:src="@{/image/logo.png}" alt="Logo" class="hero-right-logo">
                 </div>
             </div>
         </div>
@@ -529,7 +604,7 @@
 
     <!-- ===== MAIN CONTENT ===== -->
     <section class="py-5">
-        <div class="container">
+        <div class="container-fluid px-4 px-lg-5">
             <div class="row gx-5">
 
                 <!-- ===== CỘT TRÁI (70%) ===== -->
