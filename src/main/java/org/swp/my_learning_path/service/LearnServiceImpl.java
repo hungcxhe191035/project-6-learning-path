@@ -27,6 +27,7 @@ public class LearnServiceImpl implements LearnService {
     private final CourseFeedbackRepository courseFeedbackRepository;
     private final UserRepository userRepository;
     private final CertificateService certificateService;
+    private final CertificateRepository certificateRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -113,6 +114,13 @@ public class LearnServiceImpl implements LearnService {
 
         int progressPercent = totalLessons == 0 ? 0 : (int) ((completedLessons * 100.0) / totalLessons);
 
+        // Kiểm tra xem học viên đã có chứng chỉ chưa
+        Long existingCertId = null;
+        Optional<Certificate> existCert = certificateRepository.findCertificate(studentId, courseId);
+        if (existCert.isPresent()) {
+            existingCertId = existCert.get().getCertificateId();
+        }
+
         return LearnCourseDTO.builder()
                 .courseId(courseId)
                 .title(version.getTitle())
@@ -121,6 +129,7 @@ public class LearnServiceImpl implements LearnService {
                 .sections(sectionDTOs)
                 .progressPercent(progressPercent)
                 .firstUnlockedLessonId(firstUnlockedId)
+                .existingCertificateId(existingCertId)
                 .build();
     }
 

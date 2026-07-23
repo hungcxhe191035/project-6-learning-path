@@ -1,16 +1,152 @@
 <!DOCTYPE html>
-<html
-        lang="vi"
-        xmlns:th="http://www.thymeleaf.org"
->
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
-    <footer
-        th:fragment="footer"
-        class="bg-dark text-white text-center py-3 mt-4"
-    >
-        <p class="mb-0">
-            © 2026 My Learning Path. All rights reserved.
-        </p>
-    </footer>
+<footer th:fragment="footer"
+        style="background: linear-gradient(135deg, #0b092b 0%, #151147 50%, #250a4f 100%); color: #c4b5fd; font-size: 0.88rem; margin-top: auto; position: relative;">
+
+    <!-- Thanh vạch Gradient sắc màu trên cùng Footer -->
+    <div style="height: 5px; background: linear-gradient(90deg, #a78bfa 0%, #6366f1 35%, #ec4899 70%, #f59e0b 100%);"></div>
+
+    <!-- CTA Hero Mini Banner trong Footer -->
+    <div style="padding: 32px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.02);">
+        <div class="container-fluid px-4 px-lg-5">
+            <div class="row align-items-center g-3">
+                <div class="col-md-7">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #7c3aed, #4c1d95); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: white; flex-shrink: 0; box-shadow: 0 4px 15px rgba(124,58,237,0.4);">
+                            <i class="bi bi-rocket-takeoff-fill"></i>
+                        </div>
+                        <div>
+                            <h5 style="color: #ffffff; font-size: 1.15rem; font-weight: 800; margin: 0 0 3px;">Sẵn sàng bứt phá sự nghiệp của bạn?</h5>
+                            <p style="color: rgba(196, 181, 253, 0.75); margin: 0; font-size: 0.88rem;">Tham gia cùng hơn 10.000+ học viên đang phát triển kỹ năng mỗi ngày tại My Learning Path.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5 text-md-end">
+                    <a href="/courses" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; padding: 12px 26px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; text-decoration: none; box-shadow: 0 6px 20px rgba(124,58,237,0.35); transition: all 0.25s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <i class="bi bi-compass-fill"></i> Khám phá khóa học ngay
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nội dung chính Footer: 5 Cột -->
+    <div style="padding: 56px 0 48px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="container-fluid px-4 px-lg-5">
+            <div class="row g-4 g-lg-5">
+
+                <!-- Cột 1: Thương hiệu -->
+                <div class="col-lg-4 col-md-12">
+                    <div style="margin-bottom: 16px;">
+                        <img th:src="@{/image/logo.png}" alt="My Learning Path"
+                             style="height: 42px; filter: brightness(0) invert(1); display: block; margin-bottom: 16px;">
+                        <div style="color: #ffffff; font-size: 1.25rem; font-weight: 900; letter-spacing: -0.4px; margin-bottom: 10px;">My Learning Path</div>
+                        <p style="color: rgba(196, 181, 253, 0.72); line-height: 1.75; font-size: 0.88rem; margin-bottom: 22px; max-width: 320px;">
+                            Nền tảng học trực tuyến hàng đầu, xây dựng lộ trình chuẩn hóa và cung cấp khoá học chất lượng từ cơ bản đến chuyên sâu cho mọi lứa tuổi.
+                        </p>
+                    </div>
+                    <!-- Social icons -->
+                    <div style="display: flex; gap: 10px;">
+                        <a href="#" title="Facebook"
+                           style="width: 38px; height: 38px; border-radius: 10px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); color: #c4b5fd; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 1.05rem; transition: all 0.2s;"
+                           onmouseover="this.style.background='#7c3aed'; this.style.color='white'; this.style.borderColor='#7c3aed'; this.style.transform='translateY(-2px)'"
+                           onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='#c4b5fd'; this.style.borderColor='rgba(255, 255, 255, 0.12)'; this.style.transform='translateY(0)'">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="#" title="YouTube"
+                           style="width: 38px; height: 38px; border-radius: 10px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); color: #c4b5fd; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 1.05rem; transition: all 0.2s;"
+                           onmouseover="this.style.background='#7c3aed'; this.style.color='white'; this.style.borderColor='#7c3aed'; this.style.transform='translateY(-2px)'"
+                           onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='#c4b5fd'; this.style.borderColor='rgba(255, 255, 255, 0.12)'; this.style.transform='translateY(0)'">
+                            <i class="bi bi-youtube"></i>
+                        </a>
+                        <a href="#" title="LinkedIn"
+                           style="width: 38px; height: 38px; border-radius: 10px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); color: #c4b5fd; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 1.05rem; transition: all 0.2s;"
+                           onmouseover="this.style.background='#7c3aed'; this.style.color='white'; this.style.borderColor='#7c3aed'; this.style.transform='translateY(-2px)'"
+                           onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='#c4b5fd'; this.style.borderColor='rgba(255, 255, 255, 0.12)'; this.style.transform='translateY(0)'">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="#" title="TikTok"
+                           style="width: 38px; height: 38px; border-radius: 10px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); color: #c4b5fd; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 1.05rem; transition: all 0.2s;"
+                           onmouseover="this.style.background='#7c3aed'; this.style.color='white'; this.style.borderColor='#7c3aed'; this.style.transform='translateY(-2px)'"
+                           onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.color='#c4b5fd'; this.style.borderColor='rgba(255, 255, 255, 0.12)'; this.style.transform='translateY(0)'">
+                            <i class="bi bi-tiktok"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Cột 2: Khám phá -->
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div style="color: #ffffff; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">Khám phá</div>
+                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 11px;">
+                        <li><a href="/courses" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Tất cả khoá học</a></li>
+                        <li><a href="#" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Lập trình Web</a></li>
+                        <li><a href="#" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Lập trình Mobile</a></li>
+                        <li><a href="#" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Khoa học Dữ liệu</a></li>
+                        <li><a href="#" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Trí tuệ Nhân tạo</a></li>
+                        <li><a href="#" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">DevOps &amp; Cloud</a></li>
+                    </ul>
+                </div>
+
+                <!-- Cột 3: Hỗ trợ -->
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div style="color: #ffffff; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">Hỗ trợ</div>
+                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 11px;">
+                        <li><a href="#" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Trung tâm trợ giúp</a></li>
+                        <li><a href="#" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Chính sách bảo mật</a></li>
+                        <li><a href="#" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Điều khoản dịch vụ</a></li>
+                        <li><a href="#" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Hướng dẫn thanh toán</a></li>
+                        <li><a href="#" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Báo cáo sự cố</a></li>
+                    </ul>
+                </div>
+
+                <!-- Cột 4: Giảng viên -->
+                <div class="col-lg-2 col-md-4 col-6">
+                    <div style="color: #ffffff; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">Giảng viên</div>
+                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 11px;">
+                        <li><a href="/instructor" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Đăng ký dạy học</a></li>
+                        <li><a href="/instructor/courses" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Quản lý khoá học</a></li>
+                        <li><a href="#" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Tài liệu hướng dẫn</a></li>
+                        <li><a href="#" style="color: rgba(196, 181, 253, 0.8); text-decoration: none; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.paddingLeft='4px'" onmouseout="this.style.color='rgba(196, 181, 253, 0.8)'; this.style.paddingLeft='0'">Cộng đồng giảng viên</a></li>
+                    </ul>
+                </div>
+
+                <!-- Cột 5: Liên hệ -->
+                <div class="col-lg-2 col-md-6 col-6">
+                    <div style="color: #ffffff; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;">Liên hệ</div>
+                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 13px;">
+                        <li style="display: flex; align-items: flex-start; gap: 10px; color: rgba(196, 181, 253, 0.8); font-size: 0.88rem;">
+                            <i class="bi bi-geo-alt-fill" style="color: #a78bfa; margin-top: 2px; flex-shrink: 0; font-size: 1rem;"></i>
+                            <span>123 Đường Học Tập, TP.HCM</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 10px; color: rgba(196, 181, 253, 0.8); font-size: 0.88rem;">
+                            <i class="bi bi-envelope-fill" style="color: #a78bfa; flex-shrink: 0; font-size: 1rem;"></i>
+                            <span>hotro@mylearningpath.vn</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 10px; color: rgba(196, 181, 253, 0.8); font-size: 0.88rem;">
+                            <i class="bi bi-telephone-fill" style="color: #a78bfa; flex-shrink: 0; font-size: 1rem;"></i>
+                            <span>+84 123 456 789</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 10px; color: rgba(196, 181, 253, 0.8); font-size: 0.88rem;">
+                            <i class="bi bi-clock-fill" style="color: #a78bfa; flex-shrink: 0; font-size: 1rem;"></i>
+                            <span>T2–T6: 8:00 – 18:00</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div style="background: rgba(0, 0, 0, 0.3); padding: 18px 0;">
+        <div class="container-fluid px-4 px-lg-5">
+            <p style="margin: 0; color: rgba(196, 181, 253, 0.65); font-size: 0.85rem; text-align: center; font-weight: 500;">
+                © 2026 My Learning Path. All rights reserved. Designed for excellence.
+            </p>
+        </div>
+    </div>
+
+</footer>
 </body>
 </html>

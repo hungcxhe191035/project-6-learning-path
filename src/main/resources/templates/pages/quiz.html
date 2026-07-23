@@ -183,7 +183,7 @@
 
   <div class="quiz-wrapper">
 
-    <!-- Back -->
+    <!-- Back - Luôn cho phép quay lại, không chặn người dùng -->
     <a th:href="@{/learn/{id}(id=${courseId})}" class="btn-back">
       <i class="bi bi-arrow-left"></i> Quay lại khoá học
     </a>
@@ -389,12 +389,7 @@
         <div class="detail-title">Chi tiết từng câu:</div>
         ${detailHtml}`;
 
-      // Nếu có certificate thì tự redirect sau 3 giây
-      if (certIssued) {
-        setTimeout(function() {
-          window.location.href = '/certificates/' + certId;
-        }, 3000);
-      }
+      // Không tự redirect → để người dùng tự quyết định có muốn xem chứng chỉ hay không
     }
   </script>
 </div>
