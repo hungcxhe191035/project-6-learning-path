@@ -16,6 +16,7 @@ public class LearnCourseDTO {
     String thumbnailUrl;
     String instructorName;
     List<SectionLearnDTO> sections;
-    int progressPercent;     // % hoàn thành toàn bộ khoá học
+    int progressPercent;        // % hoàn thành toàn bộ khoá học
     Long firstUnlockedLessonId; // bài học đầu tiên chưa hoàn thành
+    Long existingCertificateId; // ID chứng chỉ nếu đã hoàn thành khoá học
 }

@@ -268,6 +268,19 @@
                 <div class="progress-bar-wrap">
                     <div class="progress-bar-fill" th:style="'width:' + ${course.progressPercent} + '%'"></div>
                 </div>
+
+                <!-- Banner chứng chỉ: chỉ hiện khi đã hoàn thành, không redirect tự động -->
+                <div th:if="${course.existingCertificateId != null}"
+                     style="margin-top: 16px; background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 1px solid #6ee7b7; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-award-fill" style="font-size: 1.6rem; color: #059669;"></i>
+                    <div>
+                        <div style="font-weight: 800; font-size: 0.9rem; color: #065f46;">Bạn đã hoàn thành khoá học! 🎉</div>
+                        <a th:href="@{/certificates/{id}(id=${course.existingCertificateId})}"
+                           style="font-size: 0.8rem; color: #047857; font-weight: 700; text-decoration: none;">
+                            Xem chứng chỉ →
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <!-- Danh sách Chương & Bài học -->
@@ -407,6 +420,7 @@
                             '</div>';
 
                         var video = document.getElementById('mainVideo');
+                        // Khi video kết thúc: chỉ đánh dấu hoàn thành, KHÔNG tự nhảy sang bài tiếp
                         video.addEventListener('ended', function() { markComplete(lessonId); });
 
                         shownTimestamps = new Set();
@@ -585,11 +599,13 @@
                         var check = el.querySelector('.lesson-check');
                         if (check) check.innerHTML = '<i class="bi bi-check-circle-fill text-success" style="font-size: 1.4rem;"></i>';
                     }
-                    // Nếu vừa được cấp chứng chỉ → chuyển thẳng sang trang certificate
+                    // Khi hoàn thành: reload để mở khoá bài tiếp (sinh viên tự chọn sang bài tiếp)
+                    // Nếu được cấp chứng chỉ → hiển thị thông báo, KHÔNG tự điếu hướng
                     if (data.certificateIssued && data.certificateId) {
                         setTimeout(function() {
-                            window.location.href = '/certificates/' + data.certificateId;
-                        }, 800);
+                            // Reload trang để cập nhật trạng thái, sau đó hiển thị toast
+                            location.reload();
+                        }, 500);
                     } else {
                         setTimeout(function() { location.reload(); }, 800);
                     }
